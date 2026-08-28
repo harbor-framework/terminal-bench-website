@@ -120,6 +120,12 @@ p.page-subtitle {
   letter-spacing: -0.05em;
 }
 
+/* Compact variant for card contexts (e.g. blog post cards). */
+p.page-subtitle.page-subtitle-sm {
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+}
+
 /* GFM footnotes */
 .content-page [data-footnote-ref] {
   font-size: 0.75em;

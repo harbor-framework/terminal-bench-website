@@ -26,7 +26,7 @@ export function NewsCard({
         {formatNewsDate(date)}
       </time>
       {description && (
-        <p className="page-subtitle col-span-2 min-w-0 max-w-3xl break-words text-muted-foreground sm:col-span-1">
+        <p className="page-subtitle page-subtitle-sm col-span-2 min-w-0 max-w-3xl break-words text-muted-foreground sm:col-span-1">
           {description}
         </p>
       )}
