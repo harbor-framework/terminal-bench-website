@@ -2,7 +2,7 @@
 
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { parseAsStringLiteral, useQueryState } from 'nuqs';
-import { useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { chartRowLabel } from '@/components/charts/chart-labels';
 import { HomeViewToggle } from '@/components/home-view-toggle';
@@ -355,6 +355,7 @@ function WaffleSvg({
   matrix,
   mode,
   group,
+  containerWidth,
   tooltip,
   onTrialMove,
   onTrialLeave,
@@ -362,6 +363,8 @@ function WaffleSvg({
   matrix: Matrix;
   mode: RowMode;
   group: GroupMode;
+  /** Scroll container width, to size the centering pad without overflow. */
+  containerWidth: number;
   tooltip: TooltipState | null;
   onTrialMove: (
     event: React.MouseEvent<SVGElement>,
@@ -383,12 +386,19 @@ function WaffleSvg({
   const stepM = blockW + MG;
   const GUT = 210;
   // Mirror the label gutter on the right so mx-auto centers the columns
-  // themselves, not the gutter-plus-columns block.
-  const RPAD = GUT;
+  // themselves, not the gutter-plus-columns block — but never wider than the
+  // container allows, or a scrollbar appears over pure whitespace.
+  const RPAD_FALLBACK = GUT;
   // Same header height in both groupings so toggling model/outcome causes
   // no vertical layout shift; outcome mode just leaves the space empty.
   const HEAD = 48;
   const plotW = Math.max(1, matrix.columns.length) * stepM - MG;
+  // px-4 on the scroll container.
+  const available = containerWidth > 0 ? containerWidth - 32 : 0;
+  const RPAD =
+    available > 0
+      ? Math.max(16, Math.min(RPAD_FALLBACK, available - GUT - plotW))
+      : RPAD_FALLBACK;
   const width = GUT + plotW + RPAD;
   const RH = 20;
   const pitchY = SH + VGAP;
@@ -677,6 +687,19 @@ export function TaskWaffleView() {
   );
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const scrollObserverRef = useRef<ResizeObserver | null>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const setScrollRef = useCallback((el: HTMLDivElement | null) => {
+    scrollRef.current = el;
+    scrollObserverRef.current?.disconnect();
+    scrollObserverRef.current = null;
+    if (!el) return;
+    const update = () => setContainerWidth(el.clientWidth);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    scrollObserverRef.current = observer;
+  }, []);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const [tipOpen, setTipOpen] = useState(false);
 
@@ -816,13 +839,14 @@ export function TaskWaffleView() {
         {(snapshot?.data ?? data).doms.length > 0 ? (
           <>
             <div
-              ref={scrollRef}
+              ref={setScrollRef}
               className="relative overflow-x-auto px-4 py-3"
             >
               <WaffleSvg
                 matrix={matrix}
                 mode={mode}
                 group={group}
+                containerWidth={containerWidth}
                 tooltip={tipOpen ? tooltip : null}
                 onTrialMove={showTooltip}
                 onTrialLeave={() => setTipOpen(false)}
