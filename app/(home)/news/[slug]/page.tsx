@@ -57,15 +57,15 @@ export default async function BlogPostPage({ params }: PageProps) {
         {page.data.description}
       </DocsDescription>
       {isTerminalBenchScienceAnnouncement ? (
-        <p className="mt-3 text-sm italic text-muted-foreground">
+        <p className="page-subtitle page-subtitle-sm -mt-6 mb-8 text-muted-foreground">
           Crossposted from{' '}
           <a
             href="https://www.terminal-bench-science.ai/"
             target="_blank"
             rel="noreferrer"
-            className="underline-offset-4 hover:underline"
+            className="underline-offset-4 hover:text-foreground hover:underline"
           >
-            https://www.terminal-bench-science.ai/
+            terminal-bench-science.ai ↗
           </a>
         </p>
       ) : null}

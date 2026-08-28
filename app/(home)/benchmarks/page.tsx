@@ -124,6 +124,11 @@ const BENCHMARKS: Benchmark[] = [
         external: true,
       },
       {
+        label: 'Harbor Hub',
+        href: 'https://hub.harborframework.com/datasets/terminal-bench-science/terminal-bench-science/latest',
+        external: true,
+      },
+      {
         label: 'Website',
         href: 'https://www.terminal-bench-science.ai/',
         external: true,
