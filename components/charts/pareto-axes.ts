@@ -122,7 +122,7 @@ export const PARETO_AXES: Record<ParetoAxisId, ParetoAxisDef> = {
   },
   release_date: {
     id: 'release_date',
-    label: 'Release Date',
+    label: 'Release',
     prefer: 'min',
     format: formatReleaseDate,
     read: (row) =>
