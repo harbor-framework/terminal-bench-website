@@ -109,6 +109,17 @@
   font-family: var(--font-google-sans-code), ui-monospace, monospace;
 }
 
+/* Page subtitles match the landing hero subtitle (mono, text-lg,
+   tracking-tighter). Declared after the .content-page paragraph rule so it
+   wins the font-family tie there. */
+p.page-subtitle {
+  font-family: var(--font-google-sans-code), ui-monospace, monospace;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: 400;
+  letter-spacing: -0.05em;
+}
+
 /* GFM footnotes */
 .content-page [data-footnote-ref] {
   font-size: 0.75em;

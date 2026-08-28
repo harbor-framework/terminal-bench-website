@@ -27,7 +27,9 @@ export default async function Page(props: PageProps<'/[slug]'>) {
     >
       <DocsTitle>{page.data.title}</DocsTitle>
       {page.data.description ? (
-        <DocsDescription>{page.data.description}</DocsDescription>
+        <DocsDescription className="page-subtitle mt-2">
+          {page.data.description}
+        </DocsDescription>
       ) : null}
       <DocsBody>
         <MDX components={getMDXComponents()} />

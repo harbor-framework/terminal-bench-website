@@ -35,7 +35,9 @@ export default async function BlogPostPage({ params }: PageProps) {
         )}
       >
         <DocsTitle>{page.data.title}</DocsTitle>
-        <DocsDescription>{page.data.description}</DocsDescription>
+        <DocsDescription className="page-subtitle mt-2">
+        {page.data.description}
+      </DocsDescription>
         <DocsBody>
           <Mdx components={getMDXComponents()} />
         </DocsBody>
@@ -51,7 +53,9 @@ export default async function BlogPostPage({ params }: PageProps) {
       )}
     >
       <DocsTitle>{page.data.title}</DocsTitle>
-      <DocsDescription>{page.data.description}</DocsDescription>
+      <DocsDescription className="page-subtitle mt-2">
+        {page.data.description}
+      </DocsDescription>
       {isTerminalBenchScienceAnnouncement ? (
         <p className="mt-3 text-sm italic text-muted-foreground">
           Crossposted from{' '}

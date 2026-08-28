@@ -14,7 +14,7 @@ export default async function BlogPage() {
       )}
     >
       <h1>Blog</h1>
-      <p className="mb-10 text-muted-foreground">
+      <p className="page-subtitle mb-10 mt-2 text-muted-foreground">
         Updates and announcements from the Terminal-Bench team.
       </p>
 

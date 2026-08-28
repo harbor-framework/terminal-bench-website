@@ -57,7 +57,7 @@ export default async function ContributorsByReleasePage({ params }: PageProps) {
       )}
     >
       <h1>Contributors</h1>
-      <p className="mb-10 text-muted-foreground">{CONTRIBUTORS_DESCRIPTION}</p>
+      <p className="page-subtitle mb-10 mt-2 text-muted-foreground">{CONTRIBUTORS_DESCRIPTION}</p>
       <ContributorReleaseNav
         currentHref={`/contributors/${slug}` as (typeof CONTRIBUTOR_RELEASES)[number]['href']}
       />
