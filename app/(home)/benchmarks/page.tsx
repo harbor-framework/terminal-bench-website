@@ -119,8 +119,18 @@ const BENCHMARKS: Benchmark[] = [
     links: [
       { label: 'Blog', href: '/news/tb-science-announcement' },
       {
+        label: 'Leaderboard',
+        href: 'https://hub.harborframework.com/datasets/terminal-bench-science/terminal-bench-science/10?tab=leaderboard&leaderboard=v0-1-eval',
+        external: true,
+      },
+      {
         label: 'Website',
         href: 'https://www.terminal-bench-science.ai/',
+        external: true,
+      },
+      {
+        label: 'GitHub',
+        href: 'https://github.com/harbor-framework/terminal-bench-science',
         external: true,
       },
     ],
