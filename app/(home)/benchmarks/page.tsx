@@ -103,6 +103,7 @@ const BENCHMARKS: Benchmark[] = [
     description:
       'The current release. A benchmark to measure and evolve with the frontier of agent work.',
     links: [
+      { label: 'Blog', href: '/news/terminal-bench-4-0' },
       { label: 'Leaderboard', href: '/' },
       {
         label: 'Harbor Hub',
@@ -125,7 +126,7 @@ const BENCHMARKS: Benchmark[] = [
       },
       {
         label: 'Harbor Hub',
-        href: 'https://hub.harborframework.com/datasets/terminal-bench-science/terminal-bench-science/latest',
+        href: 'https://hub.harborframework.com/datasets/terminal-bench-science/terminal-bench-science/10',
         external: true,
       },
       {
