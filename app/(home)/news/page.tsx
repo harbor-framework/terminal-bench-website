@@ -15,7 +15,7 @@ export default async function BlogPage() {
     >
       <h1>Blog</h1>
       <p className="page-subtitle mb-10 mt-2 text-muted-foreground">
-        Updates and announcements from the Terminal-Bench team.
+        Updates and announcements from the Terminal-Bench team
       </p>
 
       <div className="-mx-4 mb-6 grid gap-px overflow-hidden border bg-border sm:mx-0">

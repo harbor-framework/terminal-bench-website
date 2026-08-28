@@ -10,7 +10,7 @@ import { notFound } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
 const CONTRIBUTORS_DESCRIPTION =
-  'The people and organizations behind Terminal-Bench.';
+  'The people and organizations behind Terminal-Bench';
 
 const RELEASES = {
   'terminal-bench-1': {},

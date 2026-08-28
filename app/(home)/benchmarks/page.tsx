@@ -197,7 +197,7 @@ export default function BenchmarksPage() {
     >
       <h1>Benchmarks</h1>
       <p className="page-subtitle mb-10 mt-2 text-muted-foreground">
-        The Terminal-Bench family of benchmarks.
+        The Terminal-Bench family of benchmarks
       </p>
 
       <div className="-mx-4 mb-6 grid gap-px overflow-hidden border bg-border sm:mx-0">
@@ -215,5 +215,5 @@ export default function BenchmarksPage() {
 
 export const metadata: Metadata = {
   title: 'Benchmarks',
-  description: 'The Terminal-Bench family of benchmarks.',
+  description: 'The Terminal-Bench family of benchmarks',
 };
