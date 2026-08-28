@@ -602,7 +602,7 @@ function Legend() {
           {OUTCOME_WORD[outcome]}
         </span>
       ))}
-      <span>each square is one trial - click to open it on Harbor Hub</span>
+      <span>each square is one trial - click to view</span>
     </div>
   );
 }
