@@ -56,7 +56,8 @@ const config = {
       },
       {
         source: '/leaderboard/terminal-bench-science/:path*',
-        destination: '/?benchmark=science',
+        destination:
+          'https://hub.harborframework.com/datasets/terminal-bench-science/terminal-bench-science/10?tab=leaderboard&leaderboard=v0-1-eval',
         permanent: true,
       },
       {

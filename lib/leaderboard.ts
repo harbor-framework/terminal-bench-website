@@ -91,12 +91,6 @@ export const HOME_BENCHMARKS: HomeBenchmark[] = [
     package: 'terminal-bench/terminal-bench-2',
     leaderboard: '2-0',
   },
-  {
-    id: 'science',
-    label: 'Terminal-Bench-Science 0.1',
-    package: 'terminal-bench-science/terminal-bench-science',
-    leaderboard: 'v0-1-eval',
-  },
 ];
 
 export const DEFAULT_HOME_BENCHMARK_ID = '4.0';

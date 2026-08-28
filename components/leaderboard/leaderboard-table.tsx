@@ -631,7 +631,6 @@ export function LeaderboardTable() {
                 }}
               >
                 <SelectTrigger
-                  size="sm"
                   className="bg-background uppercase dark:bg-card"
                   aria-label="Benchmark"
                 >
