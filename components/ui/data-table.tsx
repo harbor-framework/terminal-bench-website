@@ -41,6 +41,7 @@ type DataTableProps<TData, TValue> = {
   emptyMessage?: string;
   footer?: ReactNode;
   toolbar?: ReactNode;
+  tableContainerId?: string;
   getRowId?: (originalRow: TData, index: number) => string;
   enableRowSelection?: boolean;
   getRowHref?: (row: TData) => string | undefined;
@@ -113,6 +114,7 @@ export function DataTable<TData, TValue>({
   emptyMessage = 'No results.',
   footer,
   toolbar,
+  tableContainerId,
   getRowId,
   enableRowSelection = false,
   getRowHref,
@@ -317,7 +319,10 @@ export function DataTable<TData, TValue>({
           {toolbar}
         </div>
       ) : null}
-      <div className="-mx-4 min-w-0 overflow-hidden rounded-none border border-x-0 bg-card md:mx-0 md:rounded-xl md:border-x">
+      <div
+        id={tableContainerId}
+        className="-mx-4 min-w-0 overflow-hidden rounded-none border border-x-0 bg-card md:mx-0 md:rounded-xl md:border-x"
+      >
       <ScrollArea className="w-full">
         <Table className="min-w-max w-full">
           <TableHeader>

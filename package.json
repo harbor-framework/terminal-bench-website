@@ -31,6 +31,7 @@
     "fumadocs-mdx": "15.2.0",
     "fumadocs-ui": "npm:@fumadocs/base-ui@16.12.0",
     "geist": "^1.7.2",
+    "html-to-image": "^1.11.13",
     "lucide-react": "^0.503.0",
     "motion": "^12.42.2",
     "next": "16.2.11",

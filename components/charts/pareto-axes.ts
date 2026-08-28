@@ -4,6 +4,7 @@ export const PARETO_AXIS_IDS = [
   'accuracy',
   'cost',
   'tokens',
+  'time',
   'release_date',
 ] as const;
 
@@ -32,6 +33,17 @@ function formatTokens(value: number): string {
 
 function formatAccuracy(value: number): string {
   return `${value.toFixed(0)}%`;
+}
+
+function formatDuration(value: number): string {
+  if (value >= 36000) return `${Math.round(value / 3600)}h`;
+  if (value >= 3600) {
+    const hours = Math.floor(value / 3600);
+    const minutes = Math.round((value % 3600) / 60);
+    return `${hours}h ${minutes}m`;
+  }
+  if (value >= 60) return `${Math.round(value / 60)}m`;
+  return `${Math.round(value)}s`;
 }
 
 const SHORT_MONTHS = [
@@ -71,7 +83,7 @@ function readDateMs(row: LeaderboardRow, accessor: string): number | null {
 export const PARETO_AXES: Record<ParetoAxisId, ParetoAxisDef> = {
   accuracy: {
     id: 'accuracy',
-    label: 'Accuracy',
+    label: 'Resolution Rate',
     prefer: 'max',
     format: formatAccuracy,
     read: (row) => readNumber(row, 'metrics.accuracy'),
@@ -96,6 +108,18 @@ export const PARETO_AXES: Record<ParetoAxisId, ParetoAxisDef> = {
       return value != null && value > 0 ? value : null;
     },
   },
+  time: {
+    id: 'time',
+    label: 'Time',
+    prefer: 'min',
+    format: formatDuration,
+    read: (row) => {
+      const average = readNumber(row, 'metrics.avg_trial_duration_sec');
+      const trials = readNumber(row, 'metrics.n_trials');
+      if (average == null || average <= 0) return null;
+      return trials != null && trials > 0 ? average * trials : average;
+    },
+  },
   release_date: {
     id: 'release_date',
     label: 'Release Date',
@@ -107,8 +131,8 @@ export const PARETO_AXES: Record<ParetoAxisId, ParetoAxisDef> = {
   },
 };
 
-/** X is the selectable tradeoff axis; Y is always accuracy. */
-export const PARETO_X_AXIS_IDS = ['cost', 'tokens', 'release_date'] as const;
+/** X is the selectable tradeoff axis; Y is always resolution rate. */
+export const PARETO_X_AXIS_IDS = ['cost', 'tokens', 'time', 'release_date'] as const;
 
 export type ParetoXAxisId = (typeof PARETO_X_AXIS_IDS)[number];
 export type ParetoYAxisId = 'accuracy';

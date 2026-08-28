@@ -23,6 +23,8 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   const Mdx = page.data.body;
   const isTerminalBenchAnnouncement = page.slugs[0] === 'terminal-bench-3-0';
+  const isTerminalBenchScienceAnnouncement =
+    page.slugs[0] === 'tb-science-announcement';
 
   if (isTerminalBenchAnnouncement) {
     return (
@@ -50,6 +52,19 @@ export default async function BlogPostPage({ params }: PageProps) {
     >
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
+      {isTerminalBenchScienceAnnouncement ? (
+        <p className="mt-3 text-sm italic text-muted-foreground">
+          Crossposted from{' '}
+          <a
+            href="https://www.terminal-bench-science.ai/"
+            target="_blank"
+            rel="noreferrer"
+            className="underline-offset-4 hover:underline"
+          >
+            https://www.terminal-bench-science.ai/
+          </a>
+        </p>
+      ) : null}
       <DocsBody>
         <Mdx components={getMDXComponents()} />
       </DocsBody>

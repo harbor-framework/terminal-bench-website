@@ -4,6 +4,7 @@ import { useQueryState } from 'nuqs';
 import type { ReactNode } from 'react';
 
 import { ParetoView } from '@/components/charts/pareto-view';
+import { TaskWaffleView } from '@/components/charts/task-waffle-view';
 import {
   parseHomeView,
   type HomeViewId,
@@ -26,6 +27,8 @@ function ViewContent({
       return leaderboard;
     case 'pareto':
       return <ParetoView />;
+    case 'waffle':
+      return <TaskWaffleView />;
     default: {
       const _exhaustive: never = view;
       return _exhaustive;

@@ -569,6 +569,7 @@ export function LeaderboardToolbar({
             </DrawerContent>
           </Drawer>
 
+          {columnOptions.length > 0 ? (
           <Drawer showSwipeHandle>
             <DrawerTrigger
               render={
@@ -626,6 +627,7 @@ export function LeaderboardToolbar({
               </div>
             </DrawerContent>
           </Drawer>
+          ) : null}
         </div>
 
         {/* Desktop: dropdowns from sm up */}
@@ -809,6 +811,7 @@ export function LeaderboardToolbar({
             </DropdownMenuContent>
           </DropdownMenu>
 
+          {columnOptions.length > 0 ? (
           <Popover>
             <PopoverTrigger
               render={
@@ -860,6 +863,7 @@ export function LeaderboardToolbar({
               </Command>
             </PopoverContent>
           </Popover>
+          ) : null}
         </div>
 
         <HomeViewToggle />

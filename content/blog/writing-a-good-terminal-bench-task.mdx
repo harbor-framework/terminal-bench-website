@@ -1,0 +1,51 @@
+---
+title: "What Makes a Good Terminal Bench Task"
+description: "Building adversarial, difficult, and legible benchmark tasks."
+authors:
+  [
+    {
+      name: "Ivan Bercovich",
+      url: "https://ivanbercovich.com/",
+    },
+  ]
+date: 2026-03-20
+category: "Essay"
+hideToc: true
+---
+
+Originally published by [Ivan Bercovich](https://ivanbercovich.com/2026/writing-a-good-terminal-bench-task).
+
+Most people write benchmark tasks the way they write prompts. They should not.
+A prompt is designed to help the agent succeed. A benchmark is designed to find
+out whether it can.
+
+The strongest Terminal-Bench tasks are adversarial, difficult, and legible. They
+state an unambiguous objective, give the agent enough information to understand
+the desired end state, and avoid turning the task into a guided tutorial. The
+instructions should read like something you would give to a strong engineer:
+clear, direct, and sufficient, with the tests responsible for checking the
+outcome.
+
+Difficulty should come from the problem itself. Tasks become less useful when
+they are hard because the required output format is fussy, the environment is
+needlessly awkward, or the instructions hide assumptions that only the task
+author knows. Good tasks force the agent to reason, investigate, debug, and
+recover when its first approach does not work.
+
+The same principle applies to verification. Tests should validate outcomes
+rather than implementation details. They should allow alternate correct
+solutions, avoid brittle source-code checks, and protect against reward hacking
+or accidental leakage of the reference answer. When a task fails against a
+capable model, the failure should teach us something about the model, not reveal
+that the task was underspecified or unfair.
+
+Building benchmark tasks well is empirical work. Run the task yourself, inspect
+the container, execute the oracle, and watch real agent trajectories. Failed
+runs are especially useful: they show whether the task is genuinely difficult or
+whether the instructions, tests, or environment need to be tightened.
+
+Terminal-Bench tasks are strongest when they come from real engineering work:
+problems an experienced developer would recognize, described in natural
+language, and verified by robust tests. Benchmarks are where frontier systems
+have to earn their scores, so the tasks need to be both challenging and
+credible.

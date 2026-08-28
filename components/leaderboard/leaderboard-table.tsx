@@ -24,6 +24,7 @@ import {
   type LeaderboardFilters,
 } from '@/components/leaderboard/leaderboard-toolbar';
 import { DataTable } from '@/components/ui/data-table';
+import { ViewExportActions } from '@/components/view-export-actions';
 import {
   TERMINAL_BENCH_DATASET_VERSION,
   TERMINAL_BENCH_LEADERBOARD,
@@ -38,6 +39,7 @@ import {
   type LeaderboardColumnType,
   type LeaderboardRow,
 } from '@/lib/leaderboard';
+import { harborJobUrl, useRowJobIds } from '@/lib/row-jobs';
 import {
   fromUrlFilters,
   hiddenColumnsParser,
@@ -210,6 +212,8 @@ function SortableHeader({
 }
 
 const HIDDEN_TABLE_COLUMN_IDS = new Set(['reasoning_effort']);
+const EXPORT_FILE_BASENAME = 'terminal-bench-4-leaderboard';
+const LEADERBOARD_EXPORT_TARGET_ID = 'terminal-bench-leaderboard-export';
 
 function displayColumnHeader(column: LeaderboardColumn): string {
   const label = column.id === 'accuracy' ? 'Resolution Rate' : column.header;
@@ -243,6 +247,115 @@ function orderLeaderboardColumns(
     ordered.push(column);
   }
   return ordered;
+}
+
+type ExportColumn = {
+  id: string;
+  header: string;
+  align: 'left' | 'right' | 'center';
+  value: (row: LeaderboardRow) => string;
+};
+
+function escapeMarkdownCell(value: string): string {
+  return value
+    .replaceAll('\\', '\\\\')
+    .replaceAll('|', '\\|')
+    .replace(/[\r\n]+/g, ' ')
+    .trim();
+}
+
+function normalizeExportValue(value: string): string {
+  return value.replace(/\*\*([^*]+)\*\*/g, '$1').replace(/[\r\n]+/g, ' ');
+}
+
+function formatExportCell(
+  row: LeaderboardRow,
+  column: LeaderboardColumn,
+): string {
+  if (column.id === 'accuracy') {
+    const display = getAccessorValue(row, 'metrics.display_accuracy');
+    return normalizeExportValue(
+      formatLeaderboardCell(
+        display ?? getAccessorValue(row, column.accessor),
+        'markdown',
+      ),
+    );
+  }
+
+  const value = column.display_accessor
+    ? getAccessorValue(row, column.display_accessor)
+    : getAccessorValue(row, column.accessor);
+  const formatted = formatLeaderboardCell(
+    value,
+    column.display_type ?? column.type,
+  );
+
+  if (column.id === 'model_display') {
+    const effort = getAccessorValue(row, 'metadata.reasoning_effort');
+    const effortLabel =
+      typeof effort === 'string' && effort.trim() ? effort.trim() : null;
+    return effortLabel ? `${formatted} (${effortLabel})` : formatted;
+  }
+
+  return normalizeExportValue(formatted);
+}
+
+function buildExportColumns(
+  columns: LeaderboardColumn[],
+  columnVisibility: VisibilityState,
+): ExportColumn[] {
+  const result: ExportColumn[] = [];
+
+  if (columnVisibility.rank !== false) {
+    result.push({
+      id: 'rank',
+      header: 'Rank',
+      align: 'right',
+      value: (row) => String(row.rank ?? '-'),
+    });
+  }
+
+  for (const column of orderLeaderboardColumns(columns)) {
+    if (
+      HIDDEN_TABLE_COLUMN_IDS.has(column.id) ||
+      columnVisibility[column.id] === false
+    ) {
+      continue;
+    }
+
+    const align = column.id === 'accuracy' ? 'left' : (column.align ?? 'left');
+    result.push({
+      id: column.id,
+      header: displayColumnHeader(column),
+      align,
+      value: (row) => formatExportCell(row, column),
+    });
+  }
+
+  return result;
+}
+
+function buildMarkdownTable(
+  rows: LeaderboardRow[],
+  columns: LeaderboardColumn[],
+  columnVisibility: VisibilityState,
+): string {
+  const exportColumns = buildExportColumns(columns, columnVisibility);
+  const header = exportColumns.map((column) => escapeMarkdownCell(column.header));
+  const divider = exportColumns.map((column) =>
+    column.align === 'right'
+      ? '---:'
+      : column.align === 'center'
+        ? ':---:'
+        : '---',
+  );
+  const body = rows.map((row) =>
+    exportColumns.map((column) => escapeMarkdownCell(column.value(row))),
+  );
+
+  return [header, divider, ...body]
+    .map((line) => `| ${line.join(' | ')} |`)
+    .join('\n');
 }
 
 function buildColumns(
@@ -401,6 +514,12 @@ export function LeaderboardTable() {
     );
   }, [data, facets.numberBounds, filters]);
 
+  const rowIds = useMemo(
+    () => (data ? data.rows.map((row) => row.id) : []),
+    [data],
+  );
+  const jobIdByRow = useRowJobIds(rowIds);
+
   const tableColumns = useMemo(
     () => (data ? buildColumns(data.leaderboard.columns) : []),
     [data],
@@ -447,28 +566,46 @@ export function LeaderboardTable() {
         data={filteredRows}
         emptyMessage="No leaderboard rows match the current filters."
         getRowId={(row) => row.id}
-        getRowHref={(row) =>
-          harborLeaderboardRowUrl(
-            TERMINAL_BENCH_PACKAGE,
-            TERMINAL_BENCH_LEADERBOARD,
-            row.id,
-            TERMINAL_BENCH_DATASET_VERSION,
-          )
-        }
+        getRowHref={(row) => {
+          // Rows are 1-1 with Hub jobs; link straight to the job when resolved.
+          const jobId = jobIdByRow[row.id];
+          return jobId
+            ? harborJobUrl(jobId)
+            : harborLeaderboardRowUrl(
+                TERMINAL_BENCH_PACKAGE,
+                TERMINAL_BENCH_LEADERBOARD,
+                row.id,
+                TERMINAL_BENCH_DATASET_VERSION,
+              );
+        }}
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnVisibilityChange}
+        tableContainerId={LEADERBOARD_EXPORT_TARGET_ID}
         toolbar={
-          <LeaderboardToolbar
-            columns={toolbarColumns}
-            columnOptions={columnOptions}
-            filters={filters}
-            onFiltersChange={handleFiltersChange}
-            numberBounds={facets.numberBounds}
-            dateBounds={facets.dateBounds}
-            setOptions={facets.setOptions}
-            columnVisibility={columnVisibility}
-            onColumnVisibilityChange={handleColumnVisibilityChange}
-          />
+          <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-1.5">
+            <ViewExportActions
+              targetId={LEADERBOARD_EXPORT_TARGET_ID}
+              fileBaseName={EXPORT_FILE_BASENAME}
+              getMarkdown={() =>
+                buildMarkdownTable(
+                  filteredRows,
+                  data.leaderboard.columns,
+                  columnVisibility,
+                )
+              }
+            />
+            <LeaderboardToolbar
+              columns={toolbarColumns}
+              columnOptions={columnOptions}
+              filters={filters}
+              onFiltersChange={handleFiltersChange}
+              numberBounds={facets.numberBounds}
+              dateBounds={facets.dateBounds}
+              setOptions={facets.setOptions}
+              columnVisibility={columnVisibility}
+              onColumnVisibilityChange={handleColumnVisibilityChange}
+            />
+          </div>
         }
         footer={
           <footer className="flex h-12 items-center justify-center border-t px-6 text-center text-sm text-muted-foreground">

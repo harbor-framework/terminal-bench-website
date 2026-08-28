@@ -13,13 +13,23 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import type { LeaderboardRow } from '@/lib/leaderboard';
+import {
+  TERMINAL_BENCH_DATASET_VERSION,
+  TERMINAL_BENCH_LEADERBOARD,
+  TERMINAL_BENCH_PACKAGE,
+  getAccessorValue,
+  harborLeaderboardRowUrl,
+  type LeaderboardRow,
+} from '@/lib/leaderboard';
+import { harborJobUrl } from '@/lib/row-jobs';
 
 export type ParetoDatum = {
   id: string;
   label: ChartRowLabel;
   x: number;
   y: number;
+  /** 95% CI half-width on the y value, when the leaderboard provides one. */
+  yCi: number | null;
   onFrontier: boolean;
 };
 
@@ -68,6 +78,18 @@ function axisTicks(
   if (axisId === 'release_date') {
     const day = 24 * 60 * 60 * 1000;
     return dateTicks(minV - day * 2, maxV + day * 2, 5);
+  }
+
+  if (axisId === 'time') {
+    // Clean gridlines at multiples of 100 hours (values are seconds).
+    const hour = 3600;
+    const step =
+      [100, 200, 500, 1000].find((s) => (maxV * 1.05) / (s * hour) <= 6) ??
+      1000;
+    const hi = Math.ceil((maxV * 1.05) / (step * hour)) * step * hour;
+    const ticks: number[] = [];
+    for (let v = 0; v <= hi; v += step * hour) ticks.push(v);
+    return ticks;
   }
 
   let lo = minV - pad;
@@ -131,11 +153,16 @@ export function buildParetoData(
       const x = xAxis.read(row);
       const y = yAxis.read(row);
       if (x == null || y == null) return null;
+      const ci = getAccessorValue(row, 'metrics.accuracy_ci95_half_width');
       return {
         id: row.id,
         label: chartRowLabel(row),
         x,
         y,
+        yCi:
+          yAxisId === 'accuracy' && typeof ci === 'number' && ci > 0
+            ? ci
+            : null,
       };
     })
     .filter((row): row is Omit<ParetoDatum, 'onFrontier'> => row != null);
@@ -153,6 +180,8 @@ type ParetoScatterChartProps = {
   data: ParetoDatum[];
   xAxisId: ParetoAxisId;
   yAxisId: ParetoAxisId;
+  /** Row id -> Hub job id; rows are 1-1 with jobs so clicks open the job. */
+  jobIdByRow?: Record<string, string>;
   className?: string;
 };
 
@@ -160,6 +189,7 @@ type ActiveTip = {
   id: string;
   label: string;
   yValue: string;
+  ciValue: string | null;
   xValue: string;
   cx: number;
   cy: number;
@@ -169,6 +199,7 @@ export function ParetoScatterChart({
   data,
   xAxisId,
   yAxisId,
+  jobIdByRow,
   className,
 }: ParetoScatterChartProps) {
   const plotRef = useRef<HTMLDivElement>(null);
@@ -228,9 +259,21 @@ export function ParetoScatterChart({
     MARGIN.top + (1 - (value - yMin) / (yMax - yMin || 1)) * plotH;
 
   const frontier = data.filter((d) => d.onFrontier).sort((a, b) => a.x - b.x);
-  const frontierPath = frontier
-    .map((d, i) => `${i === 0 ? 'M' : 'L'} ${xScale(d.x)} ${yScale(d.y)}`)
-    .join(' ');
+  // Wash the unattained region up-left of the frontier (min-x, max-y charts).
+  const washPath =
+    frontier.length > 0 && xAxis.prefer === 'min' && yAxis.prefer === 'max'
+      ? [
+          `M ${MARGIN.left} ${MARGIN.top + plotH}`,
+          `L ${MARGIN.left} ${MARGIN.top}`,
+          `L ${MARGIN.left + plotW} ${MARGIN.top}`,
+          `L ${MARGIN.left + plotW} ${yScale(frontier[frontier.length - 1]!.y)}`,
+          ...[...frontier]
+            .reverse()
+            .map((d) => `L ${xScale(d.x)} ${yScale(d.y)}`),
+          `L ${xScale(frontier[0]!.x)} ${MARGIN.top + plotH}`,
+          'Z',
+        ].join(' ')
+      : null;
 
   return (
     <div className={className}>
@@ -329,13 +372,8 @@ export function ParetoScatterChart({
           </text>
         </g>
 
-        {frontierPath ? (
-          <path
-            d={frontierPath}
-            fill="none"
-            className="stroke-foreground/50"
-            strokeWidth={1.5}
-          />
+        {washPath ? (
+          <path d={washPath} className="fill-foreground/[0.05]" />
         ) : null}
 
         {data.map((datum) => {
@@ -344,16 +382,43 @@ export function ParetoScatterChart({
           const half = datum.onFrontier ? FRONTIER_DOT_HALF : DOT_HALF;
           const size = half * 2;
           const modelText = datum.label.model;
-          const agentPart = datum.label.agent
-            ? ` (${datum.label.agent})`
-            : '';
-          // Place labels in the empty region above-left of the monotonic
-          // up-right frontier so the frontier line doesn't run through them;
-          // flip to the right only for points near the left edge, which would
-          // otherwise clip past the y-axis.
-          const labelLeft = cx > MARGIN.left + 96;
+          const agentPart = datum.label.agent ? ` ${datum.label.agent}` : '';
+          const whiskerClass = datum.onFrontier
+            ? 'stroke-foreground/70'
+            : 'stroke-muted-foreground/35';
+          // Labels sit directly to the right of the marker, flipping to the
+          // left only when the point is close to the right edge.
+          const labelLeft = cx > MARGIN.left + plotW - 170;
           return (
             <g key={datum.id}>
+              {datum.yCi != null ? (
+                <g style={{ pointerEvents: 'none' }}>
+                  <line
+                    x1={cx}
+                    x2={cx}
+                    y1={yScale(Math.min(yMax, datum.y + datum.yCi))}
+                    y2={yScale(Math.max(yMin, datum.y - datum.yCi))}
+                    className={whiskerClass}
+                    strokeWidth={1}
+                  />
+                  <line
+                    x1={cx - 3.5}
+                    x2={cx + 3.5}
+                    y1={yScale(Math.min(yMax, datum.y + datum.yCi))}
+                    y2={yScale(Math.min(yMax, datum.y + datum.yCi))}
+                    className={whiskerClass}
+                    strokeWidth={1}
+                  />
+                  <line
+                    x1={cx - 3.5}
+                    x2={cx + 3.5}
+                    y1={yScale(Math.max(yMin, datum.y - datum.yCi))}
+                    y2={yScale(Math.max(yMin, datum.y - datum.yCi))}
+                    className={whiskerClass}
+                    strokeWidth={1}
+                  />
+                </g>
+              ) : null}
               {/* Invisible hit target in SVG space (avoids HTML/SVG coordinate drift). */}
               <rect
                 x={cx - 14}
@@ -361,11 +426,30 @@ export function ParetoScatterChart({
                 width={28}
                 height={28}
                 className="fill-transparent"
+                style={{ cursor: 'pointer' }}
+                onClick={() =>
+                  window.open(
+                    jobIdByRow?.[datum.id]
+                      ? harborJobUrl(jobIdByRow[datum.id]!)
+                      : harborLeaderboardRowUrl(
+                          TERMINAL_BENCH_PACKAGE,
+                          TERMINAL_BENCH_LEADERBOARD,
+                          datum.id,
+                          TERMINAL_BENCH_DATASET_VERSION,
+                        ),
+                    '_blank',
+                    'noopener',
+                  )
+                }
                 onMouseEnter={() => {
                   setActive({
                     id: datum.id,
                     label: datum.label.full,
                     yValue: yAxis.format(datum.y),
+                    ciValue:
+                      datum.yCi != null
+                        ? `\u00b1${datum.yCi.toFixed(1)}%`
+                        : null,
                     xValue: xAxis.format(datum.x),
                     cx,
                     cy,
@@ -386,22 +470,32 @@ export function ParetoScatterChart({
                 }
                 style={{ pointerEvents: 'none' }}
               />
-              {datum.onFrontier ? (
-                <text
-                  x={labelLeft ? cx - half - 6 : cx + half + 6}
-                  y={cy - (half + 6)}
-                  textAnchor={labelLeft ? 'end' : 'start'}
-                  dominantBaseline="auto"
-                  className="fill-foreground font-normal"
-                  fontSize={11}
-                  style={{ pointerEvents: 'none' }}
-                >
-                  <tspan>{modelText}</tspan>
-                  {agentPart ? (
-                    <tspan className="fill-muted-foreground">{agentPart}</tspan>
-                  ) : null}
-                </text>
-              ) : null}
+              <text
+                x={labelLeft ? cx - half - 7 : cx + half + 7}
+                y={cy}
+                textAnchor={labelLeft ? 'end' : 'start'}
+                dominantBaseline="central"
+                className={
+                  datum.onFrontier
+                    ? 'fill-foreground font-normal'
+                    : 'fill-muted-foreground/70 font-normal'
+                }
+                fontSize={11}
+                style={{ pointerEvents: 'none' }}
+              >
+                <tspan>{modelText}</tspan>
+                {agentPart ? (
+                  <tspan
+                    className={
+                      datum.onFrontier
+                        ? 'fill-muted-foreground'
+                        : 'fill-muted-foreground/50'
+                    }
+                  >
+                    {agentPart}
+                  </tspan>
+                ) : null}
+              </text>
             </g>
           );
         })}
@@ -432,9 +526,13 @@ export function ParetoScatterChart({
             <div className="flex flex-col gap-0.5">
               <p>{active.label}</p>
               <p className="flex items-baseline justify-between gap-6 opacity-70">
-                <span>{active.yValue}</span>
+                <span>
+                  {active.yValue}
+                  {active.ciValue ? ` ${active.ciValue}` : ''}
+                </span>
                 <span>{active.xValue}</span>
               </p>
+              <p className="opacity-50">click to view job</p>
             </div>
           ) : null}
         </TooltipContent>

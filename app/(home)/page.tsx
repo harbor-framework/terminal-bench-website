@@ -33,10 +33,10 @@ export default async function HomePage() {
   });
 
   return (
-    <div className="mx-auto flex w-full min-w-0 max-w-8xl flex-1 flex-col px-4 pt-12">
+    <div className="flex w-full min-w-0 flex-1 flex-col pt-12">
       <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-6">
-        <div className="flex flex-col items-center gap-8 text-center">
-          <div className="flex flex-col items-center gap-5">
+        <div className="mx-auto flex w-full max-w-8xl flex-col items-center gap-8 px-4 text-center">
+          <div className="flex flex-col items-center gap-2">
             <HeroTitle />
             <p className="max-w-none text-lg font-normal tracking-tighter text-muted-foreground sm:whitespace-nowrap">
               A benchmark to measure and evolve with the frontier of agent work
@@ -60,11 +60,13 @@ export default async function HomePage() {
           </div>
         </div>
 
-        <HydrationBoundary state={dehydrate(queryClient)}>
-          <Suspense fallback={<LeaderboardSkeleton />}>
-            <HomeView leaderboard={<LeaderboardTable />} />
-          </Suspense>
-        </HydrationBoundary>
+        <div className="w-full min-w-0 px-4 md:px-8">
+          <HydrationBoundary state={dehydrate(queryClient)}>
+            <Suspense fallback={<LeaderboardSkeleton />}>
+              <HomeView leaderboard={<LeaderboardTable />} />
+            </Suspense>
+          </HydrationBoundary>
+        </div>
       </div>
     </div>
   );

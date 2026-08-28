@@ -9,12 +9,13 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-const VIEWS = ['leaderboard', 'pareto'] as const;
+const VIEWS = ['leaderboard', 'pareto', 'waffle'] as const;
 export type HomeViewId = (typeof VIEWS)[number];
 
 const VIEW_LABELS: Record<HomeViewId, string> = {
   leaderboard: 'LEADERBOARD',
   pareto: 'PARETO',
+  waffle: 'WAFFLE',
 };
 
 export const parseHomeView = createParser({
