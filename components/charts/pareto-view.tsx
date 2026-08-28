@@ -192,7 +192,7 @@ export function ParetoView() {
           >
             <SelectTrigger
               size="sm"
-              className="min-w-36 bg-background uppercase dark:bg-card"
+              className="min-w-28 bg-background uppercase dark:bg-card"
             >
               <SelectValue>{xLabel}</SelectValue>
             </SelectTrigger>
