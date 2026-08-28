@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 
 import { readTerminalBenchWaffle } from '@/lib/harbor-waffle.server';
+import {
+  DEFAULT_HOME_BENCHMARK_ID,
+  homeBenchmarkById,
+} from '@/lib/leaderboard';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -10,9 +14,16 @@ const CACHE_CONTROL =
     ? 'no-store'
     : 'public, s-maxage=300, stale-while-revalidate=3600';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const payload = await readTerminalBenchWaffle();
+    const benchmarkId =
+      new URL(request.url).searchParams.get('benchmark') ??
+      DEFAULT_HOME_BENCHMARK_ID;
+    const benchmark = homeBenchmarkById(benchmarkId);
+    const payload = await readTerminalBenchWaffle(
+      benchmark.package,
+      benchmark.leaderboard,
+    );
     return NextResponse.json(payload, {
       headers: { 'Cache-Control': CACHE_CONTROL },
     });

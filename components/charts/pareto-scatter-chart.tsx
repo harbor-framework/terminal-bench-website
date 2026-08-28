@@ -154,15 +154,20 @@ export function buildParetoData(
       const y = yAxis.read(row);
       if (x == null || y == null) return null;
       const ci = getAccessorValue(row, 'metrics.accuracy_ci95_half_width');
+      const stderr = getAccessorValue(row, 'metrics.accuracy_stderr');
+      // Older leaderboards publish only the standard error.
+      const halfWidth =
+        typeof ci === 'number' && ci > 0
+          ? ci
+          : typeof stderr === 'number' && stderr > 0
+            ? 1.96 * stderr
+            : null;
       return {
         id: row.id,
         label: chartRowLabel(row),
         x,
         y,
-        yCi:
-          yAxisId === 'accuracy' && typeof ci === 'number' && ci > 0
-            ? ci
-            : null,
+        yCi: yAxisId === 'accuracy' ? halfWidth : null,
       };
     })
     .filter((row): row is Omit<ParetoDatum, 'onFrontier'> => row != null);

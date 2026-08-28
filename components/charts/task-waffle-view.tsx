@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { parseAsStringLiteral, useQueryState } from 'nuqs';
 import { useMemo, useRef, useState } from 'react';
 
@@ -77,8 +77,10 @@ const OUTCOME_RANK: Record<WaffleTrial['o'], number> = {
 
 const LEGEND_OUTCOMES = ['p', 'to', 'err', 'f'] as const;
 
-async function fetchWaffleData(): Promise<WafflePayload> {
-  const response = await fetch('/api/waffle');
+async function fetchWaffleData(benchmarkId: string): Promise<WafflePayload> {
+  const response = await fetch(
+    `/api/waffle?benchmark=${encodeURIComponent(benchmarkId)}`,
+  );
   const payload = (await response.json()) as
     | WafflePayload
     | { error?: { message?: string } };
@@ -379,7 +381,7 @@ function WaffleSvg({
   const RPAD = GUT;
   // Same header height in both groupings so toggling model/outcome causes
   // no vertical layout shift; outcome mode just leaves the space empty.
-  const HEAD = 34;
+  const HEAD = 48;
   const plotW = Math.max(1, matrix.columns.length) * stepM - MG;
   const width = GUT + plotW + RPAD;
   const RH = 20;
@@ -401,17 +403,30 @@ function WaffleSvg({
       .flat()
       .sort((a, b) => OUTCOME_RANK[a.trial.o] - OUTCOME_RANK[b.trial.o]);
 
+  // Truncate header lines to the column block width (no ellipsis).
+  const headerChars = Math.max(1, Math.floor(blockW / (fontSm * 0.6)));
+  const truncate = (value: string) => value.slice(0, headerChars).trimEnd();
+
   if (group === 'model') matrix.columns.forEach((column, index) => {
     const cx = GUT + index * stepM + blockW / 2;
     const label = (
       <text
         x={cx}
-        y={HEAD - 12}
+        y={HEAD - 26}
         textAnchor="middle"
         fontSize={fontSm}
         className="fill-foreground"
       >
-        {column.model}
+        {truncate(column.model)}
+        {column.agent ? (
+          <tspan
+            x={cx}
+            dy={14}
+            className="fill-muted-foreground"
+          >
+            {truncate(column.agent)}
+          </tspan>
+        ) : null}
       </text>
     );
     elements.push(
@@ -660,16 +675,14 @@ export function TaskWaffleView() {
   const { benchmark } = useHomeBenchmark();
 
   const { data, error, isPending } = useQuery({
-    queryKey: ['waffle', 'terminal-bench', '4-0-0'],
-    queryFn: fetchWaffleData,
+    queryKey: ['waffle', 'terminal-bench', benchmark.id],
+    queryFn: () => fetchWaffleData(benchmark.id),
+    placeholderData: keepPreviousData,
   });
   const { data: leaderboardData } = useQuery({
-    queryKey: leaderboardQueryKey(
-      TERMINAL_BENCH_PACKAGE,
-      TERMINAL_BENCH_LEADERBOARD,
-    ),
-    queryFn: () =>
-      fetchLeaderboard(TERMINAL_BENCH_PACKAGE, TERMINAL_BENCH_LEADERBOARD),
+    queryKey: leaderboardQueryKey(benchmark.package, benchmark.leaderboard),
+    queryFn: () => fetchLeaderboard(benchmark.package, benchmark.leaderboard),
+    placeholderData: keepPreviousData,
   });
   const { facets, filters, handleFiltersChange, filteredRows, toolbarColumns } =
     useLeaderboardFilters(leaderboardData);
@@ -723,7 +736,7 @@ export function TaskWaffleView() {
     );
   }
 
-  if (error || !data || data.doms.length === 0 || !matrix) {
+  if (error || !data || !matrix) {
     return (
       <div className="flex w-full min-w-0 flex-col gap-1.5">
         <div className="flex items-center justify-between gap-1.5">
@@ -819,7 +832,7 @@ export function TaskWaffleView() {
             </SelectContent>
           </Select>
         </div>
-        {benchmark.id === '4.0' ? (
+        {data.doms.length > 0 ? (
           <>
             <div className="overflow-x-auto px-4 py-3">
               <WaffleSvg
@@ -835,8 +848,7 @@ export function TaskWaffleView() {
           </>
         ) : (
           <div className="flex min-h-[420px] items-center justify-center px-6 py-10 text-center text-sm text-muted-foreground">
-            Per-trial data is only available for Terminal-Bench 4.0. Switch the
-            benchmark back to 4.0 to see the trial matrix.
+            Per-trial data unavailable
           </div>
         )}
       </div>

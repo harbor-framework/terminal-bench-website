@@ -96,7 +96,12 @@ const TASK_DOMAIN = {
   'wdm-design': 'Science',
 } as const;
 
-type DomainName = (typeof TASK_DOMAIN)[keyof typeof TASK_DOMAIN];
+type DomainName = (typeof TASK_DOMAIN)[keyof typeof TASK_DOMAIN] | 'Other';
+
+function taskDomain(task: string): DomainName {
+  // Older benchmarks include tasks outside the TB 4.0 domain map.
+  return TASK_DOMAIN[task as keyof typeof TASK_DOMAIN] ?? 'Other';
+}
 
 type LeaderboardReadResponse = {
   leaderboard: {
@@ -193,17 +198,20 @@ async function readJson<T>(
   return { data: payload as T, response };
 }
 
-async function readLeaderboard(): Promise<LeaderboardReadResponse> {
+async function readLeaderboard(
+  packageName: string,
+  leaderboardName: string,
+): Promise<LeaderboardReadResponse> {
   const { data } = await readJson<LeaderboardReadResponse>(
     '/functions/v1/leaderboard-read',
     {
       method: 'POST',
       headers: harborHeaders({ json: true }),
       body: JSON.stringify({
-        package: TERMINAL_BENCH_PACKAGE,
-        name: TERMINAL_BENCH_LEADERBOARD,
+        package: packageName,
+        name: leaderboardName,
         page: 1,
-        page_size: 50,
+        page_size: 200,
       }),
     },
   );
@@ -286,27 +294,31 @@ async function readJobIdsForTrials(
 async function readJobTrials(jobIds: string[]): Promise<JobTrialSummary[]> {
   if (jobIds.length === 0) return [];
 
-  const { data } = await readJson<JobTrialsResponse>(
-    '/rest/v1/rpc/get_job_trials',
-    {
-      method: 'POST',
-      headers: harborHeaders({ json: true }),
-      body: JSON.stringify({
-        p_job_ids: jobIds,
-        p_page: 1,
-        p_page_size: JOB_TRIAL_PAGE_SIZE,
-        p_attempts: 'latest',
-        p_sort_by: 'task_name',
-        p_sort_order: 'asc',
-      }),
-    },
-  );
-
-  if ((data.total_pages ?? 1) > 1) {
-    throw new Error('Harbor returned more compact trial summaries than expected');
+  const items: JobTrialSummary[] = [];
+  let page = 1;
+  let totalPages = 1;
+  while (page <= totalPages) {
+    const { data } = await readJson<JobTrialsResponse>(
+      '/rest/v1/rpc/get_job_trials',
+      {
+        method: 'POST',
+        headers: harborHeaders({ json: true }),
+        body: JSON.stringify({
+          p_job_ids: jobIds,
+          p_page: page,
+          p_page_size: JOB_TRIAL_PAGE_SIZE,
+          p_attempts: 'latest',
+          p_sort_by: 'task_name',
+          p_sort_order: 'asc',
+        }),
+      },
+    );
+    items.push(...(data.items ?? []));
+    totalPages = data.total_pages ?? 1;
+    page += 1;
   }
 
-  return data.items ?? [];
+  return items;
 }
 
 function linksByRow(links: LeaderboardRowTrial[]) {
@@ -375,9 +387,6 @@ function buildWaffleData({
       }
 
       const task = plainTaskName(trial.task_name);
-      if (!(task in TASK_DOMAIN)) {
-        throw new Error(`Task ${task || '(unknown)'} is missing a domain`);
-      }
 
       trialCount += 1;
       const counts = countsByTask.get(task) ?? {
@@ -423,7 +432,7 @@ function buildWaffleData({
 
   const tasksByDomain = new Map<DomainName, WaffleTask[]>();
   for (const [task, counts] of countsByTask) {
-    const domain = TASK_DOMAIN[task as keyof typeof TASK_DOMAIN];
+    const domain = taskDomain(task);
     const total = counts.p + counts.f + counts.e_to + counts.e_err;
     const solve = total > 0 ? Math.round((counts.p / total) * 100) : 0;
     const tasks = tasksByDomain.get(domain) ?? [];
@@ -461,7 +470,7 @@ function buildWaffleData({
     doms,
     jobs,
     leaderboard: {
-      title: leaderboard.title || 'Terminal-Bench 4.0',
+      title: leaderboard.title || 'Terminal-Bench',
       name: leaderboard.name || TERMINAL_BENCH_LEADERBOARD,
     },
     row_count: rows.length,
@@ -477,8 +486,14 @@ function buildWaffleData({
   };
 }
 
-export async function readTerminalBenchWaffle(): Promise<WafflePayload> {
-  const leaderboardPayload = await readLeaderboard();
+export async function readTerminalBenchWaffle(
+  packageName: string = TERMINAL_BENCH_PACKAGE,
+  leaderboardName: string = TERMINAL_BENCH_LEADERBOARD,
+): Promise<WafflePayload> {
+  const leaderboardPayload = await readLeaderboard(
+    packageName,
+    leaderboardName,
+  );
   if (leaderboardPayload.rows.length === 0) {
     throw new Error('No leaderboard rows returned');
   }
