@@ -68,7 +68,12 @@ export default async function HomePage() {
           </div>
         </div>
 
-        <div id="home-view-section" className="w-full min-w-0 scroll-mt-20 px-4 md:px-8">
+        <div
+          id="home-view-section"
+          // Tall enough that scrolling the section to the top never clamps
+          // while a view is still loading.
+          className="min-h-[calc(100vh-5rem)] w-full min-w-0 scroll-mt-20 px-4 md:px-8"
+        >
           <HydrationBoundary state={dehydrate(queryClient)}>
             <Suspense fallback={<LeaderboardSkeleton />}>
               <HomeView leaderboard={<LeaderboardTable />} />
