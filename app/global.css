@@ -126,6 +126,10 @@ p.page-subtitle.page-subtitle-sm {
   line-height: 1.5rem;
 }
 
+.content-page figcaption {
+  text-align: center;
+}
+
 /* GFM footnotes */
 .content-page [data-footnote-ref] {
   font-size: 0.75em;
