@@ -142,7 +142,7 @@ const BENCHMARKS: Benchmark[] = [
 
 function BenchmarkRow({ benchmark }: { benchmark: Benchmark }) {
   return (
-    <article className="grid min-h-28 grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-1 bg-card px-3 py-4 sm:gap-x-6 sm:px-4">
+    <article className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-1 bg-card px-3 py-4 sm:gap-x-6 sm:px-4">
       <h2 className="min-w-0 break-words font-mono text-base font-medium tracking-tight uppercase sm:text-lg">
         {benchmark.name}
       </h2>
@@ -152,9 +152,6 @@ function BenchmarkRow({ benchmark }: { benchmark: Benchmark }) {
       >
         {formatNewsDate(benchmark.date)}
       </time>
-      <p className="page-subtitle page-subtitle-sm col-span-2 min-w-0 max-w-3xl break-words text-muted-foreground sm:col-span-1">
-        {benchmark.description}
-      </p>
       <div className="col-span-2 flex flex-wrap gap-x-4 pt-1 font-mono text-xs">
         {benchmark.links.map((link) => (
           <a
