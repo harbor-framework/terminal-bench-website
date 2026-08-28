@@ -13,7 +13,7 @@ import type {
   OnChangeFn,
   VisibilityState,
 } from '@tanstack/react-table';
-import { useQueryState } from 'nuqs';
+import { parseAsStringLiteral, useQueryState } from 'nuqs';
 import { useMemo } from 'react';
 
 import { LeaderboardSkeleton } from '@/components/leaderboard/leaderboard-skeleton';
@@ -26,6 +26,16 @@ import {
 import { DataTable } from '@/components/ui/data-table';
 import { ViewExportActions } from '@/components/view-export-actions';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  DEFAULT_HOME_BENCHMARK_ID,
+  HOME_BENCHMARKS,
+  homeBenchmarkById,
   TERMINAL_BENCH_DATASET_VERSION,
   TERMINAL_BENCH_LEADERBOARD,
   TERMINAL_BENCH_PACKAGE,
@@ -155,7 +165,7 @@ function AccuracyBarCell({ row }: { row: LeaderboardRow }) {
       <div className="w-28 shrink-0 tabular-nums">
         <LeaderboardCell value={display ?? accuracy} type="markdown" />
       </div>
-      <div className="relative hidden h-3 min-w-0 flex-1 rounded-none bg-muted xl:block">
+      <div className="relative hidden h-3 min-w-0 max-w-[30vw] flex-1 rounded-none bg-muted xl:block">
         <div
           className="absolute inset-y-0 left-0 bg-foreground"
           style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
@@ -458,14 +468,20 @@ function buildColumns(
   return [rankColumn, ...dataColumns];
 }
 
+const parseBenchmarkId = parseAsStringLiteral(
+  HOME_BENCHMARKS.map((benchmark) => benchmark.id),
+);
+
 export function LeaderboardTable() {
+  const [benchmarkId, setBenchmarkId] = useQueryState(
+    'benchmark',
+    parseBenchmarkId.withDefault(DEFAULT_HOME_BENCHMARK_ID),
+  );
+  const benchmark = homeBenchmarkById(benchmarkId);
+
   const { data, error, isPending } = useQuery({
-    queryKey: leaderboardQueryKey(
-      TERMINAL_BENCH_PACKAGE,
-      TERMINAL_BENCH_LEADERBOARD,
-    ),
-    queryFn: () =>
-      fetchLeaderboard(TERMINAL_BENCH_PACKAGE, TERMINAL_BENCH_LEADERBOARD),
+    queryKey: leaderboardQueryKey(benchmark.package, benchmark.leaderboard),
+    queryFn: () => fetchLeaderboard(benchmark.package, benchmark.leaderboard),
   });
 
   const facets = useMemo(() => {
@@ -607,9 +623,35 @@ export function LeaderboardTable() {
                 )
               }
             />
-            <LeaderboardToolbar
-              columns={toolbarColumns}
-              columnOptions={columnOptions}
+            <div className="flex min-w-0 items-center gap-1.5">
+              <Select
+                value={benchmark.id}
+                onValueChange={(next) => {
+                  if (typeof next === 'string') void setBenchmarkId(next);
+                }}
+              >
+                <SelectTrigger
+                  size="sm"
+                  className="bg-background uppercase dark:bg-card"
+                  aria-label="Benchmark"
+                >
+                  <SelectValue>{benchmark.label}</SelectValue>
+                </SelectTrigger>
+                <SelectContent align="end">
+                  {HOME_BENCHMARKS.map((option) => (
+                    <SelectItem
+                      key={option.id}
+                      value={option.id}
+                      className="uppercase"
+                    >
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <LeaderboardToolbar
+                columns={toolbarColumns}
+                columnOptions={columnOptions}
               filters={filters}
               onFiltersChange={handleFiltersChange}
               numberBounds={facets.numberBounds}
@@ -617,12 +659,13 @@ export function LeaderboardTable() {
               setOptions={facets.setOptions}
               columnVisibility={columnVisibility}
               onColumnVisibilityChange={handleColumnVisibilityChange}
-            />
+              />
+            </div>
           </div>
         }
         footer={
           <footer className="flex h-12 items-center justify-center border-t px-6 text-center text-sm text-muted-foreground">
-            Resolution rate of Terminal-Bench 4.0 tasks. The whiskers span the
+            Resolution rate of {benchmark.label} tasks. The whiskers span the
             95% confidence interval.
           </footer>
         }

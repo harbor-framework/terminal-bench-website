@@ -39,11 +39,7 @@ const BENCHMARKS: Benchmark[] = [
       'A harder, better verified version of Terminal-Bench, released alongside Harbor.',
     links: [
       { label: 'Blog', href: '/news/announcement-2-0' },
-      {
-        label: 'Leaderboard',
-        href: 'https://www.tbench.ai/leaderboard/terminal-bench/2.0',
-        external: true,
-      },
+      { label: 'Leaderboard', href: '/?benchmark=2.0' },
       {
         label: 'Harbor Hub',
         href: 'https://hub.harborframework.com/datasets/terminal-bench/terminal-bench-2/latest',
@@ -62,11 +58,7 @@ const BENCHMARKS: Benchmark[] = [
     description: 'A revision of Terminal-Bench 2.0 that fixes 28 tasks.',
     links: [
       { label: 'Blog', href: '/news/terminal-bench-2-1' },
-      {
-        label: 'Leaderboard',
-        href: 'https://hub.harborframework.com/datasets/terminal-bench/terminal-bench-2-1/6',
-        external: true,
-      },
+      { label: 'Leaderboard', href: '/?benchmark=2.1' },
       {
         label: 'Harbor Hub',
         href: 'https://hub.harborframework.com/datasets/terminal-bench/terminal-bench-2-1/latest',
@@ -85,11 +77,7 @@ const BENCHMARKS: Benchmark[] = [
     description: 'Terminal-Bench 3.0 measures agent abilities at the frontier.',
     links: [
       { label: 'Blog', href: '/news/terminal-bench-3-0' },
-      {
-        label: 'Leaderboard',
-        href: 'https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/latest?tab=leaderboard&leaderboard=3-0-0',
-        external: true,
-      },
+      { label: 'Leaderboard', href: '/?benchmark=3.0' },
       {
         label: 'Harbor Hub',
         href: 'https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/1',
@@ -119,11 +107,7 @@ const BENCHMARKS: Benchmark[] = [
       'A benchmark for evaluating AI agents on research workflows across scientific domains.',
     links: [
       { label: 'Blog', href: '/news/tb-science-announcement' },
-      {
-        label: 'Leaderboard',
-        href: 'https://hub.harborframework.com/datasets/terminal-bench-science/terminal-bench-science/10?tab=leaderboard&leaderboard=v0-1-eval',
-        external: true,
-      },
+      { label: 'Leaderboard', href: '/?benchmark=science' },
       {
         label: 'Harbor Hub',
         href: 'https://hub.harborframework.com/datasets/terminal-bench-science/terminal-bench-science/10',

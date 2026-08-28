@@ -57,6 +57,56 @@ export type LeaderboardReadResponse = {
 
 /** Hub dataset package backing the leaderboard. */
 export const TERMINAL_BENCH_PACKAGE = 'terminal-bench/terminal-bench';
+
+/** Benchmarks selectable on the homepage leaderboard (?benchmark=<id>). */
+export type HomeBenchmark = {
+  id: string;
+  label: string;
+  package: string;
+  leaderboard: string;
+};
+
+export const HOME_BENCHMARKS: HomeBenchmark[] = [
+  {
+    id: '4.0',
+    label: 'Terminal-Bench 4.0',
+    package: 'terminal-bench/terminal-bench',
+    leaderboard: '4-0-0',
+  },
+  {
+    id: '3.0',
+    label: 'Terminal-Bench 3.0',
+    package: 'terminal-bench/terminal-bench',
+    leaderboard: '3-0-0',
+  },
+  {
+    id: '2.1',
+    label: 'Terminal-Bench 2.1',
+    package: 'terminal-bench/terminal-bench-2-1',
+    leaderboard: 'main',
+  },
+  {
+    id: '2.0',
+    label: 'Terminal-Bench 2.0',
+    package: 'terminal-bench/terminal-bench-2',
+    leaderboard: '2-0',
+  },
+  {
+    id: 'science',
+    label: 'Terminal-Bench-Science 0.1',
+    package: 'terminal-bench-science/terminal-bench-science',
+    leaderboard: 'v0-1-eval',
+  },
+];
+
+export const DEFAULT_HOME_BENCHMARK_ID = '4.0';
+
+export function homeBenchmarkById(id: string): HomeBenchmark {
+  return (
+    HOME_BENCHMARKS.find((benchmark) => benchmark.id === id) ??
+    HOME_BENCHMARKS[0]!
+  );
+}
 /** Hub dataset version backing the homepage leaderboard. */
 export const TERMINAL_BENCH_DATASET_VERSION = '4';
 /** Hub path is org/package/leaderboard. */

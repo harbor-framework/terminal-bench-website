@@ -12,7 +12,7 @@ import {
 const FORM_URL = "https://airtable.com/appzZC5gEHrXSfNNw/pagjgS95lAQ5FVJxt/form";
 const CONTRIBUTING_URL =
   "https://github.com/harbor-framework/terminal-bench-science/blob/main/CONTRIBUTING.md";
-const CONTRIBUTORS_URL = "https://www.tbench.ai/contributors/terminal-bench-science";
+const CONTRIBUTORS_URL = "https://www.terminal-bench-science.ai/contributors";
 const REVIEWER_POOL_URL =
   "https://github.com/harbor-framework/terminal-bench-science/blob/main/.github/reviewer-pool.yml";
 const DASHBOARD_URL = "https://stevendillmann.github.io/tb-science-task-dashboard/";
