@@ -3,6 +3,7 @@ import { Analytics } from '@vercel/analytics/next';
 import { GeistSans } from 'geist/font/sans';
 import { Google_Sans_Code } from 'next/font/google';
 
+import { LogoScrollTop } from '@/components/logo-scroll-top';
 import { AppProviders } from '@/components/providers/app-providers';
 import { appName } from '@/lib/shared';
 import { cn } from '@/lib/utils';
@@ -61,7 +62,10 @@ export default function Layout({ children }: LayoutProps<'/'>) {
       suppressHydrationWarning
     >
       <body className="flex flex-col min-h-screen font-sans antialiased">
-        <AppProviders>{children}</AppProviders>
+        <AppProviders>
+          <LogoScrollTop />
+          {children}
+        </AppProviders>
         <Analytics />
       </body>
     </html>
