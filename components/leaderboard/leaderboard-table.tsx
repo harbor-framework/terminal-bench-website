@@ -151,11 +151,11 @@ function AccuracyBarCell({ row }: { row: LeaderboardRow }) {
   }
 
   return (
-    <div className="flex min-w-52 items-center gap-3">
+    <div className="flex items-center gap-3 xl:min-w-52">
       <div className="w-28 shrink-0 tabular-nums">
         <LeaderboardCell value={display ?? accuracy} type="markdown" />
       </div>
-      <div className="relative h-3 min-w-0 flex-1 rounded-none bg-muted">
+      <div className="relative hidden h-3 min-w-0 flex-1 rounded-none bg-muted xl:block">
         <div
           className="absolute inset-y-0 left-0 bg-foreground/35"
           style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
@@ -163,18 +163,18 @@ function AccuracyBarCell({ row }: { row: LeaderboardRow }) {
         {ciUpper > ciLower ? (
           <>
             <div
-              className="absolute top-1/2 h-0.5 -translate-y-1/2 bg-foreground"
+              className="absolute top-1/2 h-px -translate-y-1/2 bg-foreground"
               style={{
                 left: `${ciLower}%`,
                 width: `${ciUpper - ciLower}%`,
               }}
             />
             <div
-              className="absolute top-1/2 h-1.5 w-0.5 -translate-x-1/2 -translate-y-1/2 bg-foreground"
+              className="absolute top-1/2 h-1.5 w-px -translate-x-1/2 -translate-y-1/2 bg-foreground"
               style={{ left: `${ciLower}%` }}
             />
             <div
-              className="absolute top-1/2 h-1.5 w-0.5 -translate-x-1/2 -translate-y-1/2 bg-foreground"
+              className="absolute top-1/2 h-1.5 w-px -translate-x-1/2 -translate-y-1/2 bg-foreground"
               style={{ left: `${ciUpper}%` }}
             />
           </>
@@ -446,7 +446,7 @@ function buildColumns(
           cellClassName: cn(
             align,
             column.type === 'number' && 'tabular-nums',
-            column.id === 'accuracy' && 'min-w-56',
+            column.id === 'accuracy' && 'xl:min-w-56',
           ),
         },
       };
