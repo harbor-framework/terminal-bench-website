@@ -227,7 +227,18 @@ export function formatLeaderboardCell(
       const link = parseLeaderboardLink(value);
       return link?.label ?? String(value);
     }
-    case 'date':
+    case 'date': {
+      // Match the display_date style used by newer leaderboards
+      // ("Jul 24, 2026"); locale-stable for SSR.
+      const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(value));
+      if (!match) return String(value);
+      const MONTHS = [
+        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      ];
+      const month = MONTHS[Number(match[2]) - 1];
+      return `${month} ${Number(match[3])}, ${match[1]}`;
+    }
     case 'text':
       return String(value);
     default: {

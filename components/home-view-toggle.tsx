@@ -30,11 +30,26 @@ export const parseHomeView = createParser({
   },
 }).withDefault('leaderboard' satisfies HomeViewId);
 
-/** Smoothly bring the view section near the top (scroll-mt sets the margin). */
+/** Smoothly bring the view section near the top of the viewport. */
+const VIEW_SCROLL_MARGIN = 80;
+
 function scrollToViewSection() {
-  document
-    .getElementById('home-view-section')
-    ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const element = document.getElementById('home-view-section');
+  if (!element) return;
+  const target = () =>
+    window.scrollY + element.getBoundingClientRect().top - VIEW_SCROLL_MARGIN;
+  window.scrollTo({ top: target(), behavior: 'smooth' });
+  // The switched-to view can render mid-animation (and its data can land
+  // later still), shifting the layout; re-correct until it settles.
+  for (const delay of [500, 1100, 1800]) {
+    window.setTimeout(() => {
+      if (
+        Math.abs(element.getBoundingClientRect().top - VIEW_SCROLL_MARGIN) > 8
+      ) {
+        window.scrollTo({ top: target(), behavior: 'smooth' });
+      }
+    }, delay);
+  }
 }
 
 export function HomeViewToggle({ className }: { className?: string }) {
