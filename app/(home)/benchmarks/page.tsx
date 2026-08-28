@@ -44,6 +44,16 @@ const BENCHMARKS: Benchmark[] = [
         href: 'https://www.tbench.ai/leaderboard/terminal-bench/2.0',
         external: true,
       },
+      {
+        label: 'Harbor Hub',
+        href: 'https://hub.harborframework.com/datasets/terminal-bench/terminal-bench-2/latest',
+        external: true,
+      },
+      {
+        label: 'GitHub',
+        href: 'https://github.com/harbor-framework/terminal-bench-2',
+        external: true,
+      },
     ],
   },
   {
@@ -55,6 +65,16 @@ const BENCHMARKS: Benchmark[] = [
       {
         label: 'Leaderboard',
         href: 'https://hub.harborframework.com/datasets/terminal-bench/terminal-bench-2-1/6',
+        external: true,
+      },
+      {
+        label: 'Harbor Hub',
+        href: 'https://hub.harborframework.com/datasets/terminal-bench/terminal-bench-2-1/latest',
+        external: true,
+      },
+      {
+        label: 'GitHub',
+        href: 'https://github.com/harbor-framework/terminal-bench-2-1',
         external: true,
       },
     ],
@@ -70,6 +90,11 @@ const BENCHMARKS: Benchmark[] = [
         href: 'https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/latest?tab=leaderboard&leaderboard=3-0-0',
         external: true,
       },
+      {
+        label: 'Harbor Hub',
+        href: 'https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/1',
+        external: true,
+      },
     ],
   },
   {
@@ -77,7 +102,14 @@ const BENCHMARKS: Benchmark[] = [
     date: '2026-08-28',
     description:
       'The current release. A benchmark to measure and evolve with the frontier of agent work.',
-    links: [{ label: 'Leaderboard', href: '/' }],
+    links: [
+      { label: 'Leaderboard', href: '/' },
+      {
+        label: 'Harbor Hub',
+        href: 'https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/4',
+        external: true,
+      },
+    ],
   },
   {
     name: 'Terminal-Bench-Science 0.1',
