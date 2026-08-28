@@ -1,19 +1,20 @@
 import { CONTRIBUTORS } from '@/app/(home)/contributors/data';
+import {
+  ContributorReleaseNav,
+  CONTRIBUTOR_RELEASES,
+} from '@/app/(home)/contributors/release-nav';
 import { ContributorsGrid } from '@/components/contributors-grid';
 import { GeistSans } from 'geist/font/sans';
 import { notFound } from 'next/navigation';
 
 import { cn } from '@/lib/utils';
 
+const CONTRIBUTORS_DESCRIPTION =
+  'The people and organizations behind Terminal-Bench.';
+
 const RELEASES = {
-  'terminal-bench-1': {
-    description:
-      "People and organizations who contributed to Terminal-Bench's first release.",
-  },
-  'terminal-bench-2': {
-    description:
-      'People and organizations who contributed to the Terminal-Bench 2.0 release.',
-  },
+  'terminal-bench-1': {},
+  'terminal-bench-2': {},
 } as const;
 
 type ReleaseSlug = keyof typeof RELEASES;
@@ -51,18 +52,15 @@ export default async function ContributorsByReleasePage({ params }: PageProps) {
   return (
     <article
       className={cn(
-        'mx-auto w-full max-w-4xl flex-1 px-4 pb-12',
+        'content-page mx-auto w-full max-w-3xl flex-1 px-4 py-12',
         GeistSans.className,
       )}
     >
-      <div className="pt-6 sm:pt-12">
-        <h1 className="mb-8 font-mono text-4xl font-medium tracking-tight">
-          Contributors
-        </h1>
-        <p className="mb-8 font-mono text-muted-foreground">
-          {release.description}
-        </p>
-      </div>
+      <h1>Contributors</h1>
+      <p className="mb-10 text-muted-foreground">{CONTRIBUTORS_DESCRIPTION}</p>
+      <ContributorReleaseNav
+        currentHref={`/contributors/${slug}` as (typeof CONTRIBUTOR_RELEASES)[number]['href']}
+      />
 
       <ContributorsGrid groups={contributorGroups} />
 
@@ -101,6 +99,6 @@ export async function generateMetadata({ params }: PageProps) {
 
   return {
     title: 'Contributors',
-    description: release.description,
+    description: CONTRIBUTORS_DESCRIPTION,
   };
 }

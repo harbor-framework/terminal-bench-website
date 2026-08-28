@@ -1,16 +1,5 @@
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import Link from "next/link";
-import { formatNewsDate } from "./format-news-date";
-
-interface Author {
-  name: string;
-}
+import Link from 'next/link';
+import { formatNewsDate } from './format-news-date';
 
 interface NewsCardProps {
   url: string;
@@ -25,29 +14,32 @@ export function NewsCard({
   title,
   description,
 }: NewsCardProps) {
+  const content = (
+    <>
+      <h2 className="min-w-0 break-words font-mono text-base font-medium tracking-tight uppercase sm:text-lg">
+        {title}
+      </h2>
+      <time
+        dateTime={new Date(date).toISOString()}
+        className="justify-self-end whitespace-nowrap pt-1 font-mono text-xs text-muted-foreground"
+      >
+        {formatNewsDate(date)}
+      </time>
+      {description && (
+        <p className="col-span-2 min-w-0 max-w-3xl break-words font-mono text-sm leading-6 text-muted-foreground sm:col-span-1">
+          {description}
+        </p>
+      )}
+    </>
+  );
+  const className =
+    'grid min-h-28 grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-1 px-3 py-4 no-underline sm:gap-x-6 sm:px-4';
+
   return (
-    <Card className="hover:bg-sidebar dark:hover:bg-accent -mb-px rounded-none border-x-0 py-0 shadow-none transition-all duration-200 sm:border-x">
-      <Link href={url} className="block">
-        <div className="space-y-6 py-6">
-          <CardHeader>
-            <div className="mb-2 flex items-center justify-between gap-2">
-              <Badge variant="secondary" className="font-mono text-xs">
-                {formatNewsDate(date)}
-              </Badge>
-            </div>
-            <div className="flex flex-col gap-4">
-              <CardTitle className="font-mono text-xl font-medium">
-                {title}
-              </CardTitle>
-              {description && (
-                <CardDescription className="font-mono">
-                  {description}
-                </CardDescription>
-              )}
-            </div>
-          </CardHeader>
-        </div>
+    <article className="bg-card transition-colors hover:bg-muted/50">
+      <Link href={url} className={className}>
+        {content}
       </Link>
-    </Card>
+    </article>
   );
 }

@@ -1,0 +1,136 @@
+---
+title: "Continuous Benchmarks"
+description: "Benchmarks are not static artifacts, they should be maintained like software."
+authors:
+  [
+    { name: "Harbor Team", url: "https://www.harborframework.com/" },
+  ]
+date: 2026-08-28
+category: "News"
+hideToc: true
+---
+
+The process for building a benchmark was:
+
+1. Come up with an idea for a frontier capability test
+2. Take months to build a full set of tasks from scratch
+3. Release it and hope no one notices bugs
+4. If you absolutely have to, update it months later but pay the price to populate a new leaderboard
+
+Tons of work goes into a static asset whose value depreciates over time. Benchmarks don't need to be depreciating assets, they can appreciate in value instead:
+
+1. Come up with an idea for a frontier capability test
+2. Release tasks early and encourage users to report bugs
+3. Ship updates frequently, including adding, removing, and updating tasks
+4. Reuse, regrade, and rerun trials as necessary, in that order
+
+Why hasn't this been done before? Because the conventions and tools did not exist. We're releasing a batch of new Harbor features that makes it _trivial_ to publish versions of a dataset and migrate leaderboards to newer versions by reusing, regrading, or rerunning trials.
+
+By semantically versioning tasks, we can efficiently re-compute results whenever benchmarks are updated. By analyzing "production" leaderboard trajectories we can find task bugs, drop saturated tasks, or be inspired to create new ones. By having sophisticated CI checks we can validate new or improved tasks' quality. Instead of letting benchmarks rot on the shelf until we throw them away, we can continuously and regularly improve our benchmarks in this new virtuous cycle.
+
+## The Problem
+
+We are now challenging our best models with sophisticated projects such as [building entire programs from scratch](/news/terminal-bench-challenges) and [running profitable businesses](https://andonlabs.com/evals/vending-bench-2). We can no longer look at a frontier benchmark and immediately tell if it is correct or incorrect. Now the datasets contain several orders of magnitude more information, consisting of sophisticated simulation environments defined by thousands of lines of code (task files and eval runner) interacting with systems built with billions of lines of code (OS, sandboxing, inference, the internet).
+
+<figure>
+  <img
+    src="/blog/continuous-benchmarks/frontier-bench-task.png"
+    alt="A median Frontier-Bench task with many files and thousands of lines of code"
+    className="rounded-lg border"
+  />
+  <figcaption>A "median" Frontier-Bench task with 20 files and 4,000 lines of code.</figcaption>
+</figure>
+
+Huge portions of the tasks in [popular agent benchmarks](https://x.com/kevin_x_li/status/2075022767402136025) are broken in subtle ways. We do eventually figure out what is broken, but these benchmarks stay that way, until the unbroken parts are saturated and we collectively pronounce them dead and throw them away.
+
+What is stopping everyone from shipping weekly bug fixes and task additions? Benchmark builders want adoption from the frontier labs and don't want to point out flaws in their own work. Agent builders and users want to easily compare competing models without the cost or confusion of dealing with a multitude of benchmark versions.
+
+## The Solution
+
+High velocity updates don't have to be at odds with reproducibility and easy comparison. Software development has already solved these problems.
+
+The sign of good software is active maintenance. Adoption follows from:
+
+- trust in current functionality (e.g. tasks are measured correctly)
+- anticipation of improvements (e.g. new tasks added as old ones saturate)
+- expectation of bug fixes (e.g. patching reward hacks)
+
+Software can also be packaged, versioned, and managed precisely. Benchmark results can be efficiently "upgraded" by computing the minimal "diff" of which rollouts you need to re-run or re-grade.
+
+<figure>
+  <img
+    src="/blog/continuous-benchmarks/continuous-benchmarks.png"
+    alt="Continuous benchmarks feedback loop"
+    className="rounded-lg border"
+  />
+  <figcaption>Continuous Benchmarks</figcaption>
+</figure>
+
+### Versioning and Publishing Tasks
+
+Semantic versioning allows us to manage updates to benchmarks in a principled way. We want to understand how much a task or benchmark has changed so we know how to compare and recompute results efficiently and reliably.
+
+<figure>
+  <img
+    src="/blog/continuous-benchmarks/task-semantic-versioning.png"
+    alt="Task semantic versioning rules for patch, minor, and major changes"
+    className="rounded-lg border"
+  />
+  <figcaption>Task Semantic Versioning</figcaption>
+</figure>
+
+The simplest changes to tasks are "patches" that do not meaningfully affect the scores. We can directly re-use previous experimental results, alongside tasks that have not changed at all.
+
+Changes to the verifier when using a separate container for the agent and verifier can be considered "minor". We can simply re-grade the saved artifacts from previous experiments without burning tokens on new rollouts.
+
+Changes that significantly change the agent environment are considered "major" breaking changes. These require re-running agents on the new version of the task.
+
+Dataset version bumps simply mirror the largest bump among the dataset's tasks. Datasets and tasks are treated as portable, self-contained "packages" that can be published to the Harbor Hub. Leaderboards correspond to specific dataset versions.
+
+Leaderboards are easily "upgraded" using Harbor to "diff" between all existing trials and the target dataset version. Only tasks with major bumps get re-run. Only tasks with minor bumps get regraded. All other tasks are re-used. This vastly reduces the cost and complexity of managing a benchmark version change.
+
+### Gaining Insights from Usage
+
+"Production" usage informs features and fixes. The leaderboard is the source of production traffic on your benchmark.
+
+No matter how much testing is done with currently available agents, tasks will still be broken in unexpected ways as time goes on. New agents will find new reward hacks, new interpretations of instructions, [new valid solutions](https://github.com/harbor-framework/harbor-index/pull/133), new ways of interacting with the environment. Usage uncovers issues in the tasks. This is the argument for releasing a benchmark early and iterating: it is the fastest way to improve your benchmark.
+
+Large scale sweeps across agent and model combinations will yield explicit errors and implicit insights elucidated by trajectory analysis. These become bug reports, which become fixes and task version bumps.
+
+Observations of agent failures in real deployment environments outside your benchmark also inspire new tasks. Hypotheses about what future capabilities will be valuable can be tested in new tasks as well, planting the flag on the frontier.
+
+### CI on New and Improved Tasks
+
+Quality checks gate all task changes and new tasks. Issues found in "production" are added as additional quality checks.
+
+The simplest checks run on the task files themselves:
+
+- Static analysis on task files
+- Agent judge review against a rubric
+
+Cheap "unit" tests determine basic task validity under cheap execution:
+
+- Oracle agent receives full reward
+- No-op agent receives no reward
+
+The most signal comes from "integration" tests running the task as a benchmark:
+
+- Frontier agents instructed normally do not error and receive expected reward
+- Agent judge on trial results and trajectory does not uncover issues
+- Cheating agent instructed to reward hack does not succeed
+
+Agent runs, including judging, are all rollouts that can be done in Harbor: auditable, reproducible, sharable.
+
+## Conclusion
+
+A good benchmark defines a capability target and measures it well. It is an empirical tool. Everything in AI is driven by empiricism. Knowing whether a product works or not before shipping it. Understanding what internal workflows can be automated and which can't. [Picking the best model at the best price](https://www.databricks.com/blog/benchmarking-coding-agents-databricks-multi-million-line-codebase). Our [policies depend on determining accurately](https://x.com/demishassabis/status/2076957440109625718) what AI can and can't do.
+
+Good benchmarks allow us to make good decisions. We need our benchmarks to be the best they can possibly be. Broken and stale benchmarks are not neutral, they are poor information. Continuous benchmarks are critical to progress in the right direction.
+
+Harbor makes this possible by tracking and managing versioning, enabling the benefits of fixes and improvements while maintaining easy and efficient comparison. We developed these features while building Frontier-Bench, the successor to Terminal-Bench, after realizing that benchmarks need to evolve and improve over time. Join us in building continuous benchmarks.
+
+Every company in the near future will be building benchmarks to measure precisely what they care about. There will be a million benchmarks soon, let's make them good benchmarks. Let's make them continuous benchmarks.
+
+## Acknowledgements
+
+Alex Shaw, Andy Konwinski, and Ludwig Schmidt gave feedback on early versions of this post. Harbor and Frontier-Bench are collective efforts of a large community. Special thanks to community members Kevin Li and Kelly Buchanan for inspiring the discussion of benchmarks as software.

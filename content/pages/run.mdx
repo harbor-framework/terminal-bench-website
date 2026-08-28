@@ -1,6 +1,6 @@
 ---
 title: Run
-description: How to run Terminal-Bench 3.0.
+description: How to run Terminal-Bench.
 ---
 
 ## Install Harbor
@@ -26,7 +26,7 @@ pip install 'harbor[modal]'
 
 ## Run the Benchmark
 
-Terminal-Bench 3.0 contains 4 tasks that require GPUs, so you need to run it with a sandbox that has GPU access. We used Modal for our experiments. Daytona also recently added GPU support and we hope others will follow suit.
+Terminal-Bench contains tasks that require GPUs, so you need to run it with a sandbox that has GPU access. We used Modal for our experiments. Daytona also recently added GPU support and we hope others will follow suit.
 
 ```bash
 harbor run -d terminal-bench/terminal-bench \

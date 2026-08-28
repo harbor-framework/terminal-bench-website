@@ -1,8 +1,13 @@
 import { getMDXComponents } from '@/components/mdx';
-import { Share } from '@/components/share';
 import { blog } from '@/lib/source';
+import { cn } from '@/lib/utils';
+import {
+  DocsBody,
+  DocsDescription,
+  DocsTitle,
+} from 'fumadocs-ui/layouts/docs/page';
+import { GeistSans } from 'geist/font/sans';
 import { notFound } from 'next/navigation';
-import { formatNewsDate } from '../components/format-news-date';
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -17,106 +22,101 @@ export default async function BlogPostPage({ params }: PageProps) {
   }
 
   const Mdx = page.data.body;
+  const isTerminalBenchAnnouncement = page.slugs[0] === 'terminal-bench-3-0';
+
+  if (isTerminalBenchAnnouncement) {
+    return (
+      <article
+        className={cn(
+          'content-page mx-auto w-full max-w-3xl flex-1 px-4 py-12',
+          GeistSans.className,
+        )}
+      >
+        <DocsTitle>{page.data.title}</DocsTitle>
+        <DocsDescription>{page.data.description}</DocsDescription>
+        <DocsBody>
+          <Mdx components={getMDXComponents()} />
+        </DocsBody>
+      </article>
+    );
+  }
 
   return (
-    <div className="flex flex-1 flex-col items-center px-4">
-      <div className="flex w-full max-w-6xl flex-1 justify-center gap-10">
-        <div className="flex w-full max-w-4xl flex-1 flex-col">
-          <div className="flex-1 pt-6 sm:pt-12">
-            <div className="mb-6 flex items-center justify-between gap-2">
-              <p className="font-mono text-sm text-muted-foreground">
-                {formatNewsDate(page.data.date)}
-              </p>
-              <Share />
-            </div>
-            <h1 className="mb-8 font-mono text-4xl/normal font-medium tracking-tight">
-              {page.data.title}
-            </h1>
-            {page.slugs[0] !== 'terminal-bench-challenges' && (
-              <p className="font-sans text-base text-muted-foreground">
-                {page.data.description}
-              </p>
-            )}
-          </div>
-          <article className="flex w-full flex-col py-8">
-            <div className="prose min-w-0">
-              <Mdx components={getMDXComponents()} />
-            </div>
-            <div className="mt-12 flex flex-col gap-4 text-sm">
-              <div>
-                <p className="mb-1 font-mono text-muted-foreground">
-                  Written by
-                </p>
-                <p className="font-mono">
-                  {page.slugs[0] === 'terminal-bench-2-1' ? (
-                    <>
-                      <a
-                        href="https://x.com/terminalbench"
-                        className="underline-offset-4 hover:underline"
-                      >
-                        The Terminal-Bench Team
-                      </a>{' '}
-                      (TB2.1 Lead:{' '}
-                      <a
-                        href="https://x.com/ekellbuch"
-                        className="underline-offset-4 hover:underline"
-                      >
-                        Kelly Buchanan
-                      </a>
-                      )
-                    </>
-                  ) : page.slugs[0] === 'terminal-bench-challenges' ? (
-                    <>
-                      <a
-                        href="https://x.com/terminalbench"
-                        className="underline-offset-4 hover:underline"
-                      >
-                        The Terminal-Bench Team
-                      </a>{' '}
-                      (TB Challenges Lead:{' '}
-                      <a
-                        href="https://x.com/andr3w_wang"
-                        className="underline-offset-4 hover:underline"
-                      >
-                        Andrew Wang
-                      </a>
-                      )
-                    </>
+    <article
+      className={cn(
+        'content-page mx-auto w-full max-w-3xl flex-1 px-4 py-12',
+        GeistSans.className,
+      )}
+    >
+      <DocsTitle>{page.data.title}</DocsTitle>
+      <DocsDescription>{page.data.description}</DocsDescription>
+      <DocsBody>
+        <Mdx components={getMDXComponents()} />
+      </DocsBody>
+      <div className="mt-12 flex flex-col gap-4 border-t pt-8 text-sm">
+        <div>
+          <p className="mb-1 font-mono text-muted-foreground">Written by</p>
+          <p className="font-mono">
+            {page.slugs[0] === 'terminal-bench-2-1' ? (
+              <>
+                <a
+                  href="https://x.com/terminalbench"
+                  className="underline-offset-4 hover:underline"
+                >
+                  The Terminal-Bench Team
+                </a>{' '}
+                (TB2.1 Lead:{' '}
+                <a
+                  href="https://x.com/ekellbuch"
+                  className="underline-offset-4 hover:underline"
+                >
+                  Kelly Buchanan
+                </a>
+                )
+              </>
+            ) : page.slugs[0] === 'terminal-bench-challenges' ? (
+              <>
+                <a
+                  href="https://x.com/terminalbench"
+                  className="underline-offset-4 hover:underline"
+                >
+                  The Terminal-Bench Team
+                </a>{' '}
+                (TB Challenges Lead:{' '}
+                <a
+                  href="https://x.com/andr3w_wang"
+                  className="underline-offset-4 hover:underline"
+                >
+                  Andrew Wang
+                </a>
+                )
+              </>
+            ) : (
+              page.data.authors.map((author, index) => (
+                <span key={author.name}>
+                  {author.url ? (
+                    <a
+                      href={author.url}
+                      className="underline-offset-4 hover:underline"
+                    >
+                      {author.name}
+                    </a>
                   ) : (
-                    page.data.authors.map((author, index) => (
-                      <span key={author.name}>
-                        {author.url ? (
-                          <a
-                            href={author.url}
-                            className="underline-offset-4 hover:underline"
-                          >
-                            {author.name}
-                          </a>
-                        ) : (
-                          author.name
-                        )}
-                        {index < page.data.authors.length - 1 &&
-                          (index === page.data.authors.length - 2
-                            ? page.data.authors.length > 2
-                              ? ', and '
-                              : ' and '
-                            : ', ')}
-                      </span>
-                    ))
+                    author.name
                   )}
-                </p>
-              </div>
-              {page.slugs[0] === 'tb-science-announcement' && (
-                <p className="mt-4 font-mono text-xs text-muted-foreground">
-                  Terminal-Bench-Science is an open academic collaboration
-                  hosted by Stanford University and the Laude Institute.
-                </p>
-              )}
-            </div>
-          </article>
+                  {index < page.data.authors.length - 1 &&
+                    (index === page.data.authors.length - 2
+                      ? page.data.authors.length > 2
+                        ? ', and '
+                        : ' and '
+                      : ', ')}
+                </span>
+              ))
+            )}
+          </p>
         </div>
       </div>
-    </div>
+    </article>
   );
 }
 

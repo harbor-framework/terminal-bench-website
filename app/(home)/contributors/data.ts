@@ -375,11 +375,11 @@ export const CONTRIBUTORS: Contributor[] = [
   {
     name: "Andy Konwinski",
     link: "https://x.com/andykonwinski",
-    role: "Advisor",
+    role: "Co-Lead",
   },
   {
     name: "Ludwig Schmidt",
     link: "https://people.csail.mit.edu/ludwigs/",
-    role: "Advisor",
+    role: "Co-Lead",
   },
 ];

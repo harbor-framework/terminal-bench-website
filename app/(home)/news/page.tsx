@@ -1,39 +1,40 @@
 import { blog } from '@/lib/source';
+import { cn } from '@/lib/utils';
+import { GeistSans } from 'geist/font/sans';
 import { NewsCard } from './components/news-card';
 
 export default async function BlogPage() {
   const posts = blog.getPages();
 
   return (
-    <div className="flex flex-1 flex-col items-center px-4">
-      <div className="flex w-full max-w-4xl flex-1 flex-col">
-        <div className="pt-6 sm:pt-12">
-          <h1 className="mb-8 font-mono text-4xl font-medium tracking-tight">
-            Blog
-          </h1>
-          <p className="mb-8 font-mono text-muted-foreground">
-            Updates and announcements from the Terminal-Bench team.
-          </p>
-        </div>
+    <article
+      className={cn(
+        'content-page mx-auto w-full max-w-3xl flex-1 px-4 py-12',
+        GeistSans.className,
+      )}
+    >
+      <h1>Blog</h1>
+      <p className="mb-10 text-muted-foreground">
+        Updates and announcements from the Terminal-Bench team.
+      </p>
 
-        <div className="-mx-4 mb-6 flex flex-col sm:mx-0">
-          {posts
-            .sort(
-              (a, b) =>
-                new Date(b.data.date).getTime() -
-                new Date(a.data.date).getTime(),
-            )
-            .map((post) => (
-              <NewsCard
-                key={post.url}
-                url={post.url}
-                date={post.data.date}
-                title={post.data.title}
-                description={post.data.description}
-              />
-            ))}
-        </div>
+      <div className="-mx-4 mb-6 grid gap-px overflow-hidden border bg-border sm:mx-0">
+        {posts
+          .sort(
+            (a, b) =>
+              new Date(b.data.date).getTime() -
+              new Date(a.data.date).getTime(),
+          )
+          .map((post) => (
+            <NewsCard
+              key={post.url}
+              url={post.url}
+              date={post.data.date}
+              title={post.data.title}
+              description={post.data.description}
+            />
+          ))}
       </div>
-    </div>
+    </article>
   );
 }

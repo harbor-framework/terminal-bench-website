@@ -1,162 +1,118 @@
 ---
-title: "Terminal-Bench-Science Call for Contributions"
-description: "We are extending Terminal-Bench to complex scientific workflow tasks in the natural sciences. Now open for contributions — we're looking for scientists to turn research workflows into a benchmark that shapes the next generation of AI agents."
-authors: [
-  {
-    name: "Steven Dillmann",
-    url: "https://openreview.net/profile?id=~Steven_Dillmann1",
-  },
-]
-date: 2026-05-20
-category: "News"
+title: "TERMINAL-BENCH-SCIENCE 0.1"
+description: "A benchmark for evaluating AI agents on research workflows across scientific domains"
+authors:
+  [
+    {
+      name: "Steven Dillmann",
+      url: "https://openreview.net/profile?id=~Steven_Dillmann1",
+    },
+  ]
+date: 2026-08-28
+category: "Release"
 hideToc: true
 ---
 
-import { TbScienceLogo } from "@/components/tb-science-logo";
 import { VirtuousCycleDiagram } from "@/components/virtuous-cycle-diagram";
-import { ContributionPipeline } from "@/components/contribution-pipeline";
-import { CalendarSubscribeLinks } from "@/components/calendar-subscribe-links";
 
-<TbScienceLogo />
+Terminal-Bench-Science is a benchmark led by researchers at [Stanford University](https://ai.stanford.edu/) and built by the team behind [Terminal-Bench](https://www.tbench.ai/) in collaboration with [domain experts from a range of scientific disciplines and research institutions](https://www.terminal-bench-science.ai/contributors) around the world. It measures AI agent capabilities through a diverse set of challenging, expert-curated workflows drawn from scientific research.
 
-<ContributionPipeline />
+Terminal-Bench-Science is a continuous benchmark that evolves alongside frontier AI, creating a feedback loop between scientific needs and AI development. Our first release includes [70 tasks](https://github.com/harbor-framework/terminal-bench-science#task-coverage) from the life, physical, Earth, mathematical, and engineering sciences. The strongest model evaluated, Claude Opus 5, achieves a 30% resolution rate on Terminal-Bench-Science 0.1.
 
-## ABOUT
+## Overview
 
-### What is Terminal-Bench Science?
+While Terminal-Bench has driven progress in AI agents for software engineering, Terminal-Bench-Science brings the same ambition to science. Our goal is to drive the development of agents with scientific capabilities that make them useful research assistants. These agents should execute technically demanding and time-consuming workflows, freeing scientists to focus more of their time on the parts of science where human judgment matters most: defining research questions, forming hypotheses, interpreting and validating results, and communicating findings. In this role, AI agents can extend what researchers accomplish and help accelerate scientific discovery.
 
-Terminal-Bench Science is a benchmark for evaluating AI agents on real computational workflows from scientific research. It builds on Terminal-Bench, which has been adopted by frontier labs including Anthropic, OpenAI, and Google DeepMind and has helped drive progress in AI agents on software engineering tasks by defining what those labs measure and optimize for. Terminal-Bench Science brings the same approach to the natural sciences.
+Achieving this requires benchmarks that reflect real scientific practice, provide verifiable evidence of capability, and evolve alongside the AI frontier.
 
-### Why do we need Terminal-Bench Science?
+**We need benchmarks drawn from real scientific workflows.** Scientific capability should be evaluated on real research practice, not textbook questions or standardized exercises, contributed by practicing scientists themselves. Terminal-Bench-Science gives scientists across domains a direct voice and a shared platform to set the bar for AI progress on the problems they care about. The stakes in science are too high, and its benchmarks must reflect the scientific community's priorities rather than outside interests.
 
-Most existing "AI for Science" benchmarks test textbook knowledge, not real workflows. Terminal-Bench Science closes this gap with real computational workflow tasks from research labs, evaluated in containerized environments with programmatic verification. Our goal is to give scientists a direct voice in shaping AI progress: domain experts contribute scientific workflows as benchmark tasks, frontier labs evaluate and improve their AI agents against them, and the improved AI agents with stronger scientific capabilities flow back as better tools for researchers.
+**We need verifiable evidence of scientific capability.** Without reliable evaluation, we cannot tell whether agent capabilities are improving or where their limitations remain. Terminal-Bench-Science evaluates agents in realistic environments and grades concrete artifacts such as analyses, simulations, proofs, code, and data products with reproducible, task-specific tests.
+
+**We need a benchmark that keeps pace with the frontier.** Too often, scientific benchmarks are treated as papers to publish rather than mechanisms for driving progress. They are released once and then abandoned as models advance and known limitations persist. Terminal-Bench-Science is a continuous benchmark that evolves alongside the AI frontier. Through regular releases, scientists can contribute new workflows, improve existing tasks, and create a feedback loop between scientific needs and AI development.
 
 <VirtuousCycleDiagram />
 
-### Domain Coverage
+## Tasks
 
-Terminal-Bench Science is targeting 100+ benchmark tasks across the life sciences, physical sciences, and earth sciences, but is also open to tasks from the mathematical sciences and other domains with computational workflows.
+Terminal-Bench-Science 0.1 includes 70 tasks across the life, physical, Earth, mathematical, and engineering sciences. Tasks span scientific data analysis, statistical inference, simulation, optimization, theorem proving, image reconstruction, signal processing, inverse problems, sensor calibration, model fitting, classification, and scientific machine learning.
 
-| Domain | Areas |
-| ------ | ----- |
-| **Life Sciences** | Biology, Ecology, Medicine, Neuroscience |
-| **Physical Sciences** | Astronomy, Chemistry, Materials Science, Physics |
-| **Earth Sciences** | Atmospheric Sciences, Environmental Sciences, Geosciences, Ocean Sciences |
-| **Mathematical Sciences** | Applied Mathematics, Autoformalization, Scientific Computing, Statistics |
-| **Other Sciences** | Engineering Sciences, Interdisciplinary Sciences, Miscellaneous Sciences |
+Tasks are contributed by researchers through an open process on [GitHub](https://github.com/harbor-framework/terminal-bench-science), with discussion and feedback in the `#tb-science` channel on [Discord](https://discord.com/invite/2Pe5uWGcV3). Contributions begin as proposals, where reviewers discuss each idea, leave feedback, and approve those that look like a strong fit: scientifically grounded workflows worth measuring in the benchmark. Approved proposals are implemented as pull requests, where reviewers confirm that each task is objectively verifiable, genuinely challenging for AI agents, and not something today's frontier systems already solve easily. To merge, domain reviewers assess scientific validity and realism, technical reviewers inspect task construction and verification, and a bar raiser performs a final quality check.
 
-## CONTRIBUTE
+Of 920 proposals, 464 were approved for implementation and 386 pull requests were opened, but only 70 tasks made it into Terminal-Bench-Science 0.1. That selectivity reflects how difficult it is to create tasks that are scientifically interesting, challenging for frontier agents, and sufficiently well specified for rigorous evaluation. Progress across proposals, pull requests, and reviews is tracked on the [public task dashboard](https://stevendillmann.github.io/tb-science-task-dashboard/).
 
-### Why Contribute?
+<figure>
+  <picture>
+    <source
+      srcSet="/blog/tb-science/contributor-geography-dark.webp"
+      media="(prefers-color-scheme: dark)"
+    />
+    <img
+      src="/blog/tb-science/contributor-geography.webp"
+      alt="World map showing the geographic density of Terminal-Bench-Science proposal and implementation authors using public profile locations and affiliations"
+      className="rounded-lg border"
+    />
+  </picture>
+  <figcaption>376 contributors across 22 countries from proposals, reviews, or pull requests.</figcaption>
+</figure>
 
-1. **Make AI better at your science.** Frontier labs optimize for what benchmarks measure. Your tasks directly incentivize them to improve their AI systems on the scientific problems in your domain.
-2. **Gain experience in agentic evaluation.** Get hands-on with evaluating frontier AI agents — learn how to design rigorous benchmarks and see firsthand where today's best models succeed and fail on real scientific work.
-3. **Become a co-author.** Contributors with merged tasks receive co-authorship on the Terminal-Bench Science paper, targeting submission to a high-impact scientific journal.
+## Results
 
-### What We're Looking For
+Terminal-Bench-Science 0.1 leaves substantial room for progress on AI agents for scientific research. Each evaluated model ran three independent trials per task across all 70 tasks. Claude Opus 5 with Claude Code achieves the highest resolution rate at 30.0%, followed by GPT-5.6 Sol with Codex at 22.4% and Claude Fable 5 with Claude Code at 21.4%. Claude Opus 4.8 sits in the middle at 10.5%. GPT-5.6 Terra, Kimi K3, and Grok 4.6 all resolve less than 10% of tasks. GLM 5.3 is the strongest open model at 8.1%, and GPT-5.6 Luna is last at 3.3%.
 
-We're looking for complex, real-world computational workflows from practicing scientists across the natural sciences that meet the following three key criteria:
+| Model | Agent | Resolution rate |
+| --- | --- | ---: |
+| Claude Opus 5 | Claude Code | 30.0% |
+| GPT-5.6 Sol | Codex | 22.4% |
+| Claude Fable 5 | Claude Code | 21.4% |
+| Claude Opus 4.8 | Claude Code | 10.5% |
+| GPT-5.6 Terra | Codex | 8.6% |
+| GLM 5.3 | Claude Code | 8.1% |
+| Kimi K3 | Claude Code | 7.1% |
+| Grok 4.6 | Grok Build | 7.1% |
+| GPT-5.6 Luna | Codex | 3.3% |
 
-1. **Scientifically grounded.** Tasks should reflect computational workflows from real research in the natural sciences — ideally drawn from your own work or replicating published results in your domain of expertise.
+Terminal-Bench-Science distinguishes between systems about as well as Terminal-Bench 3.0 while pushing resolution rates down by more than 10 percentage points for every model evaluated on both. That gap is deliberate: during review, tasks were calibrated to challenge the newest frontier models.
 
-2. **Objectively verifiable.** Solutions must be programmatically checkable with deterministic pytest-based evaluation. We are not looking for open-ended tasks like hypothesis generation or literature review.
+Performance is only one dimension of progress. The [cost-resolution plot](https://www.terminal-bench-science.ai/?view=pareto&x=cost) shows total evaluation cost across all 70 tasks against resolution rate. GPT-5.6 Luna, Kimi K3, and GPT-5.6 Terra occupy the low-cost end of the frontier. GPT-5.6 Sol and Claude Opus 5 reach the highest resolution rates at greater cost, with Opus 5 at $7.0k. GPT-5.6 Sol matches Claude Fable 5's performance at less than a third of the cost ($4.2k vs $14.2k). Token usage shows a different frontier.
 
-3. **Genuinely difficult.** We target tasks that today's best AI agents cannot yet reliably solve. Hard tasks expose real gaps and push capabilities forward — we're aiming for a 10–20% solve rate at release.
+Claude Fable 5 matches GPT-5.6 Sol's performance while using about a quarter fewer tokens (6.4B vs 8.4B). Kimi K3 anchors the low-token end and Claude Opus 5 the high-resolution end. Only Kimi K3 and Claude Opus 5 appear on both Pareto frontiers.
 
-Tasks follow the [Harbor Task Format](https://www.harborframework.com/docs/tasks). Check out [Example Tasks](https://github.com/harbor-framework/terminal-bench-science/tree/main/tasks) and the [Task Dashboard](https://stevendillmann.github.io/tb-science-task-dashboard/) for reference.
+Resolution rates also vary by scientific domain. Anthropic and OpenAI models take the top two spots in every domain except the engineering sciences, where Grok 4.6 ties GPT-5.6 Sol for second place (14.8%) at lower cost and token usage. Claude Opus 5 leads both GPT-5.6 Sol and Claude Fable 5 in every domain except the mathematical sciences, where Claude Fable 5 (33.3%) and GPT-5.6 Sol (31.4%) take the top two spots. The full breakdown by domain is available on the [leaderboard](https://www.terminal-bench-science.ai/?view=domains).
 
-### How to Contribute
+## Conclusion and Roadmap
 
-Before you start, join our [Discord](https://discord.com/invite/2Pe5uWGcV3), introduce yourself in **#tb-science**, and optionally pitch your task idea there for early feedback. Follow **#tb-science-announcements** for updates and our weekly meetings (Mondays, 9am PT). We then follow a curated three-stage contribution process to maintain quality:
+Terminal-Bench-Science 0.1 is a community effort by researchers across the life, physical, Earth, mathematical, and engineering sciences, together with the [Terminal-Bench](https://www.tbench.ai/) and [Harbor](https://www.harborframework.com/) team. It is the most rigorous benchmark of scientific agent capabilities we could build in the open, and we are only getting started: Terminal-Bench-Science 0.1 is the first release of a continuous benchmark.
 
-1. **Propose** — When you're ready, submit your idea via the [Task Proposal Form](https://airtable.com/appzZC5gEHrXSfNNw/pagjgS95lAQ5FVJxt/form). Proposals are posted on our [Task Proposal Board](https://github.com/harbor-framework/terminal-bench-science/discussions/categories/task-proposals) and in **#tb-science-task-proposals**. An LLM judge evaluates it against our [Task Proposal Rubric](https://github.com/harbor-framework/terminal-bench-science/blob/main/rubrics/task-proposal.md), and human reviewers use that to approve your proposal and guide you toward implementation.
+Regular releases will add tasks, broaden coverage across the five scientific domains, retire tasks that agents saturate or that review reveals to be underspecified, and keep the [leaderboard](https://www.terminal-bench-science.ai/) current as new frontier models are released. Each release is calibrated against the frontier at the time. For Terminal-Bench-Science 0.1, this was Claude Opus 5 and GPT-5.6 Sol, and as stronger models emerge we will use them to evaluate and calibrate new and improved tasks. Tasks are versioned so that trials can be re-used, re-graded, or re-run with a single Harbor command, which keeps the cost of updating results low. Progress is tracked in the open on the [task dashboard](https://stevendillmann.github.io/tb-science-task-dashboard/), and every release is tagged on [GitHub](https://github.com/harbor-framework/terminal-bench-science/releases) and [Harbor Hub](https://hub.harborframework.com/datasets/terminal-bench-science/terminal-bench-science/latest).
 
-2. **Build** — Once approved, build the task in the [Harbor Task Format](https://www.harborframework.com/docs/tasks) and submit a [Pull Request](https://github.com/harbor-framework/terminal-bench-science/pulls) following our [Contributing Guide](https://github.com/harbor-framework/terminal-bench-science/blob/main/CONTRIBUTING.md). Your implementation is evaluated against our [Task Implementation Rubric](https://github.com/harbor-framework/terminal-bench-science/blob/main/rubrics/task-implementation.toml), and human reviewers also assess difficulty, scientific quality, and overall fit. We work with you iteratively through review until it's ready to merge. Once merged, you earn [contributor status](https://www.tbench.ai/contributors/terminal-bench-science) and authorship credit on the Terminal-Bench Science paper.
+Work on **Terminal-Bench-Science 0.2** is already underway, with a pull request deadline of **October 5, 2026**. If you are a researcher with a workflow that frontier agents should be able to do but cannot yet, we want it in the benchmark. The contribution flow is **Propose -> Build -> Review**: propose your task through the [task proposal form](https://airtable.com/appzZC5gEHrXSfNNw/pagjgS95lAQ5FVJxt/form), build it following the [contributing guide](https://github.com/harbor-framework/terminal-bench-science/blob/main/CONTRIBUTING.md), and it will go through automated checks, parallel domain and technical review, and final bar-raiser approval before merge.
 
-3. **Review** — Top contributors are invited to [reviewer & maintainer status](https://github.com/harbor-framework/terminal-bench-science/blob/main/.github/reviewer-pool.yml) — a senior role with elevated authorship credit and **area chair** candidacy for a scientific domain. An area chair leads a specific scientific area: they recruit new contributors within their domain, manage the reviewing team and progress, and set the scientific bar for tasks in their area. It is one of the highest roles in the project.
+Join the effort in `#tb-science` on [Discord](https://discord.com/invite/2Pe5uWGcV3) and on [GitHub](https://github.com/harbor-framework/terminal-bench-science), and drop into our weekly meetings and office hours via the [project calendar](https://calendar.google.com/calendar/embed?src=2ca3e7fdc9e51a42ce18142e897f7db23fbf8e65867da1a06dc3ea5e6ad4e893%40group.calendar.google.com&ctz=America%2FLos_Angeles&mode=WEEK). Let's let scientists define what scientific capability in AI looks like, and measure it rigorously, together.
 
-You can follow every open proposal, pull request, status, and domain coverage in real time on the [Task Dashboard](https://stevendillmann.github.io/tb-science-task-dashboard/). Once the task collection is complete, we run frontier AI agents against it to calibrate difficulty. Tasks that pass are included in the official Terminal-Bench Science release on the [Terminal-Bench Benchmarks](https://www.tbench.ai/benchmarks) and [Terminal-Bench Leaderboards](https://www.tbench.ai/leaderboard).
+## Citation
 
-### Weekly Meetings and Office Hours
+If you find this work useful, please cite it. You can use the "Cite this repository" button on GitHub, generated from [CITATION.cff](https://github.com/harbor-framework/terminal-bench-science/blob/main/CITATION.cff), or cite manually using the information below.
 
-We host a **weekly meeting every Monday at 9am PT** for project updates and open discussion. Reviewers also run **office hours** throughout the week for feedback on proposals, implementation questions, and review guidance. You can subscribe to the [Terminal-Bench Science calendar](https://calendar.google.com/calendar/embed?src=2ca3e7fdc9e51a42ce18142e897f7db23fbf8e65867da1a06dc3ea5e6ad4e893%40group.calendar.google.com&ctz=America%2FLos_Angeles&mode=WEEK) to see all upcoming sessions. Drop into any session — no RSVP needed.
+```bibtex
+@software{Terminal-Bench-Science_Team_Terminal-Bench-Science_Evaluating_AI_2026,
+  author = {{Terminal-Bench-Science Team}},
+  doi = {10.5281/zenodo.22110254},
+  license = {Apache-2.0},
+  month = aug,
+  title = {{Terminal-Bench-Science: Evaluating AI agents on research workflows across scientific domains}},
+  url = {https://github.com/harbor-framework/terminal-bench-science},
+  version = {v0.1.0},
+  year = {2026}
+}
+```
 
-<table>
-  <colgroup>
-    <col style={{ width: "26%" }} />
-    <col style={{ width: "38%" }} />
-    <col style={{ width: "16%" }} />
-    <col style={{ width: "10%" }} />
-    <col style={{ width: "10%" }} />
-  </colgroup>
-  <thead>
-    <tr>
-      <th>Session</th>
-      <th>Areas</th>
-      <th>Time (PT)</th>
-      <th>Notes</th>
-      <th>Meeting</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>Weekly Meeting</strong></td>
-      <td>General</td>
-      <td>Monday 9am</td>
-      <td><a href="https://docs.google.com/document/d/1L5ynajRciLq4S6NnfAdrBgmowxu6kKS6raE6nCzZHhU/edit?tab=t.0">Notes</a></td>
-      <td><a href="https://meet.google.com/heg-tajv-qgx">Join</a></td>
-    </tr>
-    <tr>
-      <td><strong>Office Hour: <a href="https://github.com/stevendillmann">Steven Dillmann</a></strong></td>
-      <td>General, Applied Mathematics, Astronomy, Physics, Statistics</td>
-      <td>Monday 10am</td>
-      <td><a href="https://docs.google.com/document/d/1L5ynajRciLq4S6NnfAdrBgmowxu6kKS6raE6nCzZHhU/edit?tab=t.dxp0i6b94q4s">Notes</a></td>
-      <td><a href="https://meet.google.com/dhx-rtwo-fvt">Join</a></td>
-    </tr>
-    <tr>
-      <td><strong>Office Hour: <a href="https://github.com/AllenGrahamHart">Allen Hart</a></strong></td>
-      <td>General, Applied Mathematics, Physics, Autoformalization, Scientific Computing</td>
-      <td>Thursday 10am</td>
-      <td><a href="https://docs.google.com/document/d/1L5ynajRciLq4S6NnfAdrBgmowxu6kKS6raE6nCzZHhU/edit?tab=t.hsp6zb1ob5o8">Notes</a></td>
-      <td><a href="https://meet.google.com/vun-kkxt-jyp">Join</a></td>
-    </tr>
-  </tbody>
-</table>
+## Acknowledgements
 
-<CalendarSubscribeLinks />
+Thank you to all of the [task contributors, reviewers, and advisors](https://www.terminal-bench-science.ai/contributors) behind Terminal-Bench-Science.
 
-### Authorship & Credit
+Special thanks to our project lead advisors Ludwig Schmidt and Sanmi Koyejo; our senior reviewers Allen Hart, Ivan Bercovich, Joseph Janssen, Jiaming Hu, Steffen Bollmann, and Sergey Aganezov; our AI research advisors Ryan Marten, Alex Shaw, Lin Shi, Benjamin Feuer, Mike A. Merrill, Alex Dimakis, Jenia Jitsev, Bodhisattwa Majumder, Peter Clark, Thomas Wolf, Braden Hancock, and Andy Konwinski; and our scientific advisors Sara Beery, Jo Dunkley, J. Nathan Kutz, Ching-Yao Lai, Scott Linderman, Emma Lundberg, Russ Poldrack, Aviv Regev, and Risa Wechsler.
 
-Contributors with merged tasks earn **contributor status** — co-authorship on the Terminal-Bench Science paper and a listing on the [Terminal-Bench Contributors](https://www.tbench.ai/contributors/terminal-bench-science) page. Author order is determined by the number and impact of accepted tasks.
+Terminal-Bench-Science is an open academic collaboration hosted by [Stanford University](https://ai.stanford.edu/) and the [Laude Institute](https://laude.org/), in partnership with the [Stanford AI Lab (SAIL)](https://ai.stanford.edu/), the [Stanford Institute for Human-Centered Artificial Intelligence (HAI)](https://hai.stanford.edu/), [Stanford AI Measurement Science (AIMS)](https://aimslab.stanford.edu/), the [NSF AI Institute for Foundations of Machine Learning (IFML)](https://www.ifml.institute/), the [Allen Institute](https://alleninstitute.org/), and the [Allen Institute for AI (Ai2)](https://allenai.org/). As part of the [Terminal-Bench](https://www.tbench.ai/) franchise, it is built by the Terminal-Bench and [Harbor](https://www.harborframework.com/) team together with a community of [scientific contributors](https://www.terminal-bench-science.ai/contributors).
 
-Top contributors are invited into **reviewer & maintainer status** — a senior role that comes with elevated authorship credit, voting rights on proposal approvals and PR merges, and the chance to shape the benchmark's scientific direction.
-
-Reviewers in good standing become eligible for **area chair**, which leads a specific scientific area, manages its reviewing team and progress, and recruits new contributors — one of the highest roles in the project.
-
-Faculty who bring in contributors or review tasks as domain experts are eligible for **senior authorship**.
-
-### Deadline
-
-Pull requests must be submitted by **August 17, 2026**. Review, iteration, and merge happen after the deadline, but no new PRs will be accepted past that date. Starting early is highly recommended — most tasks require a few rounds of feedback and iteration before they're ready to merge.
-
-## RESOURCES
-
-Join our [Discord](https://discord.com/invite/2Pe5uWGcV3) and reach out to @stevendi11 on Discord or [stevendi@stanford.edu](mailto:stevendi@stanford.edu) to get involved. Key channels: **#tb-science** for general discussion and early feedback on task ideas, **#tb-science-announcements** for project updates, and **#tb-science-task-proposals** for submitted proposals, automated reviews, and reviewer feedback. Drop into our weekly meetings and office hours — see the [Terminal-Bench Science calendar](https://calendar.google.com/calendar/embed?src=2ca3e7fdc9e51a42ce18142e897f7db23fbf8e65867da1a06dc3ea5e6ad4e893%40group.calendar.google.com&ctz=America%2FLos_Angeles&mode=WEEK) for the schedule.
-
-### Links
-
-- [GitHub](https://github.com/harbor-framework/terminal-bench-science) — source code and task submissions
-- [Discord](https://discord.com/invite/2Pe5uWGcV3) — #tb-science, #tb-science-announcements, #tb-science-task-proposals
-- [Calendar](https://calendar.google.com/calendar/embed?src=2ca3e7fdc9e51a42ce18142e897f7db23fbf8e65867da1a06dc3ea5e6ad4e893%40group.calendar.google.com&ctz=America%2FLos_Angeles&mode=WEEK) — weekly meeting and office hours schedule
-- [Task Dashboard](https://stevendillmann.github.io/tb-science-task-dashboard/) — track all open proposals, PRs, statuses, and domain coverage
-- [Task Proposal Form](https://airtable.com/appzZC5gEHrXSfNNw/pagjgS95lAQ5FVJxt/form) — submit your task idea
-- [Contributing Guide](https://github.com/harbor-framework/terminal-bench-science/blob/main/CONTRIBUTING.md) — how to build and submit your task PR
-- [Harbor](https://harborframework.com/) — learn the task format and run Terminal-Bench evaluations
-
-### Acknowledgements
-
-Terminal-Bench Science is an open academic collaboration hosted by Stanford University and the Laude Institute. As part of the Terminal-Bench franchise, it is built by the Terminal-Bench & Harbor Framework team, and scientific contributors. We thank Snorkel AI for support via the Open Benchmarks Grants program, the Laude Institute via the Slingshots program, and 2077AI for API credits that power benchmark evaluations.
-
-### Contact
-
-For questions, feedback, or if you're interested in contributing, reach out to Steven Dillmann at [stevendi@stanford.edu](mailto:stevendi@stanford.edu).
+We thank the [Laude Institute](https://laude.org/) for support through the Slingshots program, [Snorkel AI](https://snorkel.ai/) for support through the Open Benchmarks Grants program, the [2077AI Open Source Foundation](https://www.2077ai.com/) for [PP API](https://www.ppapi.ai/) credits supporting task review and curation, and [UniPat AI](https://unipat.ai/) and [Modal](https://modal.com/) for their support of Terminal-Bench-Science. We thank [Bespoke Labs](https://bespokelabs.ai/), [Anthropic](https://www.anthropic.com/), [Google](https://www.google.com/), [Moonshot AI](https://www.moonshot.ai/), [SpaceXAI](https://x.ai/), and [Z.ai](https://z.ai/) for API credits supporting leaderboard evaluations.
