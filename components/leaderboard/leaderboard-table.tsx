@@ -170,11 +170,11 @@ function AccuracyBarCell({ row }: { row: LeaderboardRow }) {
               }}
             />
             <div
-              className="absolute top-1/2 h-2 w-0.5 -translate-x-1/2 -translate-y-1/2 bg-foreground"
+              className="absolute top-1/2 h-1.5 w-0.5 -translate-x-1/2 -translate-y-1/2 bg-foreground"
               style={{ left: `${ciLower}%` }}
             />
             <div
-              className="absolute top-1/2 h-2 w-0.5 -translate-x-1/2 -translate-y-1/2 bg-foreground"
+              className="absolute top-1/2 h-1.5 w-0.5 -translate-x-1/2 -translate-y-1/2 bg-foreground"
               style={{ left: `${ciUpper}%` }}
             />
           </>
