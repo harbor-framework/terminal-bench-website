@@ -14,17 +14,23 @@ export default function ContributorsPage() {
   return (
     <article
       className={cn(
-        'content-page mx-auto w-full max-w-4xl flex-1 px-4 py-12',
+        'mx-auto w-full max-w-4xl flex-1 px-4 pb-12',
         GeistSans.className,
       )}
     >
-      <h1>Contributors</h1>
-      <p className="mb-10 text-muted-foreground">
-        The people and organizations building Terminal-Bench 3.0.
-      </p>
+      <div className="pt-6 sm:pt-12">
+        <h1 className="mb-8 font-mono text-4xl font-medium tracking-tight">
+          Contributors
+        </h1>
+        <p className="mb-8 font-mono text-muted-foreground">
+          The people and organizations building Terminal-Bench 3.0.
+        </p>
+      </div>
       <ContributorsGrid />
       <section className="mt-12 border-t pt-8">
-        <h2>Earlier Releases</h2>
+        <h2 className="font-mono text-2xl font-medium tracking-tight">
+          Earlier Releases
+        </h2>
         <div className="mt-4 grid gap-px overflow-hidden border-y bg-border sm:grid-cols-2">
           {[
             {

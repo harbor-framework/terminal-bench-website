@@ -1,10 +1,6 @@
 import { getMDXComponents } from '@/components/mdx';
 import { pagesSource } from '@/lib/source';
-import {
-  DocsBody,
-  DocsDescription,
-  DocsTitle,
-} from 'fumadocs-ui/layouts/docs/page';
+import { DocsBody } from 'fumadocs-ui/layouts/docs/page';
 import { GeistSans } from 'geist/font/sans';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -21,17 +17,25 @@ export default async function Page(props: PageProps<'/[slug]'>) {
   return (
     <article
       className={cn(
-        'content-page mx-auto w-full max-w-3xl flex-1 px-4 py-12',
+        'mx-auto w-full max-w-3xl flex-1 px-4 pb-12',
         GeistSans.className,
       )}
     >
-      <DocsTitle>{page.data.title}</DocsTitle>
-      {page.data.description ? (
-        <DocsDescription>{page.data.description}</DocsDescription>
-      ) : null}
-      <DocsBody>
-        <MDX components={getMDXComponents()} />
-      </DocsBody>
+      <div className="pt-6 sm:pt-12">
+        <h1 className="mb-8 font-mono text-4xl font-medium tracking-tight">
+          {page.data.title}
+        </h1>
+        {page.data.description ? (
+          <p className="mb-8 font-mono text-muted-foreground">
+            {page.data.description}
+          </p>
+        ) : null}
+      </div>
+      <div className="content-page">
+        <DocsBody>
+          <MDX components={getMDXComponents()} />
+        </DocsBody>
+      </div>
     </article>
   );
 }

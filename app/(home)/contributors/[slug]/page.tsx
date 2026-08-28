@@ -1,19 +1,16 @@
 import { CONTRIBUTORS } from '@/app/(home)/contributors/data';
 import { ContributorsGrid } from '@/components/contributors-grid';
 import { GeistSans } from 'geist/font/sans';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { cn } from '@/lib/utils';
 
 const RELEASES = {
   'terminal-bench-1': {
-    name: 'Terminal-Bench 1.0',
     description:
       "People and organizations who contributed to Terminal-Bench's first release.",
   },
   'terminal-bench-2': {
-    name: 'Terminal-Bench 2.0',
     description:
       'People and organizations who contributed to the Terminal-Bench 2.0 release.',
   },
@@ -54,24 +51,17 @@ export default async function ContributorsByReleasePage({ params }: PageProps) {
   return (
     <article
       className={cn(
-        'content-page mx-auto w-full max-w-4xl flex-1 px-4 py-12',
+        'mx-auto w-full max-w-4xl flex-1 px-4 pb-12',
         GeistSans.className,
       )}
     >
-      <div className="mb-10 flex flex-col gap-4">
-        <Link
-          href="/contributors"
-          className="font-mono text-xs font-medium tracking-tight text-muted-foreground uppercase hover:text-foreground"
-        >
+      <div className="pt-6 sm:pt-12">
+        <h1 className="mb-8 font-mono text-4xl font-medium tracking-tight">
           Contributors
-        </Link>
-        <div>
-          <p className="mb-2 font-mono text-sm font-medium tracking-tight text-muted-foreground uppercase">
-            {release.name}
-          </p>
-          <h1>Contributors</h1>
-          <p className="mt-4 text-muted-foreground">{release.description}</p>
-        </div>
+        </h1>
+        <p className="mb-8 font-mono text-muted-foreground">
+          {release.description}
+        </p>
       </div>
 
       <ContributorsGrid groups={contributorGroups} />
