@@ -9,7 +9,7 @@ export function baseOptions(): BaseLayoutProps {
     },
     links: [
       {
-        text: 'BENCHMARK',
+        text: 'RUN',
         url: '/run',
       },
       {
