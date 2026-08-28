@@ -337,7 +337,12 @@ function buildExportColumns(
       continue;
     }
 
-    const align = column.id === 'accuracy' ? 'left' : (column.align ?? 'left');
+    // Hub configs are inconsistent across leaderboards (3.0's release_date
+    // has no align); default date columns to right like TB 4.0.
+    const align =
+      column.id === 'accuracy'
+        ? 'left'
+        : (column.align ?? (column.type === 'date' ? 'right' : 'left'));
     result.push({
       id: column.id,
       header: displayColumnHeader(column),
