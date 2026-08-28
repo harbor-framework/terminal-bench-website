@@ -37,7 +37,15 @@ export default async function HomePage() {
       <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-6">
         <div className="mx-auto flex w-full max-w-8xl flex-col items-center gap-8 px-4 text-center">
           <div className="flex flex-col items-center gap-2">
-            <HeroTitle />
+            <Suspense
+              fallback={
+                <h1 className="max-w-full px-1 text-pretty text-4xl font-normal tracking-tighter uppercase sm:text-5xl md:text-7xl">
+                  TERMINAL-BENCH 4.0
+                </h1>
+              }
+            >
+              <HeroTitle />
+            </Suspense>
             <p className="max-w-none text-lg font-normal tracking-tighter text-muted-foreground sm:whitespace-nowrap">
               A benchmark to measure and evolve with the frontier of agent work
             </p>

@@ -634,7 +634,7 @@ export function LeaderboardTable() {
                   className="bg-background uppercase dark:bg-card"
                   aria-label="Benchmark"
                 >
-                  <SelectValue>{benchmark.label}</SelectValue>
+                  <SelectValue>{benchmark.id}</SelectValue>
                 </SelectTrigger>
                 <SelectContent align="end">
                   {HOME_BENCHMARKS.map((option) => (
@@ -643,7 +643,7 @@ export function LeaderboardTable() {
                       value={option.id}
                       className="uppercase"
                     >
-                      {option.label}
+                      {option.id}
                     </SelectItem>
                   ))}
                 </SelectContent>
