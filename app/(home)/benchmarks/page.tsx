@@ -152,7 +152,7 @@ function BenchmarkRow({ benchmark }: { benchmark: Benchmark }) {
       >
         {formatNewsDate(benchmark.date)}
       </time>
-      <div className="col-span-2 flex flex-wrap gap-x-4 pt-1 font-mono text-xs">
+      <div className="col-span-2 flex flex-wrap gap-x-4 font-mono text-sm tracking-tighter">
         {benchmark.links.map((link) => (
           <a
             key={link.label}
@@ -160,7 +160,7 @@ function BenchmarkRow({ benchmark }: { benchmark: Benchmark }) {
             {...(link.external
               ? { target: '_blank', rel: 'noopener noreferrer' }
               : {})}
-            className="uppercase text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
           >
             {link.label}
             {link.external ? ' ↗' : ''}
