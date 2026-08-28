@@ -88,7 +88,7 @@ export function LeaderboardSkeleton() {
           </Table>
         </ScrollArea>
         <footer className="flex h-12 items-center justify-center border-t px-6 text-center text-sm text-muted-foreground">
-          Resolution rate of Terminal-Bench 4.0 tasks. The black rectangle spans the
+          Resolution rate of Terminal-Bench 4.0 tasks. The gray rectangle spans the
           95% confidence interval.
         </footer>
       </div>
