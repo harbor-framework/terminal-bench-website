@@ -156,6 +156,10 @@ function AccuracyBarCell({ row }: { row: LeaderboardRow }) {
         <LeaderboardCell value={display ?? accuracy} type="markdown" />
       </div>
       <div className="relative h-3 min-w-0 flex-1 rounded-none bg-muted">
+        <div
+          className="absolute inset-y-0 left-0 bg-foreground/20"
+          style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
+        />
         {ciUpper > ciLower ? (
           <>
             <div
