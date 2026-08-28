@@ -411,7 +411,9 @@ function buildColumns(
     .map((column): ColumnDef<LeaderboardRow> => {
       const displayType = column.display_type ?? column.type;
       const columnAlign =
-        column.id === 'accuracy' ? 'left' : column.align;
+        column.id === 'accuracy'
+          ? 'left'
+          : (column.align ?? (column.type === 'date' ? 'right' : undefined));
       const align = alignClass(columnAlign);
       const sortable = SORTABLE_COLUMN_IDS.has(column.id);
       const headerLabel = displayColumnHeader(column);
