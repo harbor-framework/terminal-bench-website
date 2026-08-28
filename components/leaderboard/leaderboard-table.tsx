@@ -160,28 +160,12 @@ function AccuracyBarCell({ row }: { row: LeaderboardRow }) {
           className="absolute inset-y-0 left-0 bg-foreground/20"
           style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
         />
-        {ciUpper > ciLower ? (
-          <>
-            <div
-              className="absolute top-1/2 h-px -translate-y-1/2 bg-foreground/60"
-              style={{
-                left: `${ciLower}%`,
-                width: `${ciUpper - ciLower}%`,
-              }}
-            />
-            <div
-              className="absolute top-1/2 h-2 w-px -translate-x-1/2 -translate-y-1/2 bg-foreground/60"
-              style={{ left: `${ciLower}%` }}
-            />
-            <div
-              className="absolute top-1/2 h-2 w-px -translate-x-1/2 -translate-y-1/2 bg-foreground/60"
-              style={{ left: `${ciUpper}%` }}
-            />
-          </>
-        ) : null}
         <div
-          className="absolute top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 bg-foreground"
-          style={{ left: `${Math.min(100, Math.max(0, value))}%` }}
+          className="absolute inset-y-0 bg-foreground"
+          style={{
+            left: `${ciLower}%`,
+            width: `${Math.max(ciUpper - ciLower, 0.8)}%`,
+          }}
         />
       </div>
     </div>
