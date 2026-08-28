@@ -446,7 +446,7 @@ function buildColumns(
           cellClassName: cn(
             align,
             column.type === 'number' && 'tabular-nums',
-            column.id === 'accuracy' && 'xl:min-w-56',
+            column.id === 'accuracy' && 'xl:min-w-56 xl:pr-2',
           ),
         },
       };
