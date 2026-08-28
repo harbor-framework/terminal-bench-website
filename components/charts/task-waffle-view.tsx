@@ -851,8 +851,8 @@ export function TaskWaffleView() {
                   className="pointer-events-none min-w-40"
                 >
                   {tooltip ? (
-                    <div className="flex flex-col gap-0.5">
-                      <p>{tooltip.task}</p>
+                    <div className="flex w-full flex-col">
+                      <p className="mb-1 font-semibold">{tooltip.task}</p>
                       <p className="opacity-70">{tooltip.trial.m}</p>
                       <p
                         className={
@@ -864,7 +864,9 @@ export function TaskWaffleView() {
                         {OUTCOME_WORD[tooltip.trial.o]}
                         {tooltip.trial.e ? ` - ${tooltip.trial.e}` : ''}
                       </p>
-                      <p className="opacity-50">click to view trial</p>
+                      <p className="mt-1.5 border-t border-background/20 pt-1.5 text-[10.5px] opacity-50">
+                        click to view trial
+                      </p>
                     </div>
                   ) : null}
                 </TooltipContent>

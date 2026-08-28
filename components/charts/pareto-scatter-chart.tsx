@@ -535,8 +535,8 @@ export function ParetoScatterChart({
           className="pointer-events-none min-w-40"
         >
           {active ? (
-            <div className="flex flex-col gap-0.5">
-              <p>{active.label}</p>
+            <div className="flex w-full flex-col">
+              <p className="mb-1 font-semibold">{active.label}</p>
               <p className="flex items-baseline justify-between gap-6 opacity-70">
                 <span>
                   {active.yValue}
@@ -544,7 +544,9 @@ export function ParetoScatterChart({
                 </span>
                 <span>{active.xValue}</span>
               </p>
-              <p className="opacity-50">click to view job</p>
+              <p className="mt-1.5 border-t border-background/20 pt-1.5 text-[10.5px] opacity-50">
+                click to view job
+              </p>
             </div>
           ) : null}
         </TooltipContent>
