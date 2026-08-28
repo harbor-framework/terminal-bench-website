@@ -616,7 +616,7 @@ function Legend() {
       {LEGEND_OUTCOMES.map((outcome) => (
         <span key={outcome} className="inline-flex items-center gap-1.5">
           <span
-            className={`inline-block size-2.5 rounded-[2px] border border-border ${OUTCOME_SWATCH_CLASS[outcome]}`}
+            className={`inline-block size-3 rounded-[1px] ${OUTCOME_SWATCH_CLASS[outcome]}`}
           />
           {OUTCOME_WORD[outcome]}
         </span>
