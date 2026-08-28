@@ -34,9 +34,6 @@ export function TbScienceLogo() {
           </p>
         </div>
       </div>
-      <p className="text-muted-foreground mt-4 text-center font-mono text-base/relaxed sm:text-lg/relaxed max-w-2xl">
-        A Benchmark for Evaluating AI Agents on Computational Workflows in the Natural Sciences
-      </p>
       <div className="flex items-center gap-4 mt-4">
         <a
           href={links.github}
