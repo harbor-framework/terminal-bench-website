@@ -69,19 +69,32 @@ async function withInlinedSvgStyles<T>(
   root: HTMLElement,
   run: () => Promise<T>,
 ): Promise<T> {
-  const touched: { element: SVGElement; previous: string | null }[] = [];
-  for (const element of root.querySelectorAll<SVGElement>('svg, svg *')) {
+  // Let the dropdown menu close and paint before the heavy export work.
+  await new Promise(requestAnimationFrame);
+
+  const elements = [...root.querySelectorAll<SVGElement>('svg, svg *')];
+  // Read all computed styles before writing any: interleaving reads and
+  // writes forces a reflow per element, which freezes the UI on large SVGs.
+  const reads = elements.map((element) => {
     const computed = window.getComputedStyle(element);
-    touched.push({ element, previous: element.getAttribute('style') });
-    for (const property of SVG_EXPORT_STYLE_PROPS) {
-      element.style.setProperty(property, computed.getPropertyValue(property));
-    }
+    return {
+      element,
+      previous: element.getAttribute('style'),
+      values: SVG_EXPORT_STYLE_PROPS.map((property) =>
+        computed.getPropertyValue(property),
+      ),
+    };
+  });
+  for (const { element, values } of reads) {
+    SVG_EXPORT_STYLE_PROPS.forEach((property, index) => {
+      element.style.setProperty(property, values[index]!);
+    });
   }
 
   try {
     return await run();
   } finally {
-    for (const { element, previous } of touched) {
+    for (const { element, previous } of reads) {
       if (previous === null) element.removeAttribute('style');
       else element.setAttribute('style', previous);
     }
@@ -101,7 +114,6 @@ function exportOptions(element: HTMLElement) {
   const { backgroundColor } = window.getComputedStyle(element);
   return {
     backgroundColor,
-    cacheBust: true,
     height,
     pixelRatio: 2,
     style: {
