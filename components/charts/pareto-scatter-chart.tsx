@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { chartRowLabel, type ChartRowLabel } from '@/components/charts/chart-labels';
 import {
@@ -207,26 +207,27 @@ export function ParetoScatterChart({
   jobIdByRow,
   className,
 }: ParetoScatterChartProps) {
-  const plotRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(MIN_WIDTH);
-  const [active, setActive] = useState<ActiveTip | null>(null);
-  const [tipOpen, setTipOpen] = useState(false);
-  const xAxis = PARETO_AXES[xAxisId];
-  const yAxis = PARETO_AXES[yAxisId];
-
-  useEffect(() => {
-    const el = plotRef.current;
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
+  // Callback ref so the observer re-attaches whenever the plot node remounts
+  // (the empty-data branch unmounts it; an effect with [] deps would never
+  // re-observe and the chart would stay at MIN_WIDTH).
+  const plotRef = useCallback((el: HTMLDivElement | null) => {
+    resizeObserverRef.current?.disconnect();
+    resizeObserverRef.current = null;
     if (!el) return;
-
     const update = () => {
       setWidth(Math.max(MIN_WIDTH, Math.floor(el.clientWidth)));
     };
     update();
-
     const observer = new ResizeObserver(update);
     observer.observe(el);
-    return () => observer.disconnect();
+    resizeObserverRef.current = observer;
   }, []);
+  const [active, setActive] = useState<ActiveTip | null>(null);
+  const [tipOpen, setTipOpen] = useState(false);
+  const xAxis = PARETO_AXES[xAxisId];
+  const yAxis = PARETO_AXES[yAxisId];
 
   // Clear tip when axes change so we don't show stale content.
   useEffect(() => {

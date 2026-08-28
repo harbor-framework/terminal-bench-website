@@ -491,7 +491,18 @@ function buildColumns(
     .filter(([id]) => !presentIds.has(id))
     .map(([id, header]) => ({
       id,
-      header: () => <span className="ml-auto font-medium uppercase">{header}</span>,
+      // Keep the sort icon so headers match the sortable versions of these
+      // columns and switching benchmarks causes no shift.
+      header: () => (
+        <span className="ml-auto inline-flex items-center gap-1.5 font-medium uppercase">
+          <span>{header}</span>
+          <HugeiconsIcon
+            icon={ArrowUpDownIcon}
+            strokeWidth={2}
+            className="size-3.5 text-muted-foreground"
+          />
+        </span>
+      ),
       accessorFn: () => null,
       cell: () => <span className="text-muted-foreground">—</span>,
       enableSorting: false,
