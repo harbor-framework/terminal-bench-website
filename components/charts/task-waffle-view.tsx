@@ -49,14 +49,14 @@ type TooltipState = {
 
 const OUTCOME_CELL_CLASS: Record<WaffleTrial['o'], string> = {
   p: 'fill-foreground',
-  to: 'fill-yellow-100',
+  to: 'fill-[#f3f0ce]',
   err: 'fill-destructive/25',
   f: 'fill-foreground/12',
 };
 
 const OUTCOME_SWATCH_CLASS: Record<WaffleTrial['o'], string> = {
   p: 'bg-foreground',
-  to: 'bg-yellow-100',
+  to: 'bg-[#f3f0ce]',
   err: 'bg-destructive/25',
   f: 'bg-foreground/12',
 };
