@@ -168,7 +168,7 @@ function BenchmarkRow({ benchmark }: { benchmark: Benchmark }) {
       >
         {formatNewsDate(benchmark.date)}
       </time>
-      <div className="col-span-2 flex flex-wrap gap-x-4 font-mono text-sm tracking-tighter">
+      <div className="col-span-2 flex flex-wrap gap-x-4 font-mono text-sm leading-6 tracking-tighter">
         {benchmark.links.map((link) => (
           <a
             key={link.label}
