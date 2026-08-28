@@ -607,8 +607,8 @@ export function LeaderboardTable() {
         }
         footer={
           <footer className="flex h-12 items-center justify-center border-t px-6 text-center text-sm text-muted-foreground">
-            Resolution rate of Terminal-Bench 4.0 tasks, ranked by agent and model
-            performance.
+            Resolution rate of Terminal-Bench 4.0 tasks. The black rectangle spans the
+            95% confidence interval.
           </footer>
         }
       />
