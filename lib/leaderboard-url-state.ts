@@ -76,8 +76,15 @@ export const leaderboardFiltersParser = parseAsJson(parseUrlFilters).withDefault
   {},
 );
 
-/** Hidden unless the user turns them back on in the columns picker. */
-export const DEFAULT_HIDDEN_COLUMNS = ['agent_org', 'model_org'] as const;
+/** Hidden unless the user turns them back on in the columns picker.
+ * pr_url/reward_hacks exist only on TB 2.1; hiding them keeps the default
+ * column set identical across every benchmark in the selector. */
+export const DEFAULT_HIDDEN_COLUMNS = [
+  'agent_org',
+  'model_org',
+  'pr_url',
+  'reward_hacks',
+] as const;
 
 export const hiddenColumnsParser = parseAsArrayOf(parseAsString)
   .withDefault([...DEFAULT_HIDDEN_COLUMNS])
