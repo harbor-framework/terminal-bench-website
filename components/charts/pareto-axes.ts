@@ -13,6 +13,8 @@ export type ParetoAxisId = (typeof PARETO_AXIS_IDS)[number];
 export type ParetoAxisDef = {
   id: ParetoAxisId;
   label: string;
+  /** Longer label for the chart axis when it differs from the dropdown label. */
+  axisLabel?: string;
   /** Prefer higher (`max`) or lower (`min`) values on the Pareto frontier. */
   prefer: 'max' | 'min';
   format: (value: number) => string;
@@ -123,6 +125,7 @@ export const PARETO_AXES: Record<ParetoAxisId, ParetoAxisDef> = {
   release_date: {
     id: 'release_date',
     label: 'Release',
+    axisLabel: 'Release Date',
     prefer: 'min',
     format: formatReleaseDate,
     read: (row) =>

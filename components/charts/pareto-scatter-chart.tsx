@@ -359,7 +359,7 @@ export function ParetoScatterChart({
           className="fill-muted-foreground font-normal"
           fontSize={12}
         >
-          {xAxis.label}
+          {xAxis.axisLabel ?? xAxis.label}
         </text>
         <g transform={`translate(16 ${MARGIN.top + plotH / 2}) rotate(-90)`}>
           <text
