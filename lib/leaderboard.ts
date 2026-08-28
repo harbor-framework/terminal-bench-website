@@ -57,8 +57,10 @@ export type LeaderboardReadResponse = {
 
 /** Hub dataset package backing the leaderboard. */
 export const TERMINAL_BENCH_PACKAGE = 'terminal-bench/terminal-bench';
+/** Hub dataset version backing the homepage leaderboard. */
+export const TERMINAL_BENCH_DATASET_VERSION = '4';
 /** Hub path is org/package/leaderboard. */
-export const TERMINAL_BENCH_LEADERBOARD = '3-0-0';
+export const TERMINAL_BENCH_LEADERBOARD = '4-0-0';
 export const HARBOR_HUB_URL = 'https://hub.harborframework.com';
 /** Public Harbor Hub edge-function host (leaderboard-read does not require auth). */
 export const HARBOR_HUB_FUNCTIONS_URL =

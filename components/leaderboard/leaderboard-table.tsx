@@ -25,6 +25,7 @@ import {
 } from '@/components/leaderboard/leaderboard-toolbar';
 import { DataTable } from '@/components/ui/data-table';
 import {
+  TERMINAL_BENCH_DATASET_VERSION,
   TERMINAL_BENCH_LEADERBOARD,
   TERMINAL_BENCH_PACKAGE,
   fetchLeaderboard,
@@ -47,6 +48,7 @@ import { cn } from '@/lib/utils';
 
 const SORTABLE_COLUMN_IDS = new Set([
   'accuracy',
+  'date',
   'release_date',
   'total_tokens',
   'total_cost_usd',
@@ -123,13 +125,20 @@ const Z_95 = 1.96;
 function AccuracyBarCell({ row }: { row: LeaderboardRow }) {
   const accuracy = getAccessorValue(row, 'metrics.accuracy');
   const stderr = getAccessorValue(row, 'metrics.accuracy_stderr');
+  const ci95HalfWidth = getAccessorValue(
+    row,
+    'metrics.accuracy_ci95_half_width',
+  );
   const display = getAccessorValue(row, 'metrics.display_accuracy');
 
   const value =
     typeof accuracy === 'number' && !Number.isNaN(accuracy) ? accuracy : null;
   const se =
     typeof stderr === 'number' && !Number.isNaN(stderr) ? stderr : 0;
-  const half = Z_95 * se;
+  const half =
+    typeof ci95HalfWidth === 'number' && !Number.isNaN(ci95HalfWidth)
+      ? ci95HalfWidth
+      : Z_95 * se;
   const ciUpper = value != null ? Math.min(100, value + half) : 0;
   const ciWidth = value != null ? Math.max(0, ciUpper - value) : 0;
 
@@ -443,6 +452,7 @@ export function LeaderboardTable() {
             TERMINAL_BENCH_PACKAGE,
             TERMINAL_BENCH_LEADERBOARD,
             row.id,
+            TERMINAL_BENCH_DATASET_VERSION,
           )
         }
         columnVisibility={columnVisibility}
@@ -462,7 +472,7 @@ export function LeaderboardTable() {
         }
         footer={
           <footer className="flex h-12 items-center justify-center border-t px-6 text-center text-sm text-muted-foreground">
-            Resolution rate of Terminal-Bench 3.0 tasks, ranked by agent and model
+            Resolution rate of Terminal-Bench 4.0 tasks, ranked by agent and model
             performance.
           </footer>
         }

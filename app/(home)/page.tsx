@@ -38,7 +38,7 @@ export default async function HomePage() {
         <div className="flex flex-col items-center gap-8 text-center">
           <div className="flex flex-col items-center gap-5">
             <HeroTitle />
-            <p className="max-w-xl text-balance text-lg font-normal tracking-tighter text-muted-foreground">
+            <p className="max-w-none text-lg font-normal tracking-tighter text-muted-foreground sm:whitespace-nowrap">
               A benchmark to measure and evolve with the frontier of agent work
             </p>
           </div>

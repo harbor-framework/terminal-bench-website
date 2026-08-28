@@ -101,7 +101,9 @@ export const PARETO_AXES: Record<ParetoAxisId, ParetoAxisDef> = {
     label: 'Release Date',
     prefer: 'min',
     format: formatReleaseDate,
-    read: (row) => readDateMs(row, 'metadata.release_date'),
+    read: (row) =>
+      readDateMs(row, 'metadata.release_date') ??
+      readDateMs(row, 'metadata.date'),
   },
 };
 

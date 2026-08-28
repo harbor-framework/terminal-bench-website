@@ -46,7 +46,7 @@ export function HeroTitle() {
     <h1 className="max-w-full px-1 text-pretty text-4xl font-normal tracking-tighter uppercase sm:text-5xl md:text-7xl">
       TERMINAL-BENCH{' '}
       <span className="inline-flex items-baseline leading-none tracking-tighter tabular-nums">
-        <DigitReel from={2} to={3} />
+        <DigitReel from={3} to={4} />
         .0
       </span>
     </h1>
