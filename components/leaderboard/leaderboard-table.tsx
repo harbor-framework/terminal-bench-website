@@ -446,7 +446,9 @@ function buildColumns(
           cellClassName: cn(
             align,
             column.type === 'number' && 'tabular-nums',
-            column.id === 'accuracy' && 'xl:min-w-56',
+            // Content columns pin to 1px (nowrap keeps them content-sized)
+            // so extra table width widens the bar, not the gaps.
+            column.id === 'accuracy' ? 'xl:min-w-56' : 'xl:w-px',
             column.id === 'release_date' && 'xl:pl-2',
           ),
         },
