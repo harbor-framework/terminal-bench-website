@@ -160,13 +160,25 @@ function AccuracyBarCell({ row }: { row: LeaderboardRow }) {
           className="absolute inset-y-0 left-0 bg-foreground/35"
           style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
         />
-        <div
-          className="absolute top-1/2 h-1.5 -translate-y-1/2 bg-foreground"
-          style={{
-            left: `${ciLower}%`,
-            width: `${Math.max(ciUpper - ciLower, 0.8)}%`,
-          }}
-        />
+        {ciUpper > ciLower ? (
+          <>
+            <div
+              className="absolute top-1/2 h-px -translate-y-1/2 bg-foreground"
+              style={{
+                left: `${ciLower}%`,
+                width: `${ciUpper - ciLower}%`,
+              }}
+            />
+            <div
+              className="absolute top-1/2 h-2 w-px -translate-x-1/2 -translate-y-1/2 bg-foreground"
+              style={{ left: `${ciLower}%` }}
+            />
+            <div
+              className="absolute top-1/2 h-2 w-px -translate-x-1/2 -translate-y-1/2 bg-foreground"
+              style={{ left: `${ciUpper}%` }}
+            />
+          </>
+        ) : null}
       </div>
     </div>
   );
@@ -607,7 +619,7 @@ export function LeaderboardTable() {
         }
         footer={
           <footer className="flex h-12 items-center justify-center border-t px-6 text-center text-sm text-muted-foreground">
-            Resolution rate of Terminal-Bench 4.0 tasks. The black rectangle spans the
+            Resolution rate of Terminal-Bench 4.0 tasks. The whiskers span the
             95% confidence interval.
           </footer>
         }
