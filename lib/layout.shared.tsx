@@ -13,6 +13,11 @@ export function baseOptions(): BaseLayoutProps {
         url: '/run',
       },
       {
+        text: 'BENCHMARKS',
+        url: '/benchmarks',
+        active: 'nested-url',
+      },
+      {
         text: 'BLOG',
         url: '/news',
         active: 'nested-url',

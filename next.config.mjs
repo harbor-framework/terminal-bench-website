@@ -42,16 +42,6 @@ const config = {
         permanent: true,
       },
       {
-        source: '/benchmarks',
-        destination: '/',
-        permanent: true,
-      },
-      {
-        source: '/benchmarks/:path*',
-        destination: '/',
-        permanent: true,
-      },
-      {
         source: '/registry',
         destination: '/',
         permanent: true,
