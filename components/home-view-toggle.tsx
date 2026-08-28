@@ -30,6 +30,13 @@ export const parseHomeView = createParser({
   },
 }).withDefault('leaderboard' satisfies HomeViewId);
 
+/** Smoothly bring the view section near the top (scroll-mt sets the margin). */
+function scrollToViewSection() {
+  document
+    .getElementById('home-view-section')
+    ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 export function HomeViewToggle({ className }: { className?: string }) {
   const [view, setView] = useQueryState('view', parseHomeView);
 
@@ -39,6 +46,7 @@ export function HomeViewToggle({ className }: { className?: string }) {
       const next =
         VIEWS[(index + direction + VIEWS.length) % VIEWS.length]!;
       void setView(next);
+      scrollToViewSection();
     },
     [setView, view],
   );
@@ -63,6 +71,7 @@ export function HomeViewToggle({ className }: { className?: string }) {
         const value = next[0];
         if ((VIEWS as readonly string[]).includes(value)) {
           void setView(value as HomeViewId);
+          scrollToViewSection();
         }
       }}
       className={cn(

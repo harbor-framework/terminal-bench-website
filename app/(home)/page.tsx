@@ -68,7 +68,7 @@ export default async function HomePage() {
           </div>
         </div>
 
-        <div className="w-full min-w-0 px-4 md:px-8">
+        <div id="home-view-section" className="w-full min-w-0 scroll-mt-20 px-4 md:px-8">
           <HydrationBoundary state={dehydrate(queryClient)}>
             <Suspense fallback={<LeaderboardSkeleton />}>
               <HomeView leaderboard={<LeaderboardTable />} />
