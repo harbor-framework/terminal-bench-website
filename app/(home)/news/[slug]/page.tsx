@@ -27,7 +27,7 @@ export default async function BlogPostPage({ params }: PageProps) {
           <div className="flex-1 pt-6 sm:pt-12">
             <div className="mb-6 flex items-center justify-between gap-2">
               <p className="font-mono text-sm text-muted-foreground">
-                {formatNewsDate(page.data.date)} - {page.data.category}
+                {formatNewsDate(page.data.date)}
               </p>
               <Share />
             </div>

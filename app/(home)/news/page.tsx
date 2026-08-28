@@ -28,7 +28,6 @@ export default async function BlogPage() {
                 key={post.url}
                 url={post.url}
                 date={post.data.date}
-                category={post.data.category}
                 title={post.data.title}
                 description={post.data.description}
               />

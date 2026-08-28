@@ -15,7 +15,6 @@ interface Author {
 interface NewsCardProps {
   url: string;
   date: string | Date;
-  category: string | undefined;
   title: string;
   description?: string;
 }
@@ -23,7 +22,6 @@ interface NewsCardProps {
 export function NewsCard({
   url,
   date,
-  category,
   title,
   description,
 }: NewsCardProps) {
@@ -36,7 +34,6 @@ export function NewsCard({
               <Badge variant="secondary" className="font-mono text-xs">
                 {formatNewsDate(date)}
               </Badge>
-              <Badge className="font-mono text-xs">{category}</Badge>
             </div>
             <div className="flex flex-col gap-4">
               <CardTitle className="font-mono text-xl font-medium">
