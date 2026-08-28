@@ -6,7 +6,7 @@ import {
   ArrowUpDownIcon,
 } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import type {
   Column,
   ColumnDef,
@@ -482,6 +482,9 @@ export function LeaderboardTable() {
   const { data, error, isPending } = useQuery({
     queryKey: leaderboardQueryKey(benchmark.package, benchmark.leaderboard),
     queryFn: () => fetchLeaderboard(benchmark.package, benchmark.leaderboard),
+    // Keep showing the previous benchmark's rows while the next one loads
+    // so switching doesn't flash the skeleton or shift the layout.
+    placeholderData: keepPreviousData,
   });
 
   const facets = useMemo(() => {

@@ -51,6 +51,12 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Reserve the scrollbar gutter so modal scroll locks (dropdowns, dialogs)
+   don't widen the layout and shift the flexible leaderboard bars. */
+html {
+  scrollbar-gutter: stable;
+}
+
 #nd-nav > * {
   background-color: var(--sidebar) !important;
 }
