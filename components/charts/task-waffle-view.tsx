@@ -8,6 +8,13 @@ import { chartRowLabel } from '@/components/charts/chart-labels';
 import { HomeViewToggle } from '@/components/home-view-toggle';
 import { LeaderboardToolbar } from '@/components/leaderboard/leaderboard-toolbar';
 import { useLeaderboardFilters } from '@/components/leaderboard/use-leaderboard-filters';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { ViewExportActions } from '@/components/view-export-actions';
 import {
   TERMINAL_BENCH_LEADERBOARD,
@@ -16,7 +23,6 @@ import {
   leaderboardQueryKey,
   type LeaderboardRow,
 } from '@/lib/leaderboard';
-import { cn } from '@/lib/utils';
 import type { WafflePayload, WaffleTrial } from '@/lib/waffle';
 
 const WAFFLE_EXPORT_TARGET_ID = 'terminal-bench-waffle-export';
@@ -638,38 +644,6 @@ function Tooltip({
   );
 }
 
-function SegmentedToggle<T extends string>({
-  value,
-  options,
-  onChange,
-}: {
-  value: T;
-  options: { value: T; label: string }[];
-  onChange: (value: T) => void;
-}) {
-  return (
-    <div className="inline-flex h-8 items-center overflow-hidden rounded-lg border border-border">
-      {options.map((option) => (
-        <button
-          key={option.value}
-          type="button"
-          aria-pressed={value === option.value}
-          onClick={() => onChange(option.value)}
-          className={cn(
-            'h-8 px-3 text-sm uppercase transition-colors',
-            'not-last:border-r not-last:border-border',
-            value === option.value
-              ? 'bg-muted text-foreground dark:bg-input'
-              : 'text-muted-foreground hover:text-foreground',
-          )}
-        >
-          {option.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
 export function TaskWaffleView() {
   const [mode, setMode] = useQueryState(
     'rows',
@@ -789,29 +763,53 @@ export function TaskWaffleView() {
         id={WAFFLE_EXPORT_TARGET_ID}
         className="-mx-4 min-w-0 overflow-hidden rounded-none border border-x-0 bg-card md:mx-0 md:rounded-xl md:border-x"
       >
-        <div className="flex h-12 flex-wrap items-center justify-between gap-2 border-b px-6 uppercase">
-          <span className="text-sm font-medium text-foreground">
-            Trials by {mode === 'task' ? 'task' : 'domain'} and{' '}
-            {group === 'model' ? 'model' : 'outcome'}
-          </span>
-          <div className="flex items-center gap-2">
-            <SegmentedToggle
-              value={mode}
-              options={[
-                { value: 'task', label: 'Task' },
-                { value: 'domain', label: 'Domain' },
-              ]}
-              onChange={(next) => void setMode(next)}
-            />
-            <SegmentedToggle
-              value={group}
-              options={[
-                { value: 'model', label: 'Model' },
-                { value: 'outcome', label: 'Outcome' },
-              ]}
-              onChange={(next) => void setGroup(next)}
-            />
-          </div>
+        <div className="flex h-12 flex-wrap items-center gap-2 border-b px-6 uppercase">
+          <span className="text-sm font-medium text-foreground">Trials by</span>
+          <Select
+            value={mode}
+            onValueChange={(next) => {
+              if (next === 'task' || next === 'domain') void setMode(next);
+            }}
+          >
+            <SelectTrigger
+              size="sm"
+              className="min-w-28 bg-background uppercase dark:bg-card"
+            >
+              <SelectValue>{mode === 'task' ? 'Task' : 'Domain'}</SelectValue>
+            </SelectTrigger>
+            <SelectContent align="start">
+              <SelectItem value="task" className="uppercase">
+                Task
+              </SelectItem>
+              <SelectItem value="domain" className="uppercase">
+                Domain
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          <span className="text-sm font-medium text-foreground">and</span>
+          <Select
+            value={group}
+            onValueChange={(next) => {
+              if (next === 'model' || next === 'outcome') void setGroup(next);
+            }}
+          >
+            <SelectTrigger
+              size="sm"
+              className="min-w-28 bg-background uppercase dark:bg-card"
+            >
+              <SelectValue>
+                {group === 'model' ? 'Model' : 'Outcome'}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent align="start">
+              <SelectItem value="model" className="uppercase">
+                Model
+              </SelectItem>
+              <SelectItem value="outcome" className="uppercase">
+                Outcome
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div className="overflow-x-auto px-4 py-3">
           <WaffleSvg
