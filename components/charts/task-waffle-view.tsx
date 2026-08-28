@@ -364,7 +364,9 @@ function WaffleSvg({
   const blockW = maxReps * SW + (maxReps - 1) * SGAP;
   const stepM = blockW + MG;
   const GUT = 210;
-  const RPAD = 16;
+  // Mirror the label gutter on the right so mx-auto centers the columns
+  // themselves, not the gutter-plus-columns block.
+  const RPAD = GUT;
   const HEAD = group === 'model' ? 34 : 12;
   const plotW = Math.max(1, matrix.columns.length) * stepM - MG;
   const width = GUT + plotW + RPAD;
