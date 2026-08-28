@@ -156,9 +156,13 @@ export default function BenchmarksPage() {
       </p>
 
       <div className="-mx-4 mb-6 grid gap-px overflow-hidden border bg-border sm:mx-0">
-        {BENCHMARKS.map((benchmark) => (
-          <BenchmarkRow key={benchmark.name} benchmark={benchmark} />
-        ))}
+        {[...BENCHMARKS]
+          .sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+          )
+          .map((benchmark) => (
+            <BenchmarkRow key={benchmark.name} benchmark={benchmark} />
+          ))}
       </div>
     </article>
   );
