@@ -113,6 +113,17 @@ function exportOptions(element: HTMLElement) {
   };
 }
 
+async function copyElementPng(targetId: string) {
+  const element = getTargetElement(targetId);
+  const blob = await withInlinedSvgStyles(element, () =>
+    toBlob(element, exportOptions(element)),
+  );
+  if (!blob) throw new Error('Could not create PNG');
+  await navigator.clipboard.write([
+    new ClipboardItem({ 'image/png': blob }),
+  ]);
+}
+
 async function downloadElementPng(targetId: string, filename: string) {
   const element = getTargetElement(targetId);
   const blob = await withInlinedSvgStyles(element, () =>
@@ -162,6 +173,20 @@ export function ViewExportActions({
       await navigator.clipboard.writeText(getMarkdown());
       setExportState('copied');
     } catch {
+      setExportState('error');
+    } finally {
+      resetExportState();
+    }
+  }
+
+  async function handleCopyPng() {
+    if (disabled) return;
+
+    try {
+      await copyElementPng(targetId);
+      setExportState('copied');
+    } catch (error) {
+      console.error('PNG copy failed', error);
       setExportState('error');
     } finally {
       resetExportState();
@@ -234,6 +259,10 @@ export function ViewExportActions({
           <DropdownMenuItem onClick={handleCopyMarkdown}>
             <HugeiconsIcon icon={Copy01Icon} strokeWidth={2} />
             Copy markdown
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleCopyPng}>
+            <HugeiconsIcon icon={Copy01Icon} strokeWidth={2} />
+            Copy PNG
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleDownloadPng}>
             <HugeiconsIcon icon={Download02Icon} strokeWidth={2} />
