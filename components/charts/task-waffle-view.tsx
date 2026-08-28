@@ -367,7 +367,9 @@ function WaffleSvg({
   // Mirror the label gutter on the right so mx-auto centers the columns
   // themselves, not the gutter-plus-columns block.
   const RPAD = GUT;
-  const HEAD = group === 'model' ? 34 : 12;
+  // Same header height in both groupings so toggling model/outcome causes
+  // no vertical layout shift; outcome mode just leaves the space empty.
+  const HEAD = 34;
   const plotW = Math.max(1, matrix.columns.length) * stepM - MG;
   const width = GUT + plotW + RPAD;
   const RH = 20;
