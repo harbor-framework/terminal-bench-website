@@ -527,7 +527,7 @@ export function ParetoScatterChart({
             top: active?.cy ?? 0,
           }}
         />
-        <TooltipContent side="top" sideOffset={10} className="min-w-40">
+        <TooltipContent side="top" sideOffset={10} className="pointer-events-none min-w-40">
           {active ? (
             <div className="flex flex-col gap-0.5">
               <p>{active.label}</p>

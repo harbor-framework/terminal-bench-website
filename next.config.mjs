@@ -46,12 +46,17 @@ const config = {
       // Hub-backed leaderboards render on the homepage via ?benchmark=.
       {
         source: '/leaderboard/terminal-bench/2.0',
-        destination: '/?benchmark=2.0',
+        destination: '/?version=2.0',
+        permanent: true,
+      },
+      {
+        source: '/leaderboard/terminal-bench/3.0',
+        destination: '/?version=3.0',
         permanent: true,
       },
       {
         source: '/leaderboard/terminal-bench/2.1',
-        destination: '/?benchmark=2.1',
+        destination: '/?version=2.1',
         permanent: true,
       },
       {

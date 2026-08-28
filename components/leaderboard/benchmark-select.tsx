@@ -20,13 +20,13 @@ const parseBenchmarkId = parseAsStringLiteral(
   HOME_BENCHMARKS.map((benchmark) => benchmark.id),
 );
 
-/** Selected homepage benchmark, shared across views via ?benchmark=. */
+/** Selected homepage benchmark, shared across views via ?version=. */
 export function useHomeBenchmark(): {
   benchmark: HomeBenchmark;
   setBenchmarkId: (id: string) => void;
 } {
   const [benchmarkId, setBenchmarkId] = useQueryState(
-    'benchmark',
+    'version',
     parseBenchmarkId.withDefault(DEFAULT_HOME_BENCHMARK_ID),
   );
   return {

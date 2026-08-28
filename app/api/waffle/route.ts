@@ -17,7 +17,7 @@ const CACHE_CONTROL =
 export async function GET(request: Request) {
   try {
     const benchmarkId =
-      new URL(request.url).searchParams.get('benchmark') ??
+      new URL(request.url).searchParams.get('version') ??
       DEFAULT_HOME_BENCHMARK_ID;
     const benchmark = homeBenchmarkById(benchmarkId);
     const payload = await readTerminalBenchWaffle(

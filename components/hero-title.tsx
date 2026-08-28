@@ -53,7 +53,7 @@ function DigitReel({ initialFrom, to }: { initialFrom: number; to: number }) {
 
 export function HeroTitle() {
   const [benchmarkId] = useQueryState(
-    'benchmark',
+    'version',
     parseBenchmarkId.withDefault(DEFAULT_HOME_BENCHMARK_ID),
   );
   const [majorPart = '4', minorPart = '0'] = benchmarkId.split('.');

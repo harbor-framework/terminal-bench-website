@@ -58,7 +58,7 @@ export type LeaderboardReadResponse = {
 /** Hub dataset package backing the leaderboard. */
 export const TERMINAL_BENCH_PACKAGE = 'terminal-bench/terminal-bench';
 
-/** Benchmarks selectable on the homepage leaderboard (?benchmark=<id>). */
+/** Benchmarks selectable on the homepage leaderboard (?version=<id>). */
 export type HomeBenchmark = {
   id: string;
   label: string;

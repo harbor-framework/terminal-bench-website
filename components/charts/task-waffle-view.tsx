@@ -19,6 +19,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { ViewExportActions } from '@/components/view-export-actions';
 import {
   TERMINAL_BENCH_LEADERBOARD,
@@ -43,8 +48,9 @@ const parseGroupMode = parseAsStringLiteral(GROUP_MODES);
 type TooltipState = {
   task: string;
   trial: WaffleTrial;
-  left: number;
-  top: number;
+  /** Anchor (square center) in scroll-container coordinates. */
+  x: number;
+  y: number;
 };
 
 const OUTCOME_CELL_CLASS: Record<WaffleTrial['o'], string> = {
@@ -79,7 +85,7 @@ const LEGEND_OUTCOMES = ['p', 'to', 'err', 'f'] as const;
 
 async function fetchWaffleData(benchmarkId: string): Promise<WafflePayload> {
   const response = await fetch(
-    `/api/waffle?benchmark=${encodeURIComponent(benchmarkId)}`,
+    `/api/waffle?version=${encodeURIComponent(benchmarkId)}`,
   );
   const payload = (await response.json()) as
     | WafflePayload
@@ -325,7 +331,7 @@ function MatrixCell({
         }`}
         strokeWidth={0.9}
         shapeRendering="crispEdges"
-        onMouseMove={(event) => onTrialMove(event, slot.task, slot.trial)}
+        onMouseEnter={(event) => onTrialMove(event, slot.task, slot.trial)}
         onMouseLeave={onTrialLeave}
       />
     );
@@ -626,43 +632,6 @@ function Legend() {
   );
 }
 
-function Tooltip({
-  tooltip,
-  refObject,
-}: {
-  tooltip: TooltipState | null;
-  refObject: React.RefObject<HTMLDivElement | null>;
-}) {
-  return (
-    <div
-      ref={refObject}
-      className="pointer-events-none fixed z-50 whitespace-nowrap rounded-md border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md transition-opacity duration-75"
-      style={{
-        opacity: tooltip ? 1 : 0,
-        left: tooltip?.left ?? 0,
-        top: tooltip?.top ?? 0,
-      }}
-    >
-      {tooltip ? (
-        <>
-          <div className="font-medium">{tooltip.task}</div>
-          <div className="text-muted-foreground">{tooltip.trial.m}</div>
-          <div>
-            {OUTCOME_WORD[tooltip.trial.o]}
-            {tooltip.trial.e ? (
-              <span className="text-muted-foreground">
-                {' '}
-                - {tooltip.trial.e}
-              </span>
-            ) : null}
-          </div>
-          <div className="text-muted-foreground">click to view trial</div>
-        </>
-      ) : null}
-    </div>
-  );
-}
-
 export function TaskWaffleView() {
   const [mode, setMode] = useQueryState(
     'rows',
@@ -707,29 +676,26 @@ export function TaskWaffleView() {
     [snapshot],
   );
 
-  const tooltipRef = useRef<HTMLDivElement | null>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+  const [tipOpen, setTipOpen] = useState(false);
 
-  function moveTooltip(
+  function showTooltip(
     event: React.MouseEvent<SVGElement>,
     task: string,
     trial: WaffleTrial,
   ) {
-    const pad = 14;
-    const rect = tooltipRef.current?.getBoundingClientRect();
-    const width = rect?.width ?? 260;
-    const height = rect?.height ?? 54;
-    let left = event.clientX + pad;
-    let top = event.clientY + pad;
-
-    if (left + width > window.innerWidth - 8) {
-      left = event.clientX - width - pad;
-    }
-    if (top + height > window.innerHeight - 8) {
-      top = event.clientY - height - pad;
-    }
-
-    setTooltip({ task, trial, left, top });
+    const container = scrollRef.current;
+    if (!container) return;
+    const square = (event.currentTarget as Element).getBoundingClientRect();
+    const bounds = container.getBoundingClientRect();
+    setTooltip({
+      task,
+      trial,
+      x: square.left + square.width / 2 - bounds.left + container.scrollLeft,
+      y: square.top - bounds.top + container.scrollTop,
+    });
+    setTipOpen(true);
   }
 
   if (isPending) {
@@ -849,15 +815,54 @@ export function TaskWaffleView() {
         </div>
         {(snapshot?.data ?? data).doms.length > 0 ? (
           <>
-            <div className="overflow-x-auto px-4 py-3">
+            <div
+              ref={scrollRef}
+              className="relative overflow-x-auto px-4 py-3"
+            >
               <WaffleSvg
                 matrix={matrix}
                 mode={mode}
                 group={group}
-                tooltip={tooltip}
-                onTrialMove={moveTooltip}
-                onTrialLeave={() => setTooltip(null)}
+                tooltip={tipOpen ? tooltip : null}
+                onTrialMove={showTooltip}
+                onTrialLeave={() => setTipOpen(false)}
               />
+              <Tooltip
+                open={tipOpen}
+                onOpenChange={setTipOpen}
+                onOpenChangeComplete={(open) => {
+                  if (!open) setTooltip(null);
+                }}
+              >
+                <TooltipTrigger
+                  type="button"
+                  tabIndex={-1}
+                  delay={0}
+                  aria-hidden
+                  className="pointer-events-none absolute size-2 -translate-x-1/2 -translate-y-1/2 opacity-0"
+                  style={{
+                    left: tooltip?.x ?? 0,
+                    top: tooltip?.y ?? 0,
+                  }}
+                />
+                <TooltipContent
+                  side="top"
+                  sideOffset={10}
+                  className="pointer-events-none min-w-40"
+                >
+                  {tooltip ? (
+                    <div className="flex flex-col gap-0.5">
+                      <p>{tooltip.task}</p>
+                      <p className="opacity-70">{tooltip.trial.m}</p>
+                      <p className="opacity-70">
+                        {OUTCOME_WORD[tooltip.trial.o]}
+                        {tooltip.trial.e ? ` - ${tooltip.trial.e}` : ''}
+                      </p>
+                      <p className="opacity-50">click to view trial</p>
+                    </div>
+                  ) : null}
+                </TooltipContent>
+              </Tooltip>
             </div>
             <Legend />
           </>
@@ -867,7 +872,6 @@ export function TaskWaffleView() {
           </div>
         )}
       </div>
-      <Tooltip tooltip={tooltip} refObject={tooltipRef} />
     </div>
   );
 }
