@@ -1,8 +1,6 @@
-import { BlogSideToc } from '@/components/blog-side-toc';
 import { getMDXComponents } from '@/components/mdx';
 import { Share } from '@/components/share';
 import { blog } from '@/lib/source';
-import { InlineTOC } from 'fumadocs-ui/components/inline-toc';
 import { notFound } from 'next/navigation';
 import { formatNewsDate } from '../components/format-news-date';
 
@@ -38,9 +36,6 @@ export default async function BlogPostPage({ params }: PageProps) {
               <p className="font-sans text-base text-muted-foreground">
                 {page.data.description}
               </p>
-            )}
-            {!page.data.hideToc && (
-              <InlineTOC items={page.data.toc} className="mt-8" />
             )}
           </div>
           <article className="flex w-full flex-col py-8">
@@ -120,13 +115,6 @@ export default async function BlogPostPage({ params }: PageProps) {
             </div>
           </article>
         </div>
-        {page.slugs[0] === 'harbor-index' && (
-          <aside className="hidden w-56 shrink-0 xl:block">
-            <div className="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto pt-6 sm:pt-12">
-              <BlogSideToc toc={page.data.toc} />
-            </div>
-          </aside>
-        )}
       </div>
     </div>
   );
