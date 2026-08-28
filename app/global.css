@@ -55,6 +55,19 @@
   background-color: var(--sidebar) !important;
 }
 
+/* Nav contents align with the viewport edge margins, not the content
+   max-width. */
+#nd-nav nav > div {
+  max-width: none;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 768px) {
+  #nd-nav nav > div {
+    padding-inline: 2rem;
+  }
+}
+
 #nd-nav a.font-semibold {
   font-weight: 500;
   text-transform: uppercase;

@@ -10,7 +10,7 @@ export default function Layout({ children }: LayoutProps<'/'>) {
       <QueryProvider>
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           <div className="flex min-h-0 min-w-0 flex-1 flex-col">{children}</div>
-          <div className="mx-auto w-full min-w-0 max-w-8xl px-4">
+          <div className="w-full min-w-0 px-4 md:px-8">
             <SiteFooter />
           </div>
         </div>
