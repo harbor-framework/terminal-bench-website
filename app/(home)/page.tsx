@@ -51,10 +51,10 @@ export default async function HomePage() {
               <HugeiconsIcon icon={TerminalIcon} strokeWidth={2} />
             </Link>
             <Link
-              href="/announcement"
+              href="/news"
               className={buttonVariants({ variant: 'secondary', size: 'lg' })}
             >
-              Read the announcement
+              Read the blog
               <HugeiconsIcon icon={ArrowUpRight03Icon} strokeWidth={2} />
             </Link>
           </div>

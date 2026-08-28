@@ -20,7 +20,7 @@ export function TaskActions() {
         <HugeiconsIcon icon={ArrowRight02Icon} strokeWidth={2} />
       </a>
       <a
-        href="https://github.com/harbor-framework/frontier-bench/blob/main/CONTRIBUTING.md"
+        href="https://github.com/harbor-framework/terminal-bench-3/blob/main/CONTRIBUTING.md"
         target="_blank"
         rel="noreferrer"
         className={buttonVariants({ variant: 'secondary', size: 'lg' })}

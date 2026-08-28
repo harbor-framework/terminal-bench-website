@@ -1,6 +1,7 @@
-import { docs, pages } from 'collections/server';
+import { blog as blogPosts, docs, pages } from 'collections/server';
 import { loader } from 'fumadocs-core/source';
 import { lucideIconsPlugin } from 'fumadocs-core/source/lucide-icons';
+import { toFumadocsSource } from 'fumadocs-mdx/runtime/server';
 import { docsContentRoute, docsImageRoute, docsRoute } from './shared';
 
 // See https://fumadocs.dev/docs/headless/source-api for more info
@@ -14,6 +15,11 @@ export const source = loader({
 export const pagesSource = loader({
   baseUrl: '/',
   source: pages.toFumadocsSource(),
+});
+
+export const blog = loader({
+  baseUrl: '/news',
+  source: toFumadocsSource(blogPosts, []),
 });
 
 export function getPageImage(page: (typeof source)['$inferPage']) {

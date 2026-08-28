@@ -61,7 +61,7 @@
   letter-spacing: -0.025em;
 }
 
-/* Content pages (/run, /announcement): Geist Sans for prose, Code for headings/code. */
+/* Content pages: Geist Sans for prose, Code for headings/code. */
 .content-page {
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 }

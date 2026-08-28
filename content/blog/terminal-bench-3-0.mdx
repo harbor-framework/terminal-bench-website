@@ -1,15 +1,31 @@
 ---
 title: Terminal-Bench 3.0
 description: Terminal-Bench 3.0 measures agent abilities at the frontier.
+authors: [
+  {
+    name: "Ryan Marten",
+    url: "https://github.com/ryanmarten",
+  },
+  {
+    name: "Alex Shaw",
+    url: "https://x.com/alexgshaw",
+  },
+  {
+    name: "Andy Konwinski",
+    url: "https://x.com/andykonwinski",
+  },
+]
+date: 2026-07-30
+category: "Release"
 ---
 
-Built by the team behind earlier [Terminal-Bench](https://www.tbench.ai/) releases and [Harbor](https://www.harborframework.com/), Terminal-Bench 3.0 (formerly Frontier-Bench) is an on-going large-scale community effort to source the most diverse, difficult and high-quality tasks.
+Built by the team behind earlier [Terminal-Bench](https://www.tbench.ai/) releases and [Harbor](https://www.harborframework.com/), Terminal-Bench 3.0 is an on-going large-scale community effort to source the most diverse, difficult and high-quality tasks.
 
-Our first release contains [74 tasks across 7 domains](https://github.com/harbor-framework/frontier-bench#task-distribution). The best models achieve ~34% on Terminal-Bench 3.0.
+Our first release contains [74 tasks across 7 domains](https://github.com/harbor-framework/terminal-bench-3#task-distribution). The best models achieve ~34% on Terminal-Bench 3.0.
 
 <PassRateBarChart />
 
-Terminal-Bench 3.0 is a continuous benchmark. The frontier is wide and dynamic, Terminal-Bench evolves along with it. We are already [developing](https://github.com/harbor-framework/frontier-bench/issues/1422) subsequent releases, with new and improved tasks.
+Terminal-Bench 3.0 is a continuous benchmark. The frontier is wide and dynamic, Terminal-Bench evolves along with it. We are already [developing](https://github.com/harbor-framework/terminal-bench-3/issues/1422) subsequent releases, with new and improved tasks.
 
 ## Overview
 
@@ -19,7 +35,7 @@ Terminal-Bench 3.0 expands on Terminal-Bench 2.1 with more challenging tasks acr
 
 **We need a more representative benchmark.** Terminal-Bench was built on the thesis that code and the CLI were powerful tools for agents to accomplish tasks. Terminal-Bench 3.0 expands on that idea by introducing more task diversity to measure performance across more types of coding and non-coding work. "Work" has expanded to longer-running tasks across a greater diversity of domains and "computer" has expanded to richer environments, multi-container networks, and GPUs. We anticipate this definition continuing to broaden in future Terminal-Bench versions.
 
-**We're fixing the way benchmarks are built.** Many benchmarks have known problems, many of these problems go unfixed. It erodes the usefulness of the benchmark and also dilutes the signal. Terminal-Bench 3.0 is a continuously improving benchmark and [open community project](https://github.com/harbor-framework/frontier-bench). We will regularly release updates to fix and add tasks, making the benchmark more valuable over time.
+**We're fixing the way benchmarks are built.** Many benchmarks have known problems, many of these problems go unfixed. It erodes the usefulness of the benchmark and also dilutes the signal. Terminal-Bench 3.0 is a continuously improving benchmark and [open community project](https://github.com/harbor-framework/terminal-bench-3). We will regularly release updates to fix and add tasks, making the benchmark more valuable over time.
 
 ## Tasks
 
@@ -61,7 +77,7 @@ Agents approach problem solving differently, even at similar pass rates. Fable 5
 
 ## Roadmap
 
-The Terminal-Bench team is already planning upcoming releases, which we are documenting in our [public roadmap](https://github.com/harbor-framework/frontier-bench/issues/1422). In our next major release, we plan to add new tasks that measure new capabilities, add greater task diversity, and tune timeouts. Tasks are versioned so corresponding trials can be re-used, re-graded, or re-run to minimize the cost and complexity of updating leaderboard results. All of these features are simple commands in [Harbor](https://www.harborframework.com/).
+The Terminal-Bench team is already planning upcoming releases, which we are documenting in our [public roadmap](https://github.com/harbor-framework/terminal-bench-3/issues/1422). In our next major release, we plan to add new tasks that measure new capabilities, add greater task diversity, and tune timeouts. Tasks are versioned so corresponding trials can be re-used, re-graded, or re-run to minimize the cost and complexity of updating leaderboard results. All of these features are simple commands in [Harbor](https://www.harborframework.com/).
 
 <RoadmapDiagram />
 
@@ -69,7 +85,7 @@ The Terminal-Bench team is already planning upcoming releases, which we are docu
 
 Terminal-Bench 3.0 is a community effort from 100+ task contributors and reviewers. It is the hardest and highest quality benchmark we could make together in the open, but it is just the start. Let's find issues, fix them, and add new tasks together. Let's make this benchmark measure the most valuable frontier capabilities in the most accurate way possible.
 
-Join the effort on [Discord](https://discord.com/invite/ZvcWupVXjz) and [GitHub](https://github.com/harbor-framework/frontier-bench). Let's continuously and rigorously define the frontier together.
+Join the effort on [Discord](https://discord.com/invite/ZvcWupVXjz) and [GitHub](https://github.com/harbor-framework/terminal-bench-3). Let's continuously and rigorously define the frontier together.
 
 ## Acknowledgements
 

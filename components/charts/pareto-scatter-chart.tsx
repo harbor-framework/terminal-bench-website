@@ -194,8 +194,12 @@ export function ParetoScatterChart({
 
   // Clear tip when axes change so we don't show stale content.
   useEffect(() => {
-    setTipOpen(false);
-    setActive(null);
+    const frame = window.requestAnimationFrame(() => {
+      setTipOpen(false);
+      setActive(null);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
   }, [xAxisId, yAxisId]);
 
   if (data.length === 0) {

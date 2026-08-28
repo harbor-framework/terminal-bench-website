@@ -9,16 +9,23 @@ export function baseOptions(): BaseLayoutProps {
     },
     links: [
       {
-        text: 'RUN TERMINAL-BENCH',
+        text: 'BENCHMARK',
         url: '/run',
       },
       {
-        text: 'ANNOUNCEMENT',
-        url: '/announcement',
+        text: 'BLOG',
+        url: '/news',
+        active: 'nested-url',
+      },
+      {
+        text: 'COMMUNITY',
+        url: 'https://discord.gg/ZvcWupVXjz',
+        external: true,
       },
       {
         text: 'CONTRIBUTORS',
         url: '/contributors',
+        active: 'nested-url',
       },
     ],
     githubUrl: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,

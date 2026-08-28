@@ -13,7 +13,7 @@ const googleSansCode = Google_Sans_Code({
   variable: '--font-google-sans-code',
 });
 
-const siteUrl = 'https://frontier-bench-docs.vercel.app';
+const siteUrl = 'https://www.tbench.ai';
 const siteDescription =
   'A benchmark to measure and evolve with the frontier of agent work';
 
