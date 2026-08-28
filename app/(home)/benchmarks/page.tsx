@@ -27,7 +27,7 @@ const BENCHMARKS: Benchmark[] = [
       { label: 'Blog', href: '/news/announcement' },
       {
         label: 'GitHub',
-        href: 'https://github.com/laude-institute/terminal-bench',
+        href: 'https://github.com/harbor-framework/terminal-bench-1',
         external: true,
       },
     ],
