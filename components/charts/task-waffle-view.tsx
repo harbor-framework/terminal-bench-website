@@ -678,6 +678,7 @@ export function TaskWaffleView() {
     queryKey: ['waffle', 'terminal-bench', benchmark.id],
     queryFn: () => fetchWaffleData(benchmark.id),
     placeholderData: keepPreviousData,
+    staleTime: 5 * 60 * 1000,
   });
   const { data: leaderboardData } = useQuery({
     queryKey: leaderboardQueryKey(benchmark.package, benchmark.leaderboard),
@@ -687,9 +688,23 @@ export function TaskWaffleView() {
   const { facets, filters, handleFiltersChange, filteredRows, toolbarColumns } =
     useLeaderboardFilters(leaderboardData);
 
+  // Render only consistent (payload, rows) pairs. During a benchmark switch
+  // the (fast) leaderboard query resolves before the waffle payload; pairing
+  // stale trials with new rows would blank cells and shuffle columns, so keep
+  // showing the previous consistent snapshot until the new pair is complete.
+  const lastConsistent = useRef<{
+    data: WafflePayload;
+    rows: LeaderboardRow[];
+  } | null>(null);
+  if (data && leaderboardData?.leaderboard.name === data.leaderboard.name) {
+    lastConsistent.current = { data, rows: filteredRows };
+  }
+  const snapshot =
+    lastConsistent.current ?? (data ? { data, rows: [] } : null);
+
   const matrix = useMemo(
-    () => (data ? buildMatrix(data, filteredRows) : null),
-    [data, filteredRows],
+    () => (snapshot ? buildMatrix(snapshot.data, snapshot.rows) : null),
+    [snapshot],
   );
 
   const tooltipRef = useRef<HTMLDivElement | null>(null);
@@ -763,7 +778,7 @@ export function TaskWaffleView() {
         <ViewExportActions
           targetId={WAFFLE_EXPORT_TARGET_ID}
           fileBaseName={WAFFLE_EXPORT_FILE_BASENAME}
-          getMarkdown={() => buildWaffleMarkdownTable(data)}
+          getMarkdown={() => buildWaffleMarkdownTable(snapshot?.data ?? data)}
         />
         <div className="flex min-w-0 items-center gap-1.5">
           <BenchmarkSelect />
@@ -832,7 +847,7 @@ export function TaskWaffleView() {
             </SelectContent>
           </Select>
         </div>
-        {data.doms.length > 0 ? (
+        {(snapshot?.data ?? data).doms.length > 0 ? (
           <>
             <div className="overflow-x-auto px-4 py-3">
               <WaffleSvg
