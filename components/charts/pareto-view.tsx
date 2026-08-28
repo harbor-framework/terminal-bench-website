@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { parseAsStringLiteral, useQueryState } from 'nuqs';
 import { useMemo } from 'react';
 
@@ -17,6 +17,10 @@ import {
   buildParetoData,
 } from '@/components/charts/pareto-scatter-chart';
 import { HomeViewToggle } from '@/components/home-view-toggle';
+import {
+  BenchmarkSelect,
+  useHomeBenchmark,
+} from '@/components/leaderboard/benchmark-select';
 import { LeaderboardToolbar } from '@/components/leaderboard/leaderboard-toolbar';
 import { useLeaderboardFilters } from '@/components/leaderboard/use-leaderboard-filters';
 import {
@@ -39,14 +43,11 @@ const parseParetoXAxis = parseAsStringLiteral(PARETO_X_AXIS_IDS);
 const PARETO_EXPORT_TARGET_ID = 'terminal-bench-pareto-export';
 const PARETO_EXPORT_FILE_BASENAME = 'terminal-bench-4-pareto';
 const PARETO_CAPTIONS: Record<(typeof PARETO_X_AXIS_IDS)[number], string> = {
-  cost:
-    'Resolution rate of Terminal-Bench 4.0 tasks against total cost, summed across all trials.',
+  cost: 'against total cost, summed across all trials.',
   tokens:
-    'Resolution rate of Terminal-Bench 4.0 tasks against total token usage, summing input, output, and cached tokens across all trials.',
-  time:
-    'Resolution rate of Terminal-Bench 4.0 tasks against total wall-clock time, summed across all trials.',
-  release_date:
-    'Resolution rate of Terminal-Bench 4.0 tasks against model release date.',
+    'against total token usage, summing input, output, and cached tokens across all trials.',
+  time: 'against total wall-clock time, summed across all trials.',
+  release_date: 'against model release date.',
 };
 
 function escapeMarkdownCell(value: string): string {
@@ -86,14 +87,12 @@ export function ParetoView() {
   );
 
   const yAxisId = DEFAULT_PARETO_Y;
+  const { benchmark } = useHomeBenchmark();
 
   const { data, error, isPending } = useQuery({
-    queryKey: leaderboardQueryKey(
-      TERMINAL_BENCH_PACKAGE,
-      TERMINAL_BENCH_LEADERBOARD,
-    ),
-    queryFn: () =>
-      fetchLeaderboard(TERMINAL_BENCH_PACKAGE, TERMINAL_BENCH_LEADERBOARD),
+    queryKey: leaderboardQueryKey(benchmark.package, benchmark.leaderboard),
+    queryFn: () => fetchLeaderboard(benchmark.package, benchmark.leaderboard),
+    placeholderData: keepPreviousData,
   });
 
   const { facets, filters, handleFiltersChange, filteredRows, toolbarColumns } =
@@ -112,7 +111,7 @@ export function ParetoView() {
 
   const xLabel = PARETO_AXES[xAxisId].label;
   const yLabel = PARETO_AXES[yAxisId].label;
-  const caption = PARETO_CAPTIONS[xAxisId];
+  const caption = `Resolution rate of ${benchmark.label} tasks ${PARETO_CAPTIONS[xAxisId]}`;
 
   if (isPending) {
     return (
@@ -162,17 +161,20 @@ export function ParetoView() {
             buildParetoMarkdownTable(chartData, xAxisId, yAxisId)
           }
         />
-        <LeaderboardToolbar
-          columns={toolbarColumns}
-          columnOptions={[]}
-          filters={filters}
-          onFiltersChange={handleFiltersChange}
-          numberBounds={facets.numberBounds}
-          dateBounds={facets.dateBounds}
-          setOptions={facets.setOptions}
-          columnVisibility={{}}
-          onColumnVisibilityChange={() => {}}
-        />
+        <div className="flex min-w-0 items-center gap-1.5">
+          <BenchmarkSelect />
+          <LeaderboardToolbar
+            columns={toolbarColumns}
+            columnOptions={[]}
+            filters={filters}
+            onFiltersChange={handleFiltersChange}
+            numberBounds={facets.numberBounds}
+            dateBounds={facets.dateBounds}
+            setOptions={facets.setOptions}
+            columnVisibility={{}}
+            onColumnVisibilityChange={() => {}}
+          />
+        </div>
       </div>
       <div
         id={PARETO_EXPORT_TARGET_ID}

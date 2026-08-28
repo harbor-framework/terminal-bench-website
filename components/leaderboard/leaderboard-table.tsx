@@ -13,7 +13,7 @@ import type {
   OnChangeFn,
   VisibilityState,
 } from '@tanstack/react-table';
-import { parseAsStringLiteral, useQueryState } from 'nuqs';
+import { useQueryState } from 'nuqs';
 import { useMemo } from 'react';
 
 import { LeaderboardSkeleton } from '@/components/leaderboard/leaderboard-skeleton';
@@ -26,16 +26,10 @@ import {
 import { DataTable } from '@/components/ui/data-table';
 import { ViewExportActions } from '@/components/view-export-actions';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  BenchmarkSelect,
+  useHomeBenchmark,
+} from '@/components/leaderboard/benchmark-select';
 import {
-  DEFAULT_HOME_BENCHMARK_ID,
-  HOME_BENCHMARKS,
-  homeBenchmarkById,
   TERMINAL_BENCH_DATASET_VERSION,
   TERMINAL_BENCH_LEADERBOARD,
   TERMINAL_BENCH_PACKAGE,
@@ -378,6 +372,16 @@ function buildMarkdownTable(
     .join('\n');
 }
 
+/** Max natural width per column across all selectable benchmarks. */
+const STABLE_COLUMN_MIN_WIDTHS: Record<string, string> = {
+  model_display: 'xl:min-w-[233px]',
+  agent_display: 'xl:min-w-[224px]',
+  date: 'xl:min-w-[169px]',
+  release_date: 'xl:min-w-[169px]',
+  total_tokens: 'xl:min-w-[118px]',
+  total_cost_usd: 'xl:min-w-[124px]',
+};
+
 function buildColumns(
   columns: LeaderboardColumn[],
 ): ColumnDef<LeaderboardRow>[] {
@@ -460,24 +464,66 @@ function buildColumns(
             // so extra table width widens the bar, not the gaps.
             column.id === 'accuracy' ? 'xl:min-w-56' : 'xl:w-px',
             column.id === 'release_date' && 'xl:pl-2',
+            // Fixed min widths (max natural width across every benchmark in
+            // the selector) so switching versions never shifts columns.
+            STABLE_COLUMN_MIN_WIDTHS[column.id],
           ),
         },
       };
     });
 
-  return [rankColumn, ...dataColumns];
+  // Placeholder columns for canonical TB 4.0 columns a benchmark lacks, so
+  // switching benchmarks never adds or removes columns (no layout shift).
+  const presentIds = new Set(dataColumns.map((column) => column.id));
+  const placeholders: ColumnDef<LeaderboardRow>[] = (
+    [
+      ['total_tokens', 'TOKENS'],
+      ['total_cost_usd', 'COST'],
+    ] as const
+  )
+    .filter(([id]) => !presentIds.has(id))
+    .map(([id, header]) => ({
+      id,
+      header: () => <span className="ml-auto font-medium uppercase">{header}</span>,
+      accessorFn: () => null,
+      cell: () => <span className="text-muted-foreground">—</span>,
+      enableSorting: false,
+      meta: {
+        headerClassName: 'text-right',
+        cellClassName: cn(
+          'text-right tabular-nums xl:w-px',
+          STABLE_COLUMN_MIN_WIDTHS[id],
+        ),
+      },
+    }));
+
+  const CANONICAL_ORDER = [
+    'model_display',
+    'agent_display',
+    'reasoning_effort',
+    'accuracy',
+    'date',
+    'release_date',
+    'agent_org',
+    'model_org',
+    'pr_url',
+    'reward_hacks',
+    'total_tokens',
+    'total_cost_usd',
+  ];
+  const orderIndex = (id: string | undefined) => {
+    const index = CANONICAL_ORDER.indexOf(id ?? '');
+    return index === -1 ? CANONICAL_ORDER.length : index;
+  };
+  const ordered = [...dataColumns, ...placeholders].sort(
+    (a, b) => orderIndex(a.id) - orderIndex(b.id),
+  );
+
+  return [rankColumn, ...ordered];
 }
 
-const parseBenchmarkId = parseAsStringLiteral(
-  HOME_BENCHMARKS.map((benchmark) => benchmark.id),
-);
-
 export function LeaderboardTable() {
-  const [benchmarkId, setBenchmarkId] = useQueryState(
-    'benchmark',
-    parseBenchmarkId.withDefault(DEFAULT_HOME_BENCHMARK_ID),
-  );
-  const benchmark = homeBenchmarkById(benchmarkId);
+  const { benchmark } = useHomeBenchmark();
 
   const { data, error, isPending } = useQuery({
     queryKey: leaderboardQueryKey(benchmark.package, benchmark.leaderboard),
@@ -627,30 +673,7 @@ export function LeaderboardTable() {
               }
             />
             <div className="flex min-w-0 items-center gap-1.5">
-              <Select
-                value={benchmark.id}
-                onValueChange={(next) => {
-                  if (typeof next === 'string') void setBenchmarkId(next);
-                }}
-              >
-                <SelectTrigger
-                  className="bg-background uppercase dark:bg-card"
-                  aria-label="Benchmark"
-                >
-                  <SelectValue>{benchmark.id}</SelectValue>
-                </SelectTrigger>
-                <SelectContent align="end">
-                  {HOME_BENCHMARKS.map((option) => (
-                    <SelectItem
-                      key={option.id}
-                      value={option.id}
-                      className="uppercase"
-                    >
-                      {option.id}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <BenchmarkSelect />
               <LeaderboardToolbar
                 columns={toolbarColumns}
                 columnOptions={columnOptions}

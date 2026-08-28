@@ -6,6 +6,10 @@ import { useMemo, useRef, useState } from 'react';
 
 import { chartRowLabel } from '@/components/charts/chart-labels';
 import { HomeViewToggle } from '@/components/home-view-toggle';
+import {
+  BenchmarkSelect,
+  useHomeBenchmark,
+} from '@/components/leaderboard/benchmark-select';
 import { LeaderboardToolbar } from '@/components/leaderboard/leaderboard-toolbar';
 import { useLeaderboardFilters } from '@/components/leaderboard/use-leaderboard-filters';
 import {
@@ -653,6 +657,7 @@ export function TaskWaffleView() {
     'group',
     parseGroupMode.withDefault('model'),
   );
+  const { benchmark } = useHomeBenchmark();
 
   const { data, error, isPending } = useQuery({
     queryKey: ['waffle', 'terminal-bench', '4-0-0'],
@@ -747,17 +752,20 @@ export function TaskWaffleView() {
           fileBaseName={WAFFLE_EXPORT_FILE_BASENAME}
           getMarkdown={() => buildWaffleMarkdownTable(data)}
         />
-        <LeaderboardToolbar
-          columns={toolbarColumns}
-          columnOptions={[]}
-          filters={filters}
-          onFiltersChange={handleFiltersChange}
-          numberBounds={facets.numberBounds}
-          dateBounds={facets.dateBounds}
-          setOptions={facets.setOptions}
-          columnVisibility={{}}
-          onColumnVisibilityChange={() => {}}
-        />
+        <div className="flex min-w-0 items-center gap-1.5">
+          <BenchmarkSelect />
+          <LeaderboardToolbar
+            columns={toolbarColumns}
+            columnOptions={[]}
+            filters={filters}
+            onFiltersChange={handleFiltersChange}
+            numberBounds={facets.numberBounds}
+            dateBounds={facets.dateBounds}
+            setOptions={facets.setOptions}
+            columnVisibility={{}}
+            onColumnVisibilityChange={() => {}}
+          />
+        </div>
       </div>
       <div
         id={WAFFLE_EXPORT_TARGET_ID}
@@ -811,17 +819,26 @@ export function TaskWaffleView() {
             </SelectContent>
           </Select>
         </div>
-        <div className="overflow-x-auto px-4 py-3">
-          <WaffleSvg
-            matrix={matrix}
-            mode={mode}
-            group={group}
-            tooltip={tooltip}
-            onTrialMove={moveTooltip}
-            onTrialLeave={() => setTooltip(null)}
-          />
-        </div>
-        <Legend />
+        {benchmark.id === '4.0' ? (
+          <>
+            <div className="overflow-x-auto px-4 py-3">
+              <WaffleSvg
+                matrix={matrix}
+                mode={mode}
+                group={group}
+                tooltip={tooltip}
+                onTrialMove={moveTooltip}
+                onTrialLeave={() => setTooltip(null)}
+              />
+            </div>
+            <Legend />
+          </>
+        ) : (
+          <div className="flex min-h-[420px] items-center justify-center px-6 py-10 text-center text-sm text-muted-foreground">
+            Per-trial data is only available for Terminal-Bench 4.0. Switch the
+            benchmark back to 4.0 to see the trial matrix.
+          </div>
+        )}
       </div>
       <Tooltip tooltip={tooltip} refObject={tooltipRef} />
     </div>
