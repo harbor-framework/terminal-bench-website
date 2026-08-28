@@ -51,7 +51,7 @@ export function BenchmarkSelect() {
       >
         <SelectValue>{benchmark.id}</SelectValue>
       </SelectTrigger>
-      <SelectContent align="end">
+      <SelectContent align="end" className="min-w-0">
         {HOME_BENCHMARKS.map((option) => (
           <SelectItem key={option.id} value={option.id} className="uppercase">
             {option.id}
