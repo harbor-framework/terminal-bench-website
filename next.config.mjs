@@ -79,7 +79,8 @@ const config = {
       // TB 1.0's registry dataset lives on GitHub, not the Hub.
       {
         source: '/registry/terminal-bench-core/:version',
-        destination: 'https://github.com/harbor-framework/terminal-bench-1',
+        destination:
+          'https://github.com/harbor-framework/terminal-bench-1/tree/5540a73173a3ab90bf9fc7f8106fddb4fba6bd5e/dataset/tasks',
         permanent: true,
       },
       // The registry's successor is the Harbor Hub.

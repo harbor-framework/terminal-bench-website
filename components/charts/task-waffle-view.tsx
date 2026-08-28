@@ -854,7 +854,13 @@ export function TaskWaffleView() {
                     <div className="flex flex-col gap-0.5">
                       <p>{tooltip.task}</p>
                       <p className="opacity-70">{tooltip.trial.m}</p>
-                      <p className="opacity-70">
+                      <p
+                        className={
+                          tooltip.trial.o === 'err'
+                            ? 'text-red-400'
+                            : 'opacity-70'
+                        }
+                      >
                         {OUTCOME_WORD[tooltip.trial.o]}
                         {tooltip.trial.e ? ` - ${tooltip.trial.e}` : ''}
                       </p>
