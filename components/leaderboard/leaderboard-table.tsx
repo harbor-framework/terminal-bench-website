@@ -459,6 +459,24 @@ function buildColumns(
             return <AccuracyBarCell row={row.original} />;
           }
 
+          // Uniform units across benchmarks: tokens in billions, cost in
+          // thousands of dollars, one decimal each.
+          if (column.id === 'total_tokens') {
+            const raw = getAccessorValue(row.original, 'metrics.total_tokens');
+            return typeof raw === 'number' && raw > 0
+              ? `${(raw / 1e9).toFixed(1)}B`
+              : '—';
+          }
+          if (column.id === 'total_cost_usd') {
+            const raw = getAccessorValue(
+              row.original,
+              'metrics.total_cost_usd',
+            );
+            return typeof raw === 'number' && raw > 0
+              ? `$${(raw / 1000).toFixed(1)}k`
+              : '—';
+          }
+
           return <LeaderboardCell value={value} type={displayType} />;
         },
         enableSorting: sortable,
