@@ -1,4 +1,5 @@
 import { CONTRIBUTORS } from '@/app/(home)/contributors/data';
+import { ContributorsGrid } from '@/components/contributors-grid';
 import { GeistSans } from 'geist/font/sans';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -7,12 +8,12 @@ import { cn } from '@/lib/utils';
 
 const RELEASES = {
   'terminal-bench-1': {
-    title: 'Terminal-Bench 1.0 Contributors',
+    name: 'Terminal-Bench 1.0',
     description:
       "People and organizations who contributed to Terminal-Bench's first release.",
   },
   'terminal-bench-2': {
-    title: 'Terminal-Bench 2.0 Contributors',
+    name: 'Terminal-Bench 2.0',
     description:
       'People and organizations who contributed to the Terminal-Bench 2.0 release.',
   },
@@ -28,6 +29,21 @@ function getRelease(slug: string) {
   if (slug in RELEASES) return RELEASES[slug as ReleaseSlug];
   return null;
 }
+
+const ROLE_GROUPS = [
+  { role: 'Co-Lead', title: 'Project Leadership' },
+  { role: 'Contributor', title: 'Contributors' },
+  { role: 'Advisor', title: 'Advisors' },
+];
+
+const contributorGroups = ROLE_GROUPS.map((group) => ({
+  title: group.title,
+  contributors: CONTRIBUTORS.filter((contributor) => contributor.role === group.role)
+    .map((contributor) => ({
+      name: contributor.name,
+      href: contributor.link,
+    })),
+})).filter((group) => group.contributors.length > 0);
 
 export default async function ContributorsByReleasePage({ params }: PageProps) {
   const { slug } = await params;
@@ -50,29 +66,15 @@ export default async function ContributorsByReleasePage({ params }: PageProps) {
           Contributors
         </Link>
         <div>
-          <h1>{release.title}</h1>
+          <p className="mb-2 font-mono text-sm font-medium tracking-tight text-muted-foreground uppercase">
+            {release.name}
+          </p>
+          <h1>Contributors</h1>
           <p className="mt-4 text-muted-foreground">{release.description}</p>
         </div>
       </div>
 
-      <div className="-mx-4 grid grid-cols-1 overflow-hidden border-y sm:mx-0 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {CONTRIBUTORS.map(({ name, link, role }) => (
-          <Link
-            href={link}
-            key={`${name}:${link}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="-mb-px flex min-h-24 flex-col justify-between border-b bg-card p-4 transition-colors hover:bg-muted/50 sm:-mr-px sm:border-r"
-          >
-            <span className="font-mono text-sm font-medium tracking-tight uppercase">
-              {name}
-            </span>
-            <span className="font-mono text-xs text-muted-foreground uppercase">
-              {role}
-            </span>
-          </Link>
-        ))}
-      </div>
+      <ContributorsGrid groups={contributorGroups} />
 
       <div className="mt-10 space-y-4 text-sm text-muted-foreground">
         <p>
@@ -108,7 +110,7 @@ export async function generateMetadata({ params }: PageProps) {
   if (!release) return {};
 
   return {
-    title: release.title,
+    title: 'Contributors',
     description: release.description,
   };
 }

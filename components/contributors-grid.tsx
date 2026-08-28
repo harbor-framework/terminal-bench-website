@@ -62,10 +62,16 @@ function RowPad({
   );
 }
 
-export function ContributorsGrid() {
+type ContributorsGridProps = {
+  groups?: typeof CONTRIBUTOR_GROUPS;
+};
+
+export function ContributorsGrid({
+  groups = CONTRIBUTOR_GROUPS,
+}: ContributorsGridProps) {
   return (
     <div className="-mx-4 grid w-auto grid-cols-2 gap-px overflow-hidden rounded-none bg-border py-px sm:grid-cols-3 md:mx-0 md:w-full md:grid-cols-4 md:rounded-xl md:p-px">
-      {CONTRIBUTOR_GROUPS.map((group) => {
+      {groups.map((group) => {
         const count = group.contributors.length;
         const pad2 = rowPadCount(count, 2);
         const pad3 = rowPadCount(count, 3);
