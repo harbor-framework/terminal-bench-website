@@ -33,7 +33,7 @@ export function NewsCard({
     </>
   );
   const className =
-    'grid min-h-28 grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-1 px-3 py-4 no-underline sm:gap-x-6 sm:px-4';
+    'grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-1 px-3 py-4 no-underline sm:gap-x-6 sm:px-4';
 
   return (
     <article className="bg-card transition-colors hover:bg-muted/50">

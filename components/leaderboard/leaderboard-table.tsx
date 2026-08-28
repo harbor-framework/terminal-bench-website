@@ -141,8 +141,8 @@ function AccuracyBarCell({ row }: { row: LeaderboardRow }) {
     typeof ci95HalfWidth === 'number' && !Number.isNaN(ci95HalfWidth)
       ? ci95HalfWidth
       : Z_95 * se;
+  const ciLower = value != null ? Math.max(0, value - half) : 0;
   const ciUpper = value != null ? Math.min(100, value + half) : 0;
-  const ciWidth = value != null ? Math.max(0, ciUpper - value) : 0;
 
   if (value == null) {
     return (
@@ -155,20 +155,30 @@ function AccuracyBarCell({ row }: { row: LeaderboardRow }) {
       <div className="w-28 shrink-0 tabular-nums">
         <LeaderboardCell value={display ?? accuracy} type="markdown" />
       </div>
-      <div className="relative h-3 min-w-0 flex-1 overflow-hidden rounded-none bg-muted">
-        <div
-          className="absolute inset-y-0 left-0 rounded-none bg-foreground/80"
-          style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
-        />
-        {ciWidth > 0 ? (
-          <div
-            className="absolute inset-y-0 rounded-none bg-foreground/15"
-            style={{
-              left: `${Math.min(100, Math.max(0, value))}%`,
-              width: `${ciWidth}%`,
-            }}
-          />
+      <div className="relative h-3 min-w-0 flex-1 rounded-none bg-muted">
+        {ciUpper > ciLower ? (
+          <>
+            <div
+              className="absolute top-1/2 h-px -translate-y-1/2 bg-foreground/60"
+              style={{
+                left: `${ciLower}%`,
+                width: `${ciUpper - ciLower}%`,
+              }}
+            />
+            <div
+              className="absolute top-1/2 h-2 w-px -translate-x-1/2 -translate-y-1/2 bg-foreground/60"
+              style={{ left: `${ciLower}%` }}
+            />
+            <div
+              className="absolute top-1/2 h-2 w-px -translate-x-1/2 -translate-y-1/2 bg-foreground/60"
+              style={{ left: `${ciUpper}%` }}
+            />
+          </>
         ) : null}
+        <div
+          className="absolute top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 bg-foreground"
+          style={{ left: `${Math.min(100, Math.max(0, value))}%` }}
+        />
       </div>
     </div>
   );
