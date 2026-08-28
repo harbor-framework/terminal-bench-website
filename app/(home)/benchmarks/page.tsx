@@ -114,7 +114,7 @@ const BENCHMARKS: Benchmark[] = [
   },
   {
     name: 'Terminal-Bench-Science 0.1',
-    date: '2026-08-28',
+    date: '2026-08-27',
     description:
       'A benchmark for evaluating AI agents on research workflows across scientific domains.',
     links: [
