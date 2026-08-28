@@ -157,11 +157,11 @@ function AccuracyBarCell({ row }: { row: LeaderboardRow }) {
       </div>
       <div className="relative h-3 min-w-0 flex-1 rounded-none bg-muted">
         <div
-          className="absolute inset-y-0 left-0 bg-foreground"
+          className="absolute inset-y-0 left-0 bg-foreground/20"
           style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
         />
         <div
-          className="absolute inset-y-0 bg-muted-foreground/60"
+          className="absolute top-1/2 h-1.5 -translate-y-1/2 bg-foreground"
           style={{
             left: `${ciLower}%`,
             width: `${Math.max(ciUpper - ciLower, 0.8)}%`,
@@ -607,7 +607,7 @@ export function LeaderboardTable() {
         }
         footer={
           <footer className="flex h-12 items-center justify-center border-t px-6 text-center text-sm text-muted-foreground">
-            Resolution rate of Terminal-Bench 4.0 tasks. The gray rectangle spans the
+            Resolution rate of Terminal-Bench 4.0 tasks. The black rectangle spans the
             95% confidence interval.
           </footer>
         }
