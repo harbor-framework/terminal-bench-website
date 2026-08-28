@@ -253,7 +253,11 @@ export function ParetoScatterChart({
   const xs = data.map((d) => d.x);
   const ys = data.map((d) => d.y);
   const xTicks = axisTicks(xAxisId, xs, 0.08);
-  const yTicks = axisTicks(yAxisId, ys, 0.12);
+  // Resolution rate always spans the full 0-100% scale.
+  const yTicks =
+    yAxisId === 'accuracy'
+      ? [0, 20, 40, 60, 80, 100]
+      : axisTicks(yAxisId, ys, 0.12);
   const xMin = xTicks[0]!;
   const xMax = xTicks[xTicks.length - 1]!;
   const yMin = yTicks[0]!;
