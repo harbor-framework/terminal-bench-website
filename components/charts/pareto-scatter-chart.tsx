@@ -450,7 +450,9 @@ export function ParetoScatterChart({
                 onMouseEnter={() => {
                   setActive({
                     id: datum.id,
-                    label: datum.label.full,
+                    label: [datum.label.model, datum.label.agent]
+                      .filter(Boolean)
+                      .join(' / '),
                     yValue: yAxis.format(datum.y),
                     ciValue:
                       datum.yCi != null
