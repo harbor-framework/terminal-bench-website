@@ -2,7 +2,7 @@
 
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { parseAsStringLiteral, useQueryState } from "nuqs";
-import { memo, useCallback, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { chartRowLabel } from "@/components/charts/chart-labels";
 import { HomeViewToggle } from "@/components/home-view-toggle";
@@ -354,6 +354,7 @@ const WaffleSvg = memo(function WaffleSvg({
   mode,
   group,
   containerWidth,
+  viewportH,
   activeTrialId,
   onTrialMove,
   onTrialLeave,
@@ -364,6 +365,7 @@ const WaffleSvg = memo(function WaffleSvg({
   group: GroupMode;
   /** Scroll container width, to size the centering pad without overflow. */
   containerWidth: number;
+  viewportH: number;
   activeTrialId: string | null;
   onTrialMove: (
     event: React.MouseEvent<SVGElement>,
@@ -373,39 +375,87 @@ const WaffleSvg = memo(function WaffleSvg({
   onTrialLeave: () => void;
   onSurfaceMove: (event: React.MouseEvent<SVGElement>) => void;
 }) {
-  // Fixed pixel geometry: the SVG renders 1:1 (no viewBox stretch) so squares
-  // and text stay the same size as the pareto chart's at any viewport width.
-  const SW = 12;
-  const SGAP = 2.5;
-  const SH = 12;
-  const VGAP = 2.5;
-  // Wide enough that the longest one-line model header clears its neighbors.
-  const MG = 18;
+  // Fixed pixel geometry (no viewBox stretch), scaled down in whole-pixel
+  // steps until the full chart fits the viewport height — the same
+  // quantization the blog's miniature waffles use so crispEdges renders
+  // every square identically.
   const maxReps = Math.max(1, matrix.maxReps);
-  const blockW = maxReps * SW + (maxReps - 1) * SGAP;
-  const stepM = blockW + MG;
-  // Fit the label gutter to the longest visible row label so mx-auto centers
-  // the actual content; a fixed gutter leaves dead space on the left when
-  // labels are short. Task labels are 11px mono (~6.6px/char); domain labels
-  // render uppercase at 12px (~7.6px/char).
+  const available = containerWidth > 0 ? containerWidth - 32 : 0;
   const rowLabels =
     mode === "task"
       ? matrix.tasks.map((row) => row.task)
       : matrix.domains.map((row) => row.name);
   const maxLabelChars = Math.max(0, ...rowLabels.map((label) => label.length));
-  // Domain labels render vertically, so their gutter is just one line tall.
+  // Chrome above/below the plot: nav, toolbar, card header, legend, padding.
+  const budget = Math.max(420, viewportH - 230);
+  let SW = 12;
+  let SGAP = 2.5;
+  let MG = 18;
+  let RH = 20;
+  let HEAD = 48;
+  let domGap = 24;
+  let fontSm = 11;
+  let scale = 1;
+  for (let iter = 0; iter < 4; iter++) {
+    SW = Math.max(4, Math.round(12 * scale));
+    SGAP = Math.max(1, Math.round(2.5 * scale));
+    MG = Math.max(8, Math.round(18 * scale));
+    RH = Math.max(8, Math.round(20 * scale));
+    HEAD = Math.max(34, Math.round(48 * scale));
+    domGap = Math.max(10, Math.round(24 * scale));
+    fontSm = Math.max(6.5, Math.min(11, RH - 3));
+    const pitchYEst = SW + SGAP;
+    const gutEst =
+      mode === "task"
+        ? Math.min(210, Math.ceil(maxLabelChars * fontSm * 0.6) + 16)
+        : 36;
+    const perLineEst = Math.max(
+      1,
+      Math.floor(
+        ((available > 0 ? available - gutEst - 16 : 800) + SGAP) / (SW + SGAP),
+      ),
+    );
+    let estimate = HEAD + 10;
+    if (mode === "task") {
+      for (const row of matrix.tasks) {
+        const slots = row.cells.reduce((sum, cell) => sum + cell.length, 0);
+        const lines =
+          group === "outcome" ? Math.max(1, Math.ceil(slots / perLineEst)) : 1;
+        estimate += Math.max(RH, lines * pitchYEst);
+      }
+    } else {
+      matrix.domains.forEach((domain, index) => {
+        const slots = domain.cells.reduce((sum, cell) => sum + cell.length, 0);
+        const lines =
+          group === "outcome"
+            ? Math.max(1, Math.ceil(slots / perLineEst))
+            : Math.max(
+                ...domain.cells.map((cell) => Math.ceil(cell.length / maxReps)),
+                domain.taskCount,
+                1,
+              );
+        estimate += lines * pitchYEst + (index > 0 ? domGap : 0);
+      });
+    }
+    if (estimate <= budget || scale <= 0.35) break;
+    scale *= Math.max(0.35, (budget - HEAD) / (estimate - HEAD));
+  }
+  const SH = SW;
+  const VGAP = SGAP;
+  const fontMd = fontSm + 1;
+  const blockW = maxReps * SW + (maxReps - 1) * SGAP;
+  const stepM = blockW + MG;
+  // Fit the label gutter to the longest visible row label so mx-auto centers
+  // the actual content; domain labels render vertically in a one-line gutter.
   const GUT =
-    mode === "task" ? Math.min(210, Math.ceil(maxLabelChars * 6.6) + 16) : 36;
+    mode === "task"
+      ? Math.min(210, Math.ceil(maxLabelChars * fontSm * 0.6) + 16)
+      : 36;
   // Mirror the label gutter on the right so mx-auto centers the columns
   // themselves, not the gutter-plus-columns block — but never wider than the
   // container allows, or a scrollbar appears over pure whitespace.
   const RPAD_FALLBACK = GUT;
-  // Same header height in both groupings so toggling model/outcome causes
-  // no vertical layout shift; outcome mode just leaves the space empty.
-  const HEAD = 48;
   const modelPlotW = Math.max(1, matrix.columns.length) * stepM - MG;
-  // px-4 on the scroll container.
-  const available = containerWidth > 0 ? containerWidth - 32 : 0;
 
   // Outcome mode merges every model's trials into one gap-free run per row;
   // size the plot to its own content (capped at the container), not to the
@@ -429,13 +479,7 @@ const WaffleSvg = memo(function WaffleSvg({
       ? Math.max(16, Math.min(RPAD_FALLBACK, available - GUT - plotW))
       : RPAD_FALLBACK;
   const width = GUT + plotW + RPAD;
-  const RH = 20;
   const pitchY = SH + VGAP;
-  const domGap = 24;
-
-  // Match the pareto chart's text sizes (11px labels, 12px headings).
-  const fontSm = 11;
-  const fontMd = 12;
 
   const elements: React.ReactNode[] = [];
 
@@ -740,6 +784,13 @@ export function TaskWaffleView() {
   }, []);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const [tipOpen, setTipOpen] = useState(false);
+  const [viewportH, setViewportH] = useState(900);
+  useEffect(() => {
+    const update = () => setViewportH(window.innerHeight);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   const showTooltip = useCallback(
     (event: React.MouseEvent<SVGElement>, task: string, trial: WaffleTrial) => {
@@ -897,6 +948,7 @@ export function TaskWaffleView() {
                 mode={mode}
                 group={group}
                 containerWidth={containerWidth}
+                viewportH={viewportH}
                 activeTrialId={tipOpen ? (tooltip?.trial.id ?? null) : null}
                 onTrialMove={showTooltip}
                 onTrialLeave={hideTooltip}
