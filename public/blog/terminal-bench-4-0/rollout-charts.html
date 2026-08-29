@@ -494,12 +494,6 @@
     tip.classList.remove('wide');
     const parts = run.name.split('__');
     tip.appendChild(div('t-title', parts[0]));
-    const sub = div('t-sub');
-    sub.appendChild(document.createTextNode('trial '));
-    const idb = document.createElement('b');
-    idb.textContent = parts[1] || run.name;
-    sub.appendChild(idb);
-    tip.appendChild(sub);
     // Outcome line styled like the trial-outcomes tooltip; errors and
     // timeouts show the error class truncated to the card width.
     const runCls = run.o === 'err' ? 't-line t-err'
