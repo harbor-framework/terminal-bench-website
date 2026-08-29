@@ -604,7 +604,11 @@
     function wallSync() {
       rampSync();
       const s = SERIES.find(x => x.key === PHASES[phaseIdx].key);
-      if (s) wall.textContent = fmtDur(s.maxTrialHours * 3600);
+      if (!s) return;
+      // Figure-space-pad the minutes so single digits don't shift the text.
+      const mins = Math.round(s.maxTrialHours * 60);
+      wall.textContent = Math.floor(mins / 60) + 'h ' +
+        String(mins % 60).padStart(2, '\u2007') + 'm';
     }
     function ddSync() {
       wallSync();
