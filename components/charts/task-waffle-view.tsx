@@ -2,7 +2,7 @@
 
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { parseAsStringLiteral, useQueryState } from "nuqs";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useMemo, useRef, useState } from "react";
 
 import { chartRowLabel } from "@/components/charts/chart-labels";
 import { HomeViewToggle } from "@/components/home-view-toggle";
@@ -349,12 +349,12 @@ function MatrixCell({
   });
 }
 
-function WaffleSvg({
+const WaffleSvg = memo(function WaffleSvg({
   matrix,
   mode,
   group,
   containerWidth,
-  tooltip,
+  activeTrialId,
   onTrialMove,
   onTrialLeave,
   onSurfaceMove,
@@ -364,7 +364,7 @@ function WaffleSvg({
   group: GroupMode;
   /** Scroll container width, to size the centering pad without overflow. */
   containerWidth: number;
-  tooltip: TooltipState | null;
+  activeTrialId: string | null;
   onTrialMove: (
     event: React.MouseEvent<SVGElement>,
     task: string,
@@ -437,7 +437,6 @@ function WaffleSvg({
   const fontSm = 11;
   const fontMd = 12;
 
-  const activeTrialId = tooltip?.trial.id ?? null;
   const elements: React.ReactNode[] = [];
 
   const mergedSlots = (cells: MatrixSlot[][]) =>
@@ -652,7 +651,7 @@ function WaffleSvg({
       {elements}
     </svg>
   );
-}
+});
 
 function Legend() {
   return (
@@ -730,34 +729,35 @@ export function TaskWaffleView() {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const [tipOpen, setTipOpen] = useState(false);
 
-  function showTooltip(
-    event: React.MouseEvent<SVGElement>,
-    task: string,
-    trial: WaffleTrial,
-  ) {
-    const container = scrollRef.current;
-    if (!container) return;
-    const bounds = container.getBoundingClientRect();
-    setTooltip({
-      task,
-      trial,
-      x: event.clientX - bounds.left + container.scrollLeft,
-      y: event.clientY - bounds.top + container.scrollTop,
-    });
-    setTipOpen(true);
-  }
+  const showTooltip = useCallback(
+    (event: React.MouseEvent<SVGElement>, task: string, trial: WaffleTrial) => {
+      const container = scrollRef.current;
+      if (!container) return;
+      const bounds = container.getBoundingClientRect();
+      setTooltip({
+        task,
+        trial,
+        x: event.clientX - bounds.left + container.scrollLeft,
+        y: event.clientY - bounds.top + container.scrollTop,
+      });
+      setTipOpen(true);
+    },
+    [],
+  );
 
   // Keeps the anchor under the cursor while crossing the gaps between
   // squares, so the tooltip glides instead of flickering closed. WaffleSvg
   // only calls this while the cursor is inside the squares' perimeter.
-  function moveTooltip(event: React.MouseEvent<SVGElement>) {
+  const moveTooltip = useCallback((event: React.MouseEvent<SVGElement>) => {
     const container = scrollRef.current;
     if (!container) return;
     const bounds = container.getBoundingClientRect();
     const x = event.clientX - bounds.left + container.scrollLeft;
     const y = event.clientY - bounds.top + container.scrollTop;
     setTooltip((prev) => prev && { ...prev, x, y });
-  }
+  }, []);
+
+  const hideTooltip = useCallback(() => setTipOpen(false), []);
 
   if (isPending) {
     return (
@@ -885,9 +885,9 @@ export function TaskWaffleView() {
                 mode={mode}
                 group={group}
                 containerWidth={containerWidth}
-                tooltip={tipOpen ? tooltip : null}
+                activeTrialId={tipOpen ? (tooltip?.trial.id ?? null) : null}
                 onTrialMove={showTooltip}
-                onTrialLeave={() => setTipOpen(false)}
+                onTrialLeave={hideTooltip}
                 onSurfaceMove={moveTooltip}
               />
               <Tooltip
