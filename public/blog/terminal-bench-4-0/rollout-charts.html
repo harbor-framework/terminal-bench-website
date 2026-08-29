@@ -1148,7 +1148,7 @@
       const outcomeCls = ['t-line t-pass', 't-line t-to',
         't-line t-err', 't-line t-fail'][tr[0]] || 't-line';
       tip.appendChild(div(outcomeCls,
-        OUT_WORD[tr[0]] + (tr[3] ? ' - ' + data.errs[tr[3] - 1] : '')));
+        tr[3] ? data.errs[tr[3] - 1] : OUT_WORD[tr[0]]));
       tip.appendChild(div('t-foot', 'click to view trial'));
       tip.style.opacity = '1';
       tip.setAttribute('aria-hidden', 'false');

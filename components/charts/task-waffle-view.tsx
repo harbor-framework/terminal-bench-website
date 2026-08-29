@@ -913,7 +913,7 @@ export function TaskWaffleView() {
                   align="start"
                   sideOffset={10}
                   variant="chart"
-                  className="pointer-events-none min-w-40"
+                  className="pointer-events-none w-[248px] max-w-none"
                 >
                   {tooltip ? (
                     <div className="flex w-full flex-col">
@@ -929,8 +929,7 @@ export function TaskWaffleView() {
                           }[tooltip.trial.o]
                         }
                       >
-                        {OUTCOME_WORD[tooltip.trial.o]}
-                        {tooltip.trial.e ? ` - ${tooltip.trial.e}` : ""}
+                        {tooltip.trial.e ?? OUTCOME_WORD[tooltip.trial.o]}
                       </p>
                       <p className="mt-1.5 border-t border-border pt-1.5 text-[10.5px] opacity-50">
                         click to view trial
