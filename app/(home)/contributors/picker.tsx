@@ -59,7 +59,7 @@ export function ContributorPicker({
             <SelectItem
               key={entry.href}
               value={entry.href}
-              className="pr-1.5 text-[1.125rem] tracking-[-0.05em] text-muted-foreground [&>span:last-child]:hidden"
+              className="pr-2 text-[1.125rem] tracking-[-0.05em] text-muted-foreground [&>span:last-child]:hidden"
             >
               {entry.version}
             </SelectItem>
