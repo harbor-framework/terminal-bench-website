@@ -921,11 +921,12 @@ export function TaskWaffleView() {
                       <p className="opacity-70">{tooltip.trial.m}</p>
                       <p
                         className={
-                          tooltip.trial.o === "err"
-                            ? "text-[#e5484d]"
-                            : tooltip.trial.o === "to"
-                              ? "text-[#f2872e]"
-                              : "opacity-70"
+                          {
+                            err: "text-[#e5484d]",
+                            to: "text-[#f2872e]",
+                            p: "text-foreground",
+                            f: "text-foreground/45",
+                          }[tooltip.trial.o]
                         }
                       >
                         {OUTCOME_WORD[tooltip.trial.o]}

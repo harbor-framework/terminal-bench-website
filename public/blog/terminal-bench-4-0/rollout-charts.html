@@ -130,6 +130,8 @@
   .tip .t-line{opacity:.7;}
   .tip .t-err{color:#e5484d;opacity:1;}
   .tip .t-to{color:#f2872e;opacity:1;}
+  .tip .t-pass{color:var(--mark);opacity:1;}
+  .tip .t-fail{color:var(--mark);opacity:.45;}
   /* The parent page inverts this iframe in light mode. Elements whose colors
      are fixed across themes on the homepage (error pink, dark tooltip)
      re-invert so they display exactly. */
@@ -1143,8 +1145,8 @@
       tip.classList.remove('wide');
       tip.appendChild(div('t-title', task.t));
       tip.appendChild(div('t-line', data.models[tr[1]]));
-      const outcomeCls = tr[0] === 2 ? 't-line t-err'
-        : tr[0] === 1 ? 't-line t-to' : 't-line';
+      const outcomeCls = ['t-line t-pass', 't-line t-to',
+        't-line t-err', 't-line t-fail'][tr[0]] || 't-line';
       tip.appendChild(div(outcomeCls,
         OUT_WORD[tr[0]] + (tr[3] ? ' - ' + data.errs[tr[3] - 1] : '')));
       tip.appendChild(div('t-foot', 'click to view trial'));
