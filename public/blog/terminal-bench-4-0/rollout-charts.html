@@ -110,9 +110,8 @@
   .row-hit{fill:transparent;outline:none;}
   .row-hit:focus,.row-hit:focus-visible{outline:none;}
   .row-wash{fill:#1a1a18;pointer-events:none;}
-  .wlegend{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;
-    gap:6px 16px;border-top:1px solid var(--border);padding:12px 16px;
-    margin:14px -24px -16px;font-size:12px;color:var(--muted);}
+  .wlegend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;
+    margin-bottom:14px;font-size:12px;color:var(--muted);}
   .wlegend .lg{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
   .wlegend .sw{width:12px;height:12px;display:inline-block;}
   .wgrid{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start;}
@@ -162,6 +161,7 @@
 
 <div class="card" id="waffles-card">
   <div class="head"><span class="title">trial outcomes</span></div>
+  <div class="wlegend" aria-label="Outcome legend"></div>
   <div class="wgrid">
     <div class="wcol">
       <div class="wlabel">terminal-bench 4.0</div>
@@ -172,7 +172,6 @@
       <div class="whit" id="whit3"><svg id="wsvg3" role="img" aria-label="Terminal-Bench 3.0 trials by task and outcome"></svg></div>
     </div>
   </div>
-  <div class="wlegend" aria-label="Outcome legend"></div>
 </div>
 
 <div class="tip" id="tip" role="tooltip" aria-hidden="true"></div>
@@ -1100,6 +1099,12 @@
         col.hl = el('rect', { fill: 'none', stroke: 'var(--mark)',
           'stroke-width': 0.9, visibility: 'hidden', class: 'cell' });
         svg.appendChild(col.hl);
+        // Center the version label over the squares, not the task labels.
+        const head = hit.parentElement.querySelector('.wlabel');
+        if (head) {
+          head.style.marginLeft = labelW + 'px';
+          head.style.textAlign = 'center';
+        }
       }
       function locate(e) {
         const g = col.geom;
