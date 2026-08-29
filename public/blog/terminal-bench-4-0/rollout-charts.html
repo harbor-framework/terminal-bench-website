@@ -203,7 +203,7 @@
     "grok45": "grok-4.5 grok-build",
     "grok46": "grok-4.6 grok-build"
   };
-  const DEFAULT_ON = new Set(['opus5', 'sol', 'glm53', 'grok46']);
+  const DEFAULT_ON = new Set();
   const active = new Map(SERIES.map(s => [s.key, DEFAULT_ON.has(s.key)]));
 
   const card = document.querySelector('.card');
@@ -248,13 +248,7 @@
     const sw = document.createElement('span');
     sw.className = 'sw';
     function syncSw() {
-      if (active.get(s.key)) {
-        sw.style.background = COLORS[s.key];
-        sw.style.border = 'none';
-      } else {
-        sw.style.background = 'transparent';
-        sw.style.border = '1px solid ' + COLORS[s.key];
-      }
+      sw.style.background = active.get(s.key) ? COLORS[s.key] : '#45453f';
     }
     syncSw();
     b.appendChild(sw);
@@ -319,7 +313,7 @@
     const ordered = SERIES.filter(s => !active.get(s.key)).concat(visible);
     for (const s of ordered) {
       const on = active.get(s.key);
-      const dim = on ? 1 : 0.18;
+      const dim = on ? 1 : 0.35;
       let d = '';
       s.points.forEach((p, i) => {
         const px = x(p.x).toFixed(2), py = y(p.y).toFixed(2);
@@ -334,6 +328,7 @@
         width: 7, height: 7, fill: COLORS[s.key], opacity: dim }));
     }
 
+    const hoverSeries = visible.length ? visible : SERIES;
     geom = { m, iw, ih, x, y, domX, visible, width };
 
     // crosshair overlay
@@ -366,7 +361,7 @@
       tip.textContent = '';
       tip.classList.add('wide');
       tip.appendChild(div('t-title', hour.toFixed(2) + ' h'));
-      for (const s of visible) {
+      for (const s of hoverSeries) {
         const p = pointAt(s, hour);
         markers.appendChild(el('circle', { cx: px, cy: y(p.y), r: 3, fill: COLORS[s.key],
           stroke: 'var(--card)', 'stroke-width': 1.5 }));
