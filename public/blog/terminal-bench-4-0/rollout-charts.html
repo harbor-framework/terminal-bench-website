@@ -114,8 +114,9 @@
     margin-bottom:14px;font-size:11px;color:var(--muted);}
   .wlegend .lg{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;}
   .wlegend .sw{width:11px;height:11px;display:inline-block;}
-  .wgrid{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start;}
-  @media (max-width:640px){.wgrid{grid-template-columns:1fr;}}
+  .wgrid{display:flex;flex-wrap:wrap;gap:18px 26px;align-items:flex-start;
+    justify-content:space-between;}
+  .wcol{flex:0 0 auto;min-width:0;}
   .wcol .wlabel{font-size:10.5px;color:var(--ink);margin-bottom:4px;}
   .wtask{fill:var(--muted);}
   .tip .t-line{opacity:.7;}
@@ -1058,55 +1059,78 @@
       tip.style.top = Math.max(8, ty) + 'px';
     }
 
+    // Both versions share one square size and pitch so their grids match
+    // exactly; each column is sized to its own trial count so no width is
+    // wasted. Everything is whole-pixel so crispEdges rasterizes uniformly.
+    const gridEl = document.querySelector('#waffles-card .wgrid');
+    const N4 = WAFFLE4.tasks[0].s.length;
+    const N3 = WAFFLE3.tasks[0].s.length;
+    const NMAX = Math.max(N4, N3);
+    const COL_GAP = 26;
+    const cols = [];
+
+    function drawAll() {
+      const G = Math.max(280, Math.floor(gridEl.getBoundingClientRect().width));
+      const stacked = G < 560;
+      const labelW = stacked ? 112 : 106;
+      const pitch = stacked
+        ? Math.max(3, Math.floor((G - labelW) / NMAX))
+        : Math.max(3, Math.floor((G - COL_GAP - 2 * labelW) / (N4 + N3)));
+      const sq = Math.max(2,
+        Math.min(Math.round(pitch * (12 / 14.5)), pitch - 1));
+      const gap = pitch - sq;
+      const rh = Math.max(9, Math.round(sq * (20 / 12)));
+      const fs = Math.min(11, rh - 1.5);
+      const maxChars = Math.floor((labelW - 10) / (fs * 0.68));
+      for (const col of cols) {
+        const n = col.data.tasks[0].s.length;
+        const w = labelW + (n - 1) * pitch + sq;
+        col.wcol.style.width = stacked ? '100%' : w + 'px';
+        drawCol(col, { labelW, pitch, sq, gap, rh, fs, maxChars, n, w });
+      }
+    }
+
+    function drawCol(col, g) {
+      const { data, svg } = col;
+      const height = data.tasks.length * g.rh;
+      svg.setAttribute('viewBox', '0 0 ' + g.w + ' ' + height);
+      svg.setAttribute('width', g.w);
+      svg.setAttribute('height', height);
+      svg.style.width = g.w + 'px';
+      svg.textContent = '';
+      col.geom = g;
+      col.labels = [];
+      data.tasks.forEach((task, ti) => {
+        const ry = Math.round(ti * g.rh + (g.rh - g.sq) / 2);
+        const lbl = el('text', { x: g.labelW - 10,
+          y: ti * g.rh + g.rh / 2 + g.fs * 0.36,
+          class: 'wtask', 'font-size': g.fs, 'text-anchor': 'end' });
+        lbl.textContent = task.t.length > g.maxChars ? task.t.slice(0, g.maxChars) : task.t;
+        svg.appendChild(lbl);
+        col.labels.push(lbl);
+        task.s.forEach((tr, i) => {
+          svg.appendChild(el('rect', {
+            x: g.labelW + i * g.pitch, y: ry, width: g.sq, height: g.sq,
+            fill: OUTS[tr[0]][1], 'fill-opacity': OUTS[tr[0]][2],
+            class: tr[0] === 2 ? 'cell cell-err' : 'cell'
+          }));
+        });
+      });
+      col.hl = el('rect', { fill: 'none', stroke: 'var(--mark)',
+        'stroke-width': 0.9, visibility: 'hidden', class: 'cell' });
+      svg.appendChild(col.hl);
+      // Center the version label over the squares, not the task labels.
+      const head = col.wcol.querySelector('.wlabel');
+      if (head) {
+        head.style.marginLeft = g.labelW + 'px';
+        head.style.textAlign = 'center';
+      }
+    }
+
     function setupCol(col) {
       const { data, svg, hit } = col;
-      const n = data.tasks[0].s.length;
-      function draw() {
-        const w = Math.max(260, Math.floor(hit.getBoundingClientRect().width) || 400);
-        const narrow = w < 360;
-        const labelW = narrow ? 112 : 148;
-        // Homepage waffle proportions: 12px squares, 2.5px gaps, 20px rows.
-        // Whole-pixel squares so crispEdges rasterizes them uniformly; the
-        // fractional remainder of each pitch is absorbed by the gaps.
-        const pitch = Math.max(3, (w - labelW) / n);
-        const sq = Math.max(2,
-          Math.min(Math.round(pitch * (12 / 14.5)), Math.floor(pitch - 1)));
-        const gap = pitch - sq;
-        const rh = Math.max(8.5, sq * (20 / 12));
-        const height = data.tasks.length * rh;
-        svg.setAttribute('viewBox', '0 0 ' + w + ' ' + height);
-        svg.setAttribute('height', height);
-        svg.textContent = '';
-        const fs = Math.min(11, rh - 1.5);
-        const maxChars = Math.floor((labelW - 10) / (fs * 0.68));
-        col.geom = { labelW, gap, sq, rh, n };
-        col.labels = [];
-        data.tasks.forEach((task, ti) => {
-          const cy = ti * rh + (rh - sq) / 2;
-          const lbl = el('text', { x: labelW - 10, y: ti * rh + rh / 2 + fs * 0.36,
-            class: 'wtask', 'font-size': fs, 'text-anchor': 'end' });
-          lbl.textContent = task.t.length > maxChars ? task.t.slice(0, maxChars) : task.t;
-          svg.appendChild(lbl);
-          col.labels.push(lbl);
-          const ry = Math.round(cy);
-          task.s.forEach((tr, i) => {
-            svg.appendChild(el('rect', {
-              x: Math.round(labelW + i * pitch), y: ry, width: sq, height: sq,
-              fill: OUTS[tr[0]][1], 'fill-opacity': OUTS[tr[0]][2],
-              class: tr[0] === 2 ? 'cell cell-err' : 'cell'
-            }));
-          });
-        });
-        col.hl = el('rect', { fill: 'none', stroke: 'var(--mark)',
-          'stroke-width': 0.9, visibility: 'hidden', class: 'cell' });
-        svg.appendChild(col.hl);
-        // Center the version label over the squares, not the task labels.
-        const head = hit.parentElement.querySelector('.wlabel');
-        if (head) {
-          head.style.marginLeft = labelW + 'px';
-          head.style.textAlign = 'center';
-        }
-      }
+      col.wcol = hit.parentElement;
+      cols.push(col);
       function locate(e) {
         const g = col.geom;
         if (!g) return null;
@@ -1115,7 +1139,7 @@
         const ti = Math.floor(py / g.rh);
         if (ti < 0 || ti >= data.tasks.length) return null;
         if (px < g.labelW - 2) return { task: data.tasks[ti], ti, label: true };
-        const i = Math.floor((px - g.labelW) / (g.sq + g.gap));
+        const i = Math.floor((px - g.labelW) / g.pitch);
         if (i < 0 || i >= g.n) return null;
         return { task: data.tasks[ti], ti, tr: data.tasks[ti].s[i], i };
       }
@@ -1144,7 +1168,7 @@
         }
         hit.style.cursor = 'pointer';
         const g = col.geom;
-        col.hl.setAttribute('x', Math.round(g.labelW + found.i * (g.sq + g.gap)));
+        col.hl.setAttribute('x', g.labelW + found.i * g.pitch);
         col.hl.setAttribute('y', Math.round(found.ti * g.rh + (g.rh - g.sq) / 2));
         col.hl.setAttribute('width', g.sq);
         col.hl.setAttribute('height', g.sq);
@@ -1163,13 +1187,13 @@
         const jobId = data.jobs[found.tr[1]];
         window.open(HUB + encodeURIComponent(jobId) + '/trials/' + encodeURIComponent(found.tr[2]), '_blank');
       });
-      let wraf = 0;
-      new ResizeObserver(() => { cancelAnimationFrame(wraf); wraf = requestAnimationFrame(draw); }).observe(hit);
-      draw();
     }
 
     setupCol({ data: WAFFLE4, hit: document.getElementById('whit4'), svg: document.getElementById('wsvg4') });
     setupCol({ data: WAFFLE3, hit: document.getElementById('whit3'), svg: document.getElementById('wsvg3') });
+    let wraf = 0;
+    new ResizeObserver(() => { cancelAnimationFrame(wraf); wraf = requestAnimationFrame(drawAll); }).observe(gridEl);
+    drawAll();
   })();
 
   // ---------- single-chart embedding + height reporting ----------
