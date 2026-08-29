@@ -411,7 +411,10 @@ const WaffleSvg = memo(function WaffleSvg({
       return Math.max(
         1,
         Math.floor(
-          ((available > 0 ? available - gutEst - 16 : 800) + SGAP) /
+          ((available > 0
+            ? (m === "domain" ? available * 0.6 : available) - gutEst - 16
+            : 800) +
+            SGAP) /
             (SW + SGAP),
         ),
       );
@@ -471,12 +474,14 @@ const WaffleSvg = memo(function WaffleSvg({
   const modelPlotW = Math.max(1, matrix.columns.length) * stepM - MG;
 
   // Outcome mode merges every model's trials into one gap-free run per row;
-  // size the plot to its own content (capped at the container), not to the
-  // model-column layout, so no trailing whitespace forces a scrollbar.
+  // size the plot to its own content, not to the model-column layout, so no
+  // trailing whitespace forces a scrollbar. Domain rows wrap at ~60% of the
+  // container so the blocks stay in the middle of the screen.
+  const wrapWidth = mode === "domain" ? available * 0.6 : available;
   const perLineCap = Math.max(
     1,
     Math.floor(
-      ((available > 0 ? available - GUT - 16 : modelPlotW) + SGAP) /
+      ((available > 0 ? wrapWidth - GUT - 16 : modelPlotW) + SGAP) /
         (SW + SGAP),
     ),
   );
