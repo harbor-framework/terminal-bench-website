@@ -52,13 +52,13 @@ export function ContributorPicker({
         <SelectContent
           align="start"
           alignItemWithTrigger={false}
-          className="w-fit min-w-(--anchor-width) font-[family-name:var(--font-google-sans-code)]"
+          className="min-w-(--anchor-width) font-[family-name:var(--font-google-sans-code)]"
         >
           {CONTRIBUTOR_RELEASES.map((entry) => (
             <SelectItem
               key={entry.href}
               value={entry.href}
-              className="text-[1.125rem] tracking-[-0.05em] text-muted-foreground"
+              className="pr-1.5 text-[1.125rem] tracking-[-0.05em] text-muted-foreground [&>span:last-child]:hidden"
             >
               {entry.version}
             </SelectItem>
