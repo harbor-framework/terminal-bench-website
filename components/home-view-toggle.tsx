@@ -31,7 +31,9 @@ export const parseHomeView = createParser({
 }).withDefault('leaderboard' satisfies HomeViewId);
 
 /** Smoothly bring the view section near the top of the viewport. */
-const VIEW_SCROLL_MARGIN = 80;
+// Sticky nav (56px) plus the same 6px gap that sits between the toggles
+// and the view box.
+const VIEW_SCROLL_MARGIN = 62;
 
 function scrollToViewSection() {
   const element = document.getElementById('home-view-section');
