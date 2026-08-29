@@ -71,6 +71,8 @@
   .tip .t-sub b.z{color:var(--muted);}
   .dd{position:relative;}
   .head-right{display:inline-flex;align-items:center;gap:14px;}
+  .dd-label{display:inline-block;text-align:left;}
+  .head-right .wall{min-width:7ch;text-align:right;}
   .expand-btn{display:block;margin:12px auto 0;background:transparent;border:0;
     font-family:var(--font);font-size:11px;color:var(--muted);cursor:pointer;
     letter-spacing:.02em;padding:4px 8px;}
@@ -84,11 +86,11 @@
   .dd-btn:focus-visible{outline:1px solid var(--ink);outline-offset:2px;}
   .dd-chev{display:inline-flex;color:var(--muted);}
   .dd-chev svg{width:14px;height:14px;display:block;}
-  .dd-menu{position:absolute;right:0;top:calc(100% + 4px);z-index:5;min-width:100%;
+  .dd-menu{position:absolute;right:0;top:calc(100% + 4px);z-index:5;width:100%;
     background:var(--card);border:1px solid rgba(255,255,255,.15);border-radius:0;
     overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.5);}
   .dd-menu button{display:block;width:100%;text-align:left;font-family:var(--font);
-    font-size:11px;padding:4px 32px 4px 8px;border:0;
+    font-size:11px;padding:4px 10px;border:0;
     background:transparent;border-radius:0;color:var(--ink);cursor:pointer;
     white-space:nowrap;}
   .dd-menu button:hover{background:rgba(255,255,255,.08);}
@@ -541,6 +543,7 @@
     ddBtn.setAttribute('aria-haspopup', 'listbox');
     ddBtn.setAttribute('aria-expanded', 'false');
     const ddLabel = document.createElement('span');
+    ddLabel.className = 'dd-label';
     ddBtn.appendChild(ddLabel);
     const chev = document.createElement('span');
     chev.className = 'dd-chev';
@@ -621,7 +624,9 @@
       b2.textContent = JOB_NAMES[j.key] || j.label;
       b2.addEventListener('click', () => {
         phaseIdx = i;
-        ddSync();
+        ddLabel.style.width = Math.max(
+      ...PHASES.map(j => (JOB_NAMES[j.key] || j.label).length)) + 'ch';
+    ddSync();
         ddOpen(false);
         drawPhases();
       });
