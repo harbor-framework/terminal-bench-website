@@ -10,7 +10,7 @@
     --bg:#000000; --card:#000000; --border:#2a2a2a; --ink:#d3d3ce; --muted:#6d6d67;
     --grid:#1f1f1d; --mark:#e4e4de;
     --sol:#e8e8e2; --opus:#8a8a84;
-    --p-env:#45453f; --p-setup:#78786f; --p-exec:#b4b4ae; --p-verif:#e8e8e2;
+    --p-env:#45453f; --p-setup:#78786f; --p-exec:#e8e8e2; --p-verif:#000000;
     --rw-pass:#e8e8e2; --rw-fail:#33332f;
     --font:'Google Sans Code','JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
   }
@@ -101,7 +101,7 @@
   .seg-env{fill:var(--p-env);}
   .seg-setup{fill:var(--p-setup);}
   .seg-exec{fill:var(--p-exec);}
-  .seg-verif{fill:var(--p-verif);}
+  .seg-verif{fill:var(--p-verif);stroke:var(--mark);stroke-width:1;}
   .task-link{cursor:pointer;}
   .task-link:hover .task-label{text-decoration:underline;fill:var(--mark);}
   .rw1{fill:var(--rw-pass);}
@@ -142,7 +142,7 @@
   <span class="lg"><span class="sw" style="background:var(--p-env)"></span>env setup</span>
   <span class="lg"><span class="sw" style="background:var(--p-setup)"></span>agent setup</span>
   <span class="lg"><span class="sw" style="background:var(--p-exec)"></span>agent execution</span>
-  <span class="lg"><span class="sw" style="background:var(--p-verif)"></span>verifier</span>
+  <span class="lg"><span class="sw" style="background:var(--p-verif);border:1px solid var(--mark)"></span>verifier</span>
 </div>
 <div id="phase-charts"></div>
 
@@ -420,6 +420,7 @@
     for (const [key, name, , color] of PH) {
       const row = div('t-row');
       const k = div('t-key'); k.style.background = color; k.style.height = '10px'; k.style.width = '10px';
+      if (key === 'verifier') k.style.border = '1px solid var(--mark)';
       row.appendChild(k);
       row.appendChild(div('t-name', name));
       row.appendChild(div('t-val', fmtDur(d[key])));
@@ -459,6 +460,7 @@
     for (const [key, name, , color] of PH) {
       const row = div('t-row');
       const k = div('t-key'); k.style.background = color; k.style.height = '10px'; k.style.width = '10px';
+      if (key === 'verifier') k.style.border = '1px solid var(--mark)';
       row.appendChild(k);
       row.appendChild(div('t-name', name));
       row.appendChild(div('t-val', fmtDur(run[key])));
@@ -545,7 +547,7 @@
       const ramp = RAMPS.grok;
       const rootStyle = document.documentElement.style;
       rootStyle.setProperty('--p-setup', ramp[2]);
-      rootStyle.setProperty('--p-exec', ramp[1]);
+      rootStyle.setProperty('--p-exec', ramp[0]);
     }
     let phaseIdx = Math.max(0, PHASES.findIndex(
       j => j.key === new URLSearchParams(location.search).get('model')));
