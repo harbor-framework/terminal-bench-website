@@ -1,46 +1,46 @@
-'use client';
+"use client";
 
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { parseAsStringLiteral, useQueryState } from 'nuqs';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { parseAsStringLiteral, useQueryState } from "nuqs";
+import { useCallback, useMemo, useRef, useState } from "react";
 
-import { chartRowLabel } from '@/components/charts/chart-labels';
-import { HomeViewToggle } from '@/components/home-view-toggle';
+import { chartRowLabel } from "@/components/charts/chart-labels";
+import { HomeViewToggle } from "@/components/home-view-toggle";
 import {
   BenchmarkSelect,
   useHomeBenchmark,
-} from '@/components/leaderboard/benchmark-select';
-import { LeaderboardToolbar } from '@/components/leaderboard/leaderboard-toolbar';
-import { useLeaderboardFilters } from '@/components/leaderboard/use-leaderboard-filters';
+} from "@/components/leaderboard/benchmark-select";
+import { LeaderboardToolbar } from "@/components/leaderboard/leaderboard-toolbar";
+import { useLeaderboardFilters } from "@/components/leaderboard/use-leaderboard-filters";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { ViewExportActions } from '@/components/view-export-actions';
+} from "@/components/ui/tooltip";
+import { ViewExportActions } from "@/components/view-export-actions";
 import {
   TERMINAL_BENCH_LEADERBOARD,
   TERMINAL_BENCH_PACKAGE,
   fetchLeaderboard,
   leaderboardQueryKey,
   type LeaderboardRow,
-} from '@/lib/leaderboard';
-import type { WafflePayload, WaffleTrial } from '@/lib/waffle';
+} from "@/lib/leaderboard";
+import type { WafflePayload, WaffleTrial } from "@/lib/waffle";
 
-const WAFFLE_EXPORT_TARGET_ID = 'terminal-bench-waffle-export';
+const WAFFLE_EXPORT_TARGET_ID = "terminal-bench-waffle-export";
 
-const ROW_MODES = ['task', 'domain'] as const;
+const ROW_MODES = ["task", "domain"] as const;
 type RowMode = (typeof ROW_MODES)[number];
 const parseRowMode = parseAsStringLiteral(ROW_MODES);
 
-const GROUP_MODES = ['model', 'outcome'] as const;
+const GROUP_MODES = ["model", "outcome"] as const;
 type GroupMode = (typeof GROUP_MODES)[number];
 const parseGroupMode = parseAsStringLiteral(GROUP_MODES);
 
@@ -52,47 +52,46 @@ type TooltipState = {
   y: number;
 };
 
-const OUTCOME_CELL_CLASS: Record<WaffleTrial['o'], string> = {
-  p: 'fill-foreground',
-  to: 'fill-foreground/55',
-  err: 'fill-[#f9bfc2]',
-  f: 'fill-foreground/12',
+const OUTCOME_CELL_CLASS: Record<WaffleTrial["o"], string> = {
+  p: "fill-foreground",
+  to: "fill-[#f2872e]",
+  err: "fill-[#e5484d]",
+  f: "fill-foreground/12",
 };
 
-const OUTCOME_SWATCH_CLASS: Record<WaffleTrial['o'], string> = {
-  p: 'bg-foreground',
-  to: 'bg-foreground/55',
-  err: 'bg-[#f9bfc2]',
-  f: 'bg-foreground/12',
+const OUTCOME_SWATCH_CLASS: Record<WaffleTrial["o"], string> = {
+  p: "bg-foreground",
+  to: "bg-[#f2872e]",
+  err: "bg-[#e5484d]",
+  f: "bg-foreground/12",
 };
 
-const OUTCOME_WORD: Record<WaffleTrial['o'], string> = {
-  p: 'pass',
-  to: 'timeout',
-  err: 'error',
-  f: 'fail',
+const OUTCOME_WORD: Record<WaffleTrial["o"], string> = {
+  p: "pass",
+  to: "timeout",
+  err: "error",
+  f: "fail",
 };
 
-const OUTCOME_RANK: Record<WaffleTrial['o'], number> = {
+const OUTCOME_RANK: Record<WaffleTrial["o"], number> = {
   p: 0,
   to: 1,
   err: 2,
   f: 3,
 };
 
-const LEGEND_OUTCOMES = ['p', 'to', 'err', 'f'] as const;
+const LEGEND_OUTCOMES = ["p", "to", "err", "f"] as const;
 
 async function fetchWaffleData(benchmarkId: string): Promise<WafflePayload> {
   const response = await fetch(
     `/api/waffle?version=${encodeURIComponent(benchmarkId)}`,
   );
   const payload = (await response.json()) as
-    | WafflePayload
-    | { error?: { message?: string } };
+    WafflePayload | { error?: { message?: string } };
 
   if (!response.ok) {
     throw new Error(
-      'error' in payload && payload.error?.message
+      "error" in payload && payload.error?.message
         ? payload.error.message
         : `Failed to load waffle data (${response.status})`,
     );
@@ -114,23 +113,23 @@ function taskPageUrl(task: string): string {
 
 function escapeMarkdownCell(value: string): string {
   return value
-    .replaceAll('\\', '\\\\')
-    .replaceAll('|', '\\|')
-    .replace(/[\r\n]+/g, ' ')
+    .replaceAll("\\", "\\\\")
+    .replaceAll("|", "\\|")
+    .replace(/[\r\n]+/g, " ")
     .trim();
 }
 
 function buildWaffleMarkdownTable(data: WafflePayload): string {
   const header = [
-    'Domain',
-    'Task',
-    'Pass',
-    'Timeout',
-    'Error',
-    'Fail',
-    'Solve',
+    "Domain",
+    "Task",
+    "Pass",
+    "Timeout",
+    "Error",
+    "Fail",
+    "Solve",
   ];
-  const divider = ['---', '---', '---:', '---:', '---:', '---:', '---:'];
+  const divider = ["---", "---", "---:", "---:", "---:", "---:", "---:"];
   const body = data.doms.flatMap((domain) =>
     domain.tasks.map((task) => [
       domain.name,
@@ -144,13 +143,13 @@ function buildWaffleMarkdownTable(data: WafflePayload): string {
   );
 
   return [header, divider, ...body]
-    .map((line) => `| ${line.map(escapeMarkdownCell).join(' | ')} |`)
-    .join('\n');
+    .map((line) => `| ${line.map(escapeMarkdownCell).join(" | ")} |`)
+    .join("\n");
 }
 
 function rowIdentity(row: LeaderboardRow): string {
   const label = chartRowLabel(row);
-  return [label.model, label.agent].filter(Boolean).join(' / ');
+  return [label.model, label.agent].filter(Boolean).join(" / ");
 }
 
 type MatrixColumn = {
@@ -197,7 +196,11 @@ function buildMatrix(
   if (filteredRows.length > 0) {
     identities = filteredRows.map((row) => {
       const label = chartRowLabel(row);
-      return { identity: rowIdentity(row), model: label.model, agent: label.agent };
+      return {
+        identity: rowIdentity(row),
+        model: label.model,
+        agent: label.agent,
+      };
     });
   } else {
     const seen = new Set<string>();
@@ -205,7 +208,7 @@ function buildMatrix(
     for (const trial of allTrials) {
       if (seen.has(trial.m)) continue;
       seen.add(trial.m);
-      const [model = trial.m, agent = ''] = trial.m.split(' / ');
+      const [model = trial.m, agent = ""] = trial.m.split(" / ");
       identities.push({ identity: trial.m, model, agent });
     }
   }
@@ -247,7 +250,7 @@ function buildMatrix(
         cells[index]!.push({ task: task.task, trial });
         domainCells[index]!.push({ task: task.task, trial });
         total += 1;
-        if (trial.o === 'p') pass += 1;
+        if (trial.o === "p") pass += 1;
       }
       for (const cell of cells) {
         cell.sort((a, b) => OUTCOME_RANK[a.trial.o] - OUTCOME_RANK[b.trial.o]);
@@ -267,8 +270,7 @@ function buildMatrix(
     }
     domains.push({
       name: domain.name,
-      solve:
-        domainTotal > 0 ? Math.round((100 * domainPass) / domainTotal) : 0,
+      solve: domainTotal > 0 ? Math.round((100 * domainPass) / domainTotal) : 0,
       taskCount: domain.tasks.length,
       cells: domainCells,
     });
@@ -324,8 +326,8 @@ function MatrixCell({
         height={sh}
         className={`${OUTCOME_CELL_CLASS[slot.trial.o]} ${
           activeTrialId != null && activeTrialId === slot.trial.id
-            ? 'stroke-foreground'
-            : 'stroke-transparent'
+            ? "stroke-foreground"
+            : "stroke-transparent"
         }`}
         strokeWidth={0.9}
         shapeRendering="crispEdges"
@@ -404,13 +406,12 @@ function WaffleSvg({
         (SW + SGAP),
     ),
   );
-  const outcomeCounts = (mode === 'task' ? matrix.tasks : matrix.domains).map(
+  const outcomeCounts = (mode === "task" ? matrix.tasks : matrix.domains).map(
     (row) => row.cells.reduce((sum, cell) => sum + cell.length, 0),
   );
   const maxOutcomeCount = Math.max(1, ...outcomeCounts, 1);
   const perLine = Math.min(perLineCap, maxOutcomeCount);
-  const plotW =
-    group === 'outcome' ? perLine * (SW + SGAP) - SGAP : modelPlotW;
+  const plotW = group === "outcome" ? perLine * (SW + SGAP) - SGAP : modelPlotW;
 
   const RPAD =
     available > 0
@@ -437,52 +438,51 @@ function WaffleSvg({
   const headerChars = Math.max(1, Math.floor(blockW / (fontSm * 0.6)));
   const truncate = (value: string) => value.slice(0, headerChars).trimEnd();
 
-  if (group === 'model') matrix.columns.forEach((column, index) => {
-    const cx = GUT + index * stepM + blockW / 2;
-    const label = (
-      <text
-        x={cx}
-        y={HEAD - 26}
-        textAnchor="middle"
-        fontSize={fontSm}
-        className="fill-foreground"
-      >
-        {truncate(column.model)}
-        {column.agent ? (
-          <tspan
-            x={cx}
-            dy={14}
-            className="fill-muted-foreground"
-          >
-            {truncate(column.agent)}
-          </tspan>
-        ) : null}
-      </text>
-    );
-    elements.push(
-      column.jobId ? (
-        <a
-          key={`head-${column.identity}`}
-          href={`https://hub.harborframework.com/jobs/${encodeURIComponent(column.jobId)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="cursor-pointer hover:underline"
+  if (group === "model")
+    matrix.columns.forEach((column, index) => {
+      const cx = GUT + index * stepM + blockW / 2;
+      const label = (
+        <text
+          x={cx}
+          y={HEAD - 26}
+          textAnchor="middle"
+          fontSize={fontSm}
+          className="fill-foreground"
         >
-          {label}
-        </a>
-      ) : (
-        <g key={`head-${column.identity}`}>{label}</g>
-      ),
-    );
-  });
+          {truncate(column.model)}
+          {column.agent ? (
+            <tspan x={cx} dy={14} className="fill-muted-foreground">
+              {truncate(column.agent)}
+            </tspan>
+          ) : null}
+        </text>
+      );
+      elements.push(
+        column.jobId ? (
+          <a
+            key={`head-${column.identity}`}
+            href={`https://hub.harborframework.com/jobs/${encodeURIComponent(column.jobId)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="cursor-pointer hover:underline"
+          >
+            {label}
+          </a>
+        ) : (
+          <g key={`head-${column.identity}`}>{label}</g>
+        ),
+      );
+    });
 
   let height: number;
 
-  if (mode === 'task') {
+  if (mode === "task") {
     let y = HEAD;
     matrix.tasks.forEach((task) => {
-      const merged = group === 'outcome' ? mergedSlots(task.cells) : null;
-      const rowLines = merged ? Math.max(1, Math.ceil(merged.length / perLine)) : 1;
+      const merged = group === "outcome" ? mergedSlots(task.cells) : null;
+      const rowLines = merged
+        ? Math.max(1, Math.ceil(merged.length / perLine))
+        : 1;
       const blockH = Math.max(RH, rowLines * pitchY);
       const sy = y + (blockH - (rowLines * pitchY - VGAP)) / 2;
       elements.push(
@@ -549,7 +549,7 @@ function WaffleSvg({
   } else {
     let y = HEAD;
     for (const domain of matrix.domains) {
-      const merged = group === 'outcome' ? mergedSlots(domain.cells) : null;
+      const merged = group === "outcome" ? mergedSlots(domain.cells) : null;
       const rows = merged
         ? Math.max(1, Math.ceil(merged.length / perLine))
         : Math.max(
@@ -577,7 +577,7 @@ function WaffleSvg({
           textAnchor="end"
           fontSize={fontSm}
           className="fill-muted-foreground"
-          style={{ fontVariantNumeric: 'tabular-nums' }}
+          style={{ fontVariantNumeric: "tabular-nums" }}
         >
           {domain.solve}%
         </text>,
@@ -658,17 +658,17 @@ function Legend() {
 
 export function TaskWaffleView() {
   const [mode, setMode] = useQueryState(
-    'rows',
-    parseRowMode.withDefault('task'),
+    "rows",
+    parseRowMode.withDefault("task"),
   );
   const [group, setGroup] = useQueryState(
-    'group',
-    parseGroupMode.withDefault('model'),
+    "group",
+    parseGroupMode.withDefault("model"),
   );
   const { benchmark } = useHomeBenchmark();
 
   const { data, error, isPending } = useQuery({
-    queryKey: ['waffle', 'terminal-bench', benchmark.id],
+    queryKey: ["waffle", "terminal-bench", benchmark.id],
     queryFn: () => fetchWaffleData(benchmark.id),
     placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000,
@@ -692,8 +692,7 @@ export function TaskWaffleView() {
   if (data && leaderboardData?.leaderboard.name === data.leaderboard.name) {
     lastConsistent.current = { data, rows: filteredRows };
   }
-  const snapshot =
-    lastConsistent.current ?? (data ? { data, rows: [] } : null);
+  const snapshot = lastConsistent.current ?? (data ? { data, rows: [] } : null);
 
   const matrix = useMemo(
     () => (snapshot ? buildMatrix(snapshot.data, snapshot.rows) : null),
@@ -742,7 +741,7 @@ export function TaskWaffleView() {
           <ViewExportActions
             targetId={WAFFLE_EXPORT_TARGET_ID}
             fileBaseName={`terminal-bench-${benchmark.id}-waffle`}
-            getMarkdown={() => ''}
+            getMarkdown={() => ""}
             disabled
           />
           <HomeViewToggle />
@@ -761,7 +760,7 @@ export function TaskWaffleView() {
           <ViewExportActions
             targetId={WAFFLE_EXPORT_TARGET_ID}
             fileBaseName={`terminal-bench-${benchmark.id}-waffle`}
-            getMarkdown={() => ''}
+            getMarkdown={() => ""}
             disabled
           />
           <HomeViewToggle />
@@ -769,7 +768,7 @@ export function TaskWaffleView() {
         <div className="-mx-4 flex min-h-[560px] items-center justify-center rounded-none border border-x-0 border-destructive/30 bg-destructive/5 px-4 py-10 text-center text-sm text-destructive md:mx-0 md:rounded-xl md:border-x">
           {error instanceof Error
             ? error.message
-            : 'No trials available to render.'}
+            : "No trials available to render."}
         </div>
       </div>
     );
@@ -807,14 +806,14 @@ export function TaskWaffleView() {
           <Select
             value={mode}
             onValueChange={(next) => {
-              if (next === 'task' || next === 'domain') void setMode(next);
+              if (next === "task" || next === "domain") void setMode(next);
             }}
           >
             <SelectTrigger
               size="sm"
               className="min-w-28 bg-background uppercase dark:bg-card"
             >
-              <SelectValue>{mode === 'task' ? 'Task' : 'Domain'}</SelectValue>
+              <SelectValue>{mode === "task" ? "Task" : "Domain"}</SelectValue>
             </SelectTrigger>
             <SelectContent align="start">
               <SelectItem value="task" className="uppercase">
@@ -829,7 +828,7 @@ export function TaskWaffleView() {
           <Select
             value={group}
             onValueChange={(next) => {
-              if (next === 'model' || next === 'outcome') void setGroup(next);
+              if (next === "model" || next === "outcome") void setGroup(next);
             }}
           >
             <SelectTrigger
@@ -837,7 +836,7 @@ export function TaskWaffleView() {
               className="min-w-28 bg-background uppercase dark:bg-card"
             >
               <SelectValue>
-                {group === 'model' ? 'Model' : 'Outcome'}
+                {group === "model" ? "Model" : "Outcome"}
               </SelectValue>
             </SelectTrigger>
             <SelectContent align="start">
@@ -894,13 +893,15 @@ export function TaskWaffleView() {
                       <p className="opacity-70">{tooltip.trial.m}</p>
                       <p
                         className={
-                          tooltip.trial.o === 'err'
-                            ? 'text-red-400'
-                            : 'opacity-70'
+                          tooltip.trial.o === "err"
+                            ? "text-[#e5484d]"
+                            : tooltip.trial.o === "to"
+                              ? "text-[#f2872e]"
+                              : "opacity-70"
                         }
                       >
                         {OUTCOME_WORD[tooltip.trial.o]}
-                        {tooltip.trial.e ? ` - ${tooltip.trial.e}` : ''}
+                        {tooltip.trial.e ? ` - ${tooltip.trial.e}` : ""}
                       </p>
                       <p className="mt-1.5 border-t border-background/20 pt-1.5 text-[10.5px] opacity-50">
                         click to view trial
