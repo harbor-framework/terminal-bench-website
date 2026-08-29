@@ -65,7 +65,7 @@
   .tip .t-foot{margin-top:5px;padding-top:5px;border-top:1px solid var(--border);
     color:var(--muted);font-size:10.5px;}
   .tip .t-sec{margin-top:5px;padding-top:5px;border-top:1px solid var(--border);}
-  .tip.wide{width:334px;}
+  .tip.wide{width:236px;}
   .tip .t-sub{color:var(--muted);font-size:10.5px;margin-bottom:4px;}
   .tip .t-sub b{color:#fff;font-weight:600;}
   .tip .t-sub b.z{color:var(--muted);}
@@ -404,11 +404,9 @@
         const k = div('t-key'); k.style.background = COLORS[s.key];
         row.appendChild(k);
         row.appendChild(div('t-name', SHORT[s.key] || s.label));
-        // Figure-space padding keeps the column width constant across digits
-        // (padding sits outside the brackets).
+        // Figure-space padding keeps the column width constant across digits.
         row.appendChild(div('t-val',
-          String(p.completed).padStart(3, '\u2007') + ' ' +
-          ('[' + Math.round(p.y) + '%]').padStart(6, '\u2007')));
+          (Math.round(p.y) + '%').padStart(4, '\u2007')));
         tip.appendChild(row);
       }
       tip.style.opacity = '1';
