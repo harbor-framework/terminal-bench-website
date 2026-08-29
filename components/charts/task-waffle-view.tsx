@@ -323,7 +323,6 @@ function MatrixCell({
         y={y + row * pitchY}
         width={sw}
         height={sh}
-        rx={1}
         className={`${OUTCOME_CELL_CLASS[slot.trial.o]} ${
           activeTrialId != null && activeTrialId === slot.trial.id
             ? 'stroke-foreground'
@@ -648,7 +647,7 @@ function Legend() {
       {LEGEND_OUTCOMES.map((outcome) => (
         <span key={outcome} className="inline-flex items-center gap-1.5">
           <span
-            className={`inline-block size-3 rounded-[1px] ${OUTCOME_SWATCH_CLASS[outcome]}`}
+            className={`inline-block size-3 ${OUTCOME_SWATCH_CLASS[outcome]}`}
           />
           {OUTCOME_WORD[outcome]}
         </span>
