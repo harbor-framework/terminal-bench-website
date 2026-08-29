@@ -110,10 +110,17 @@
   .row-hit{fill:transparent;outline:none;}
   .row-hit:focus,.row-hit:focus-visible{outline:none;}
   .row-wash{fill:#1a1a18;pointer-events:none;}
-  .wlegend{display:flex;flex-wrap:wrap;gap:5px 14px;align-items:center;margin-bottom:14px;
-    font-size:11px;color:var(--ink);}
-  .wlegend .lg{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;}
-  .wlegend .sw{width:11px;height:11px;display:inline-block;}
+  .wafflecard{padding:0;}
+  .whead{display:flex;align-items:center;gap:6px;height:48px;padding:0 24px;
+    border-bottom:1px solid var(--border);font-size:13px;color:var(--mark);
+    text-transform:uppercase;letter-spacing:.02em;}
+  .whead b{font-weight:600;}
+  .wbody{padding:18px 24px 16px;}
+  .wlegend{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;
+    gap:6px 16px;border-top:1px solid var(--border);padding:12px 16px;
+    font-size:12px;color:var(--muted);}
+  .wlegend .lg{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
+  .wlegend .sw{width:12px;height:12px;display:inline-block;}
   .wgrid{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start;}
   @media (max-width:640px){.wgrid{grid-template-columns:1fr;}}
   .wcol .wlabel{font-size:12.5px;color:var(--mark);letter-spacing:.02em;margin-bottom:10px;}
@@ -152,20 +159,21 @@
   </div>
 </div>
 
-<div class="card" id="waffles-card">
-  <div class="head"><span class="title">trials by task and outcome</span></div>
-  <div class="wlegend" aria-label="Outcome legend"></div>
-  <div class="wgrid">
-    <div class="wcol">
-      <div class="wlabel">terminal-bench 4.0</div>
-      <div class="whit" id="whit4"><svg id="wsvg4" role="img" aria-label="Terminal-Bench 4.0 trials by task and outcome"></svg></div>
-    </div>
-    <div class="wcol">
-      <div class="wlabel">terminal-bench 3.0</div>
-      <div class="whit" id="whit3"><svg id="wsvg3" role="img" aria-label="Terminal-Bench 3.0 trials by task and outcome"></svg></div>
+<div class="card wafflecard" id="waffles-card">
+  <div class="whead">Trials by <b>task</b> and <b>outcome</b></div>
+  <div class="wbody">
+    <div class="wgrid">
+      <div class="wcol">
+        <div class="wlabel">terminal-bench 4.0</div>
+        <div class="whit" id="whit4"><svg id="wsvg4" role="img" aria-label="Terminal-Bench 4.0 trials by task and outcome"></svg></div>
+      </div>
+      <div class="wcol">
+        <div class="wlabel">terminal-bench 3.0</div>
+        <div class="whit" id="whit3"><svg id="wsvg3" role="img" aria-label="Terminal-Bench 3.0 trials by task and outcome"></svg></div>
+      </div>
     </div>
   </div>
-  <div class="cap">Each square is one leaderboard trial &middot; tasks sorted by solve rate &middot; click a square to open the trial.</div>
+  <div class="wlegend" aria-label="Outcome legend"></div>
 </div>
 
 <div class="tip" id="tip" role="tooltip" aria-hidden="true"></div>
@@ -1033,6 +1041,9 @@
       lg.appendChild(document.createTextNode(name));
       legendW.appendChild(lg);
     });
+    const note = document.createElement('span');
+    note.textContent = 'each square is one trial - click to view';
+    legendW.appendChild(note);
 
     function showWaffleTip(data, task, tr, cx, cy) {
       tip.textContent = '';
@@ -1068,25 +1079,27 @@
         const w = Math.max(260, Math.floor(hit.getBoundingClientRect().width) || 400);
         const narrow = w < 360;
         const labelW = narrow ? 112 : 148;
-        const gap = 1;
-        const sq = Math.max(2, Math.floor((w - labelW + gap) / n) - gap);
-        const rh = sq + 5;
+        // Homepage waffle proportions: 12px squares, 2.5px gaps, 20px rows.
+        const pitch = Math.max(3, (w - labelW) / n);
+        const sq = pitch * (12 / 14.5);
+        const gap = pitch - sq;
+        const rh = Math.max(8.5, sq * (20 / 12));
         const height = data.tasks.length * rh;
         svg.setAttribute('viewBox', '0 0 ' + w + ' ' + height);
         svg.setAttribute('height', height);
         svg.textContent = '';
-        const fs = Math.min(9.5, rh - 1);
-        const maxChars = Math.floor((labelW - 8) / (fs * 0.68));
+        const fs = Math.min(11, rh - 1.5);
+        const maxChars = Math.floor((labelW - 10) / (fs * 0.68));
         col.geom = { labelW, gap, sq, rh, n };
         data.tasks.forEach((task, ti) => {
-          const cy = ti * rh;
-          const lbl = el('text', { x: labelW - 8, y: cy + sq + 0.5, class: 'wtask',
-            'font-size': fs, 'text-anchor': 'end' });
+          const cy = ti * rh + (rh - sq) / 2;
+          const lbl = el('text', { x: labelW - 10, y: ti * rh + rh / 2 + fs * 0.36,
+            class: 'wtask', 'font-size': fs, 'text-anchor': 'end' });
           lbl.textContent = task.t.length > maxChars ? task.t.slice(0, maxChars) : task.t;
           svg.appendChild(lbl);
           task.s.forEach((tr, i) => {
             svg.appendChild(el('rect', {
-              x: labelW + i * (sq + gap), y: cy, width: sq, height: sq,
+              x: labelW + i * pitch, y: cy, width: sq, height: sq,
               fill: OUTS[tr[0]][1], 'fill-opacity': OUTS[tr[0]][2], class: 'cell'
             }));
           });
@@ -1101,7 +1114,6 @@
         const i = Math.floor((px - g.labelW) / (g.sq + g.gap));
         const ti = Math.floor(py / g.rh);
         if (i < 0 || i >= g.n || ti < 0 || ti >= data.tasks.length) return null;
-        if (py - ti * g.rh > g.sq + 2) return null;
         return { task: data.tasks[ti], tr: data.tasks[ti].s[i] };
       }
       hit.addEventListener('pointermove', e => {
