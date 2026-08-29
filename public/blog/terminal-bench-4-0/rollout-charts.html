@@ -7,7 +7,7 @@
 <style>
   :root{
     color-scheme: dark;
-    --bg:#000000; --card:#0e0e0e; --border:#2a2a2a; --ink:#d3d3ce; --muted:#6d6d67;
+    --bg:#000000; --card:#070707; --border:#2a2a2a; --ink:#d3d3ce; --muted:#6d6d67;
     --grid:#1f1f1d; --mark:#e4e4de;
     --sol:#e8e8e2; --opus:#8a8a84;
     --p-env:#e8e8e2; --p-setup:#b4b4ae; --p-exec:#78786f; --p-verif:#45453f;
@@ -17,7 +17,7 @@
   *{box-sizing:border-box;}
   html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);}
   .card{max-width:900px;margin:28px auto 48px;background:var(--card);
-    border:1px solid var(--border);border-radius:16px;padding:20px 24px 16px;}
+    border:1px solid var(--border);border-radius:0;padding:20px 24px 16px;}
   .head{display:flex;justify-content:space-between;align-items:baseline;
     font-size:11.5px;color:var(--muted);letter-spacing:.02em;margin-bottom:14px;gap:12px;}
   .head b{color:var(--mark);font-weight:600;font-size:12.5px;}
@@ -93,7 +93,7 @@
   .plegend .lg{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;}
   .plegend .sw{width:11px;height:11px;border:1px solid var(--border);display:inline-block;}
   .pcard{max-width:900px;margin:0 auto 18px;background:var(--card);
-    border:1px solid var(--border);border-radius:16px;padding:20px 24px 16px;}
+    border:1px solid var(--border);border-radius:0;padding:20px 24px 16px;}
   .pcard .head{margin-bottom:10px;}
   .task-label{fill:var(--ink);font-size:10.5px;}
   .row-value{fill:var(--muted);font-size:10.5px;font-variant-numeric:tabular-nums;}
