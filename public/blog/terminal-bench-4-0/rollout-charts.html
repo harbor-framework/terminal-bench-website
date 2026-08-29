@@ -10,7 +10,7 @@
     --bg:#000000; --card:#000000; --border:#2a2a2a; --ink:#d3d3ce; --muted:#6d6d67;
     --grid:#1f1f1d; --mark:#e4e4de;
     --sol:#e8e8e2; --opus:#8a8a84;
-    --p-env:#45453f; --p-setup:#78786f; --p-exec:#e8e8e2; --p-verif:#000000;
+    --p-env:#e8e8e2; --p-setup:#b4b4ae; --p-exec:#78786f; --p-verif:#45453f;
     --rw-pass:#e8e8e2; --rw-fail:#33332f;
     --font:'Google Sans Code','JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
   }
@@ -38,7 +38,7 @@
   .legend button{appearance:none;border:0;background:transparent;cursor:pointer;
     display:inline-flex;align-items:center;gap:7px;padding:0;
     font-family:var(--font);font-size:11px;color:var(--ink);}
-  .legend button[aria-pressed="false"] .lbl{opacity:.5;}
+  .legend button[aria-pressed="false"]{opacity:.4;}
   .legend button:focus-visible{outline:1px solid var(--ink);outline-offset:2px;}
   .legend .sw{width:11px;height:11px;display:inline-block;}
   .legend .n{color:var(--muted);}
@@ -101,7 +101,7 @@
   .seg-env{fill:var(--p-env);}
   .seg-setup{fill:var(--p-setup);}
   .seg-exec{fill:var(--p-exec);}
-  .seg-verif{fill:var(--p-verif);stroke:var(--mark);stroke-width:1;}
+  .seg-verif{fill:var(--p-verif);}
   .task-link{cursor:pointer;}
   .task-link:hover .task-label{text-decoration:underline;fill:var(--mark);}
   .rw1{fill:var(--rw-pass);}
@@ -142,7 +142,7 @@
   <span class="lg"><span class="sw" style="background:var(--p-env)"></span>env setup</span>
   <span class="lg"><span class="sw" style="background:var(--p-setup)"></span>agent setup</span>
   <span class="lg"><span class="sw" style="background:var(--p-exec)"></span>agent execution</span>
-  <span class="lg"><span class="sw" style="background:var(--p-verif);border:1px solid var(--mark)"></span>verifier</span>
+  <span class="lg"><span class="sw" style="background:var(--p-verif)"></span>verifier</span>
 </div>
 <div id="phase-charts"></div>
 
@@ -203,7 +203,7 @@
     "grok45": "grok-4.5 grok-build",
     "grok46": "grok-4.6 grok-build"
   };
-  const DEFAULT_ON = new Set();
+  const DEFAULT_ON = new Set(['opus5', 'sol', 'glm53', 'grok46']);
   const active = new Map(SERIES.map(s => [s.key, DEFAULT_ON.has(s.key)]));
 
   const card = document.querySelector('.card');
@@ -247,19 +247,14 @@
     b.setAttribute('aria-pressed', String(active.get(s.key)));
     const sw = document.createElement('span');
     sw.className = 'sw';
-    function syncSw() {
-      sw.style.background = active.get(s.key) ? COLORS[s.key] : '#45453f';
-    }
-    syncSw();
+    sw.style.background = COLORS[s.key];
     b.appendChild(sw);
     const lbl = document.createElement('span');
-    lbl.className = 'lbl';
     lbl.textContent = SHORT[s.key] || s.label;
     b.appendChild(lbl);
     b.addEventListener('click', () => {
       active.set(s.key, !active.get(s.key));
       b.setAttribute('aria-pressed', String(active.get(s.key)));
-      syncSw();
       draw();
     });
     rowsByProvider[prov].appendChild(b);
@@ -309,11 +304,8 @@
     xt.textContent = 'agent execution hours';
     svg.appendChild(xt);
 
-    // step lines: every series is drawn; unselected ones sit faded underneath
-    const ordered = SERIES.filter(s => !active.get(s.key)).concat(visible);
-    for (const s of ordered) {
-      const on = active.get(s.key);
-      const dim = on ? 1 : 0.35;
+    // step lines
+    for (const s of visible) {
       let d = '';
       s.points.forEach((p, i) => {
         const px = x(p.x).toFixed(2), py = y(p.y).toFixed(2);
@@ -321,14 +313,12 @@
         else d += 'H' + px + 'V' + py;
       });
       svg.appendChild(el('path', { d, fill: 'none', stroke: COLORS[s.key],
-        'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round',
-        opacity: dim }));
+        'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
       const end = s.points[s.points.length - 1];
-      svg.appendChild(el('rect', { x: x(end.x) - 3.5, y: y(end.y) - 3.5,
-        width: 7, height: 7, fill: COLORS[s.key], opacity: dim }));
+      svg.appendChild(el('circle', { cx: x(end.x), cy: y(end.y), r: 3.5,
+        fill: COLORS[s.key], stroke: 'var(--card)', 'stroke-width': 2 }));
     }
 
-    const hoverSeries = visible.length ? visible : SERIES;
     geom = { m, iw, ih, x, y, domX, visible, width };
 
     // crosshair overlay
@@ -361,7 +351,7 @@
       tip.textContent = '';
       tip.classList.add('wide');
       tip.appendChild(div('t-title', hour.toFixed(2) + ' h'));
-      for (const s of hoverSeries) {
+      for (const s of visible) {
         const p = pointAt(s, hour);
         markers.appendChild(el('circle', { cx: px, cy: y(p.y), r: 3, fill: COLORS[s.key],
           stroke: 'var(--card)', 'stroke-width': 1.5 }));
@@ -430,7 +420,6 @@
     for (const [key, name, , color] of PH) {
       const row = div('t-row');
       const k = div('t-key'); k.style.background = color; k.style.height = '10px'; k.style.width = '10px';
-      if (key === 'verifier') k.style.border = '1px solid var(--mark)';
       row.appendChild(k);
       row.appendChild(div('t-name', name));
       row.appendChild(div('t-val', fmtDur(d[key])));
@@ -470,7 +459,6 @@
     for (const [key, name, , color] of PH) {
       const row = div('t-row');
       const k = div('t-key'); k.style.background = color; k.style.height = '10px'; k.style.width = '10px';
-      if (key === 'verifier') k.style.border = '1px solid var(--mark)';
       row.appendChild(k);
       row.appendChild(div('t-name', name));
       row.appendChild(div('t-val', fmtDur(run[key])));
@@ -554,10 +542,10 @@
                      glm53: 'glm', sol: 'openai', terra: 'openai', luna: 'openai',
                      grok45: 'grok', grok46: 'grok' };
     function rampSync() {
-      const ramp = RAMPS.grok;
+      const ramp = RAMPS[FAMILY[PHASES[phaseIdx].key]] || RAMPS.grok;
       const rootStyle = document.documentElement.style;
-      rootStyle.setProperty('--p-setup', ramp[2]);
-      rootStyle.setProperty('--p-exec', ramp[0]);
+      rootStyle.setProperty('--p-setup', ramp[1]);
+      rootStyle.setProperty('--p-exec', ramp[2]);
     }
     let phaseIdx = Math.max(0, PHASES.findIndex(
       j => j.key === new URLSearchParams(location.search).get('model')));
@@ -662,14 +650,7 @@
         for (const [key, , cls] of PH) {
           const w = x(d[key]);
           if (w > 0.5) {
-            if (cls === 'seg-verif') {
-              // Inset by half the stroke so the border sits inside the bar.
-              const vw = Math.max(w, 1);
-              g.appendChild(el('rect', { x: cx + 0.5, y: by + 0.5,
-                width: Math.max(vw - 1, 0.5), height: barH - 1, class: 'cell ' + cls }));
-            } else {
-              g.appendChild(el('rect', { x: cx, y: by, width: Math.max(w, 1), height: barH, class: 'cell ' + cls }));
-            }
+            g.appendChild(el('rect', { x: cx, y: by, width: Math.max(w, 1), height: barH, class: 'cell ' + cls }));
             cx += w;
           }
         }
@@ -952,21 +933,20 @@
         svg2.appendChild(wash2);
       }
 
-      // whiskers + points (monochrome)
-      const MONO = 'var(--mark)';
+      // whiskers + points
       for (const p of pts) {
         const px = x(p.cost);
         const dim = p.onFrontier ? 1 : 0.45;
         const w1 = el('line', { x1: px, x2: px, y1: y(p.pass - p.se), y2: y(p.pass + p.se), class: 'whisker2', opacity: dim });
-        w1.setAttribute('stroke', MONO);
+        w1.setAttribute('stroke', COLORS[p.key]);
         svg2.appendChild(w1);
         for (const end of [p.pass - p.se, p.pass + p.se]) {
           const c = el('line', { x1: px - 3.5, x2: px + 3.5, y1: y(end), y2: y(end), class: 'whisker2', opacity: dim });
-          c.setAttribute('stroke', MONO);
+          c.setAttribute('stroke', COLORS[p.key]);
           svg2.appendChild(c);
         }
         const dot = el('rect', { x: px - 4.5, y: y(p.pass) - 4.5, width: 9, height: 9,
-          fill: MONO, opacity: dim });
+          fill: COLORS[p.key], opacity: dim });
         svg2.appendChild(dot);
       }
 
