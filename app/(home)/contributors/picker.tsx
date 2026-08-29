@@ -51,8 +51,9 @@ export function ContributorPicker({
         </SelectTrigger>
         <SelectContent
           align="start"
+          alignOffset={-6}
           alignItemWithTrigger={false}
-          className="min-w-(--anchor-width) font-[family-name:var(--font-google-sans-code)]"
+          className="w-[calc(var(--anchor-width)+12px)] min-w-0 font-[family-name:var(--font-google-sans-code)]"
         >
           {CONTRIBUTOR_RELEASES.map((entry) => (
             <SelectItem
