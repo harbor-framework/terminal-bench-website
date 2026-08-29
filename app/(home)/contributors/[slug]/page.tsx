@@ -59,10 +59,6 @@ const RELEASES = {
     groups: legacyContributorGroups,
     acknowledgements: legacyAcknowledgements,
   },
-  "terminal-bench-challenges": {
-    groups: legacyContributorGroups,
-    acknowledgements: legacyAcknowledgements,
-  },
 } as const;
 
 type ReleaseSlug = keyof typeof RELEASES;

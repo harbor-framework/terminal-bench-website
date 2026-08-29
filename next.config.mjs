@@ -128,6 +128,11 @@ const config = {
         permanent: true,
       },
       {
+        source: '/contributors/terminal-bench-challenges',
+        destination: '/contributors',
+        permanent: true,
+      },
+      {
         source: '/harbor-index',
         destination: '/news/harbor-index',
         permanent: true,
