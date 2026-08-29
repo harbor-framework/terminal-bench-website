@@ -34,13 +34,13 @@
   .pcard .head{align-items:center;margin-bottom:12px;}
   .pcard .plegend{margin:0 0 12px;padding:0;}
   .legend{display:flex;flex-direction:column;gap:7px;align-items:flex-start;margin-bottom:10px;}
-  .legend-row{display:grid;grid-template-columns:repeat(4,180px);gap:6px 16px;justify-items:start;align-items:center;}
+  .legend-row{display:grid;grid-template-columns:repeat(4,152px);gap:6px 14px;justify-items:start;align-items:center;}
   .legend button{appearance:none;border:0;background:transparent;cursor:pointer;
     display:inline-flex;align-items:center;gap:7px;padding:0;
     font-family:var(--font);font-size:11px;color:var(--ink);}
   .legend button[aria-pressed="false"]{opacity:.4;}
   .legend button:focus-visible{outline:1px solid var(--ink);outline-offset:2px;}
-  .legend .sw{width:11px;height:3px;border-radius:2px;display:inline-block;}
+  .legend .sw{width:11px;height:11px;border-radius:2px;display:inline-block;}
   .legend .n{color:var(--muted);}
   .plot-wrap{position:relative;width:100%;}
   svg{display:block;width:100%;height:auto;overflow:visible;}
@@ -91,7 +91,7 @@
   .plegend{display:flex;flex-wrap:wrap;gap:14px;align-items:center;max-width:900px;
     margin:22px auto 10px;font-size:11px;color:var(--muted);padding:0 2px;}
   .plegend .lg{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;}
-  .plegend .sw{width:11px;height:11px;border:1px solid var(--border);display:inline-block;}
+  .plegend .sw{width:11px;height:11px;display:inline-block;}
   .pcard{max-width:900px;margin:0 auto 18px;background:var(--card);
     border:1px solid var(--border);border-radius:0;padding:20px 24px 16px;}
   .pcard .head{margin-bottom:10px;}
@@ -130,9 +130,9 @@
 <div id="phase-charts"></div>
 
 <div class="card" id="pareto-card">
-  <div class="head"><span class="title">pass rate vs agent execution time</span></div>
+  <div class="head"><span class="title">resolution rate vs agent execution time</span></div>
   <div class="plot-wrap" id="pareto-wrap">
-    <svg id="pareto-svg" role="img" aria-label="Pass rate versus total agent execution time per job"></svg>
+    <svg id="pareto-svg" role="img" aria-label="Resolution rate versus total agent execution time per job"></svg>
   </div>
 </div>
 
@@ -686,7 +686,7 @@
     function drawPareto() {
       const width = Math.max(320, Math.floor(wrap2.getBoundingClientRect().width));
       const height = width < 520 ? 320 : 380;
-      const m = { top: 14, right: 30, bottom: 44, left: 46 };
+      const m = { top: 14, right: 30, bottom: 44, left: 62 };
       const iw = width - m.left - m.right, ih = height - m.top - m.bottom;
       svg2.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
       svg2.setAttribute('height', height);
@@ -695,12 +695,12 @@
       const maxH = Math.max(...pts.map(p => p.hours));
       const xTicks = niceTicks(maxH, width < 520 ? 4 : 7);
       const domX = Math.max(maxH, xTicks[xTicks.length - 1]);
-      const yLo = Math.max(0, Math.floor((Math.min(...pts.map(p => p.pass - p.se)) - 3) / 5) * 5);
-      const yHi = Math.min(100, Math.ceil((Math.max(...pts.map(p => p.pass + p.se)) + 3) / 5) * 5);
+      const yLo = 0;
+      const yHi = 100;
       const x = v => m.left + (v / domX) * iw;
       const y = v => m.top + ih - ((v - yLo) / (yHi - yLo)) * ih;
 
-      for (let p = yLo; p <= yHi; p += 5) {
+      for (let p = yLo; p <= yHi; p += 20) {
         svg2.appendChild(el('line', { x1: m.left, x2: m.left + iw, y1: y(p), y2: y(p),
           class: p === yLo ? 'base-line' : 'grid-line' }));
         const tl = el('text', { x: m.left - 8, y: y(p) + 3.5, class: 'tick-label', 'text-anchor': 'end' });
@@ -716,6 +716,10 @@
       const xt = el('text', { x: m.left + iw / 2, y: height - 8, class: 'axis-title', 'text-anchor': 'middle' });
       xt.textContent = 'total agent execution hours (sum over trials)';
       svg2.appendChild(xt);
+      const yt = el('text', { class: 'axis-title', 'text-anchor': 'middle',
+        transform: 'translate(14,' + (m.top + ih / 2) + ') rotate(-90)' });
+      yt.textContent = 'resolution rate';
+      svg2.appendChild(yt);
 
       // wash the complement of the dominated region (up-left of the frontier)
       const frontier = pts.filter(p => p.onFrontier).sort((a, b) => a.hours - b.hours);
@@ -745,8 +749,8 @@
           c.setAttribute('stroke', COLORS[p.key]);
           svg2.appendChild(c);
         }
-        const dot = el('circle', { cx: px, cy: y(p.pass), r: 4.5, fill: COLORS[p.key],
-          stroke: 'var(--card)', 'stroke-width': 2, opacity: dim });
+        const dot = el('rect', { x: px - 4.5, y: y(p.pass) - 4.5, width: 9, height: 9,
+          fill: COLORS[p.key], stroke: 'var(--card)', 'stroke-width': 2, opacity: dim });
         svg2.appendChild(dot);
       }
 
@@ -786,7 +790,7 @@
       tip.textContent = '';
       tip.appendChild(div('t-title', p.name));
       const rows = [
-        ['pass rate', p.pass.toFixed(1) + '%'],
+        ['resolution rate', p.pass.toFixed(1) + '%'],
         ['95% ci', String.fromCharCode(177) + p.se.toFixed(1) + '%'],
         ['agent execution', Math.round(p.hours) + 'h total']
       ];
