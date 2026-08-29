@@ -11,9 +11,12 @@ date: 2026-08-28
 category: "Release"
 ---
 
+{/* The chart page is dark by design; in light mode invert+hue-rotate
+    approximates a light theme while keeping the accent hues. */}
 <iframe
   src="/blog/terminal-bench-4-0/rollout-charts.html"
   title="Terminal-Bench 4.0 rollout charts"
+  className="invert hue-rotate-180 dark:invert-0 dark:hue-rotate-0"
   style={{ width: '100%', height: '2530px', border: 0, borderRadius: '16px', overflow: 'hidden' }}
   scrolling="no"
   loading="lazy"
