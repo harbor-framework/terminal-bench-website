@@ -402,38 +402,58 @@ const WaffleSvg = memo(function WaffleSvg({
     // Two header text lines plus tight top/bottom clearance.
     HEAD = Math.round(2 * fontSm + 16);
     const pitchYEst = SW + SGAP;
-    const gutEst =
-      mode === "task"
-        ? Math.min(210, Math.ceil(maxLabelChars * fontSm * 0.6) + 16)
-        : 36;
-    const perLineEst = Math.max(
-      1,
-      Math.floor(
-        ((available > 0 ? available - gutEst - 16 : 800) + SGAP) / (SW + SGAP),
-      ),
-    );
-    let estimate = HEAD + 10;
-    if (mode === "task") {
-      for (const row of matrix.tasks) {
-        const slots = row.cells.reduce((sum, cell) => sum + cell.length, 0);
-        const lines =
-          group === "outcome" ? Math.max(1, Math.ceil(slots / perLineEst)) : 1;
-        estimate += Math.max(RH, lines * pitchYEst);
+    // One scale for every mode/group combination: converge on the tallest
+    // layout so squares stay the same size when toggling views.
+    const perLineFor = (m: RowMode) => {
+      const gutEst =
+        m === "task"
+          ? Math.min(210, Math.ceil(maxLabelChars * fontSm * 0.6) + 16)
+          : 36;
+      return Math.max(
+        1,
+        Math.floor(
+          ((available > 0 ? available - gutEst - 16 : 800) + SGAP) /
+            (SW + SGAP),
+        ),
+      );
+    };
+    const estimateFor = (m: RowMode, g: GroupMode) => {
+      const perLineEst = perLineFor(m);
+      let est = HEAD + 10;
+      if (m === "task") {
+        for (const row of matrix.tasks) {
+          const slots = row.cells.reduce((sum, cell) => sum + cell.length, 0);
+          const lines =
+            g === "outcome" ? Math.max(1, Math.ceil(slots / perLineEst)) : 1;
+          est += Math.max(RH, lines * pitchYEst);
+        }
+      } else {
+        matrix.domains.forEach((domain, index) => {
+          const slots = domain.cells.reduce(
+            (sum, cell) => sum + cell.length,
+            0,
+          );
+          const lines =
+            g === "outcome"
+              ? Math.max(1, Math.ceil(slots / perLineEst))
+              : Math.max(
+                  ...domain.cells.map((cell) =>
+                    Math.ceil(cell.length / maxReps),
+                  ),
+                  domain.taskCount,
+                  1,
+                );
+          est += lines * pitchYEst + (index > 0 ? domGap : 0);
+        });
       }
-    } else {
-      matrix.domains.forEach((domain, index) => {
-        const slots = domain.cells.reduce((sum, cell) => sum + cell.length, 0);
-        const lines =
-          group === "outcome"
-            ? Math.max(1, Math.ceil(slots / perLineEst))
-            : Math.max(
-                ...domain.cells.map((cell) => Math.ceil(cell.length / maxReps)),
-                domain.taskCount,
-                1,
-              );
-        estimate += lines * pitchYEst + (index > 0 ? domGap : 0);
-      });
-    }
+      return est;
+    };
+    const estimate = Math.max(
+      estimateFor("task", "model"),
+      estimateFor("task", "outcome"),
+      estimateFor("domain", "model"),
+      estimateFor("domain", "outcome"),
+    );
     if (estimate <= budget || scale <= 0.35) break;
     scale *= Math.max(0.35, (budget - HEAD) / (estimate - HEAD));
   }
