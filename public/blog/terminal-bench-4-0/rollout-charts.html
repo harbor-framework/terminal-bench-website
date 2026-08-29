@@ -1066,8 +1066,11 @@
         const narrow = w < 360;
         const labelW = narrow ? 112 : 148;
         // Homepage waffle proportions: 12px squares, 2.5px gaps, 20px rows.
+        // Whole-pixel squares so crispEdges rasterizes them uniformly; the
+        // fractional remainder of each pitch is absorbed by the gaps.
         const pitch = Math.max(3, (w - labelW) / n);
-        const sq = pitch * (12 / 14.5);
+        const sq = Math.max(2,
+          Math.min(Math.round(pitch * (12 / 14.5)), Math.floor(pitch - 1)));
         const gap = pitch - sq;
         const rh = Math.max(8.5, sq * (20 / 12));
         const height = data.tasks.length * rh;
@@ -1085,9 +1088,10 @@
           lbl.textContent = task.t.length > maxChars ? task.t.slice(0, maxChars) : task.t;
           svg.appendChild(lbl);
           col.labels.push(lbl);
+          const ry = Math.round(cy);
           task.s.forEach((tr, i) => {
             svg.appendChild(el('rect', {
-              x: labelW + i * pitch, y: cy, width: sq, height: sq,
+              x: Math.round(labelW + i * pitch), y: ry, width: sq, height: sq,
               fill: OUTS[tr[0]][1], 'fill-opacity': OUTS[tr[0]][2],
               class: tr[0] === 2 ? 'cell cell-err' : 'cell'
             }));
@@ -1140,8 +1144,8 @@
         }
         hit.style.cursor = 'pointer';
         const g = col.geom;
-        col.hl.setAttribute('x', g.labelW + found.i * (g.sq + g.gap));
-        col.hl.setAttribute('y', found.ti * g.rh + (g.rh - g.sq) / 2);
+        col.hl.setAttribute('x', Math.round(g.labelW + found.i * (g.sq + g.gap)));
+        col.hl.setAttribute('y', Math.round(found.ti * g.rh + (g.rh - g.sq) / 2));
         col.hl.setAttribute('width', g.sq);
         col.hl.setAttribute('height', g.sq);
         col.hl.setAttribute('visibility', 'visible');
