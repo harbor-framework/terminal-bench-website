@@ -59,7 +59,7 @@
   @media (prefers-reduced-motion: reduce){ .tip{transition:none;} }
   .tip .t-title{font-weight:600;color:#fff;margin-bottom:4px;font-variant-numeric:tabular-nums;}
   .tip .t-row{display:flex;align-items:center;gap:7px;font-variant-numeric:tabular-nums;}
-  .tip .t-key{width:10px;height:3px;border-radius:2px;flex:none;}
+  .tip .t-key{width:10px;height:10px;border-radius:0;flex:none;}
   .tip .t-name{color:var(--muted);flex:1 1 auto;padding-right:14px;}
   .tip .t-val{font-weight:600;color:var(--ink);}
   .tip .t-foot{margin-top:5px;padding-top:5px;border-top:1px solid var(--border);
@@ -133,8 +133,7 @@
      are fixed across themes on the homepage (error pink, dark tooltip)
      re-invert so they display exactly. */
   .embed-light .cell-fixed,
-  .embed-light .sw-fixed,
-  .embed-light .tip{filter:invert(1) hue-rotate(180deg);}
+  .embed-light .sw-fixed{filter:invert(1) hue-rotate(180deg);}
 </style>
 <script>
 // Runs before first paint to avoid a color flicker on load: guesses the
