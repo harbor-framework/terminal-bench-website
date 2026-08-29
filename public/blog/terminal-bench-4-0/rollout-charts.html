@@ -1147,8 +1147,11 @@
       tip.appendChild(div('t-line', data.models[tr[1]]));
       const outcomeCls = ['t-line t-pass', 't-line t-to',
         't-line t-err', 't-line t-fail'][tr[0]] || 't-line';
+      // Truncate error names to the longest task name so the card never
+      // needs to grow past its fixed width.
+      const maxLen = Math.max(...data.tasks.map(t => t.t.length));
       tip.appendChild(div(outcomeCls,
-        tr[3] ? data.errs[tr[3] - 1] : OUT_WORD[tr[0]]));
+        tr[3] ? data.errs[tr[3] - 1].slice(0, maxLen) : OUT_WORD[tr[0]]));
       tip.appendChild(div('t-foot', 'click to view trial'));
       tip.style.opacity = '1';
       tip.setAttribute('aria-hidden', 'false');

@@ -707,6 +707,18 @@ export function TaskWaffleView() {
   }
   const snapshot = lastConsistent.current ?? (data ? { data, rows: [] } : null);
 
+  const maxTaskLen = useMemo(
+    () =>
+      snapshot
+        ? Math.max(
+            1,
+            ...snapshot.data.doms.flatMap((dom) =>
+              dom.tasks.map((task) => task.task.length),
+            ),
+          )
+        : 32,
+    [snapshot],
+  );
   const matrix = useMemo(
     () => (snapshot ? buildMatrix(snapshot.data, snapshot.rows) : null),
     [snapshot],
@@ -929,7 +941,8 @@ export function TaskWaffleView() {
                           }[tooltip.trial.o]
                         }
                       >
-                        {tooltip.trial.e ?? OUTCOME_WORD[tooltip.trial.o]}
+                        {tooltip.trial.e?.slice(0, maxTaskLen) ??
+                          OUTCOME_WORD[tooltip.trial.o]}
                       </p>
                       <p className="mt-1.5 border-t border-border pt-1.5 text-[10.5px] opacity-50">
                         click to view trial
