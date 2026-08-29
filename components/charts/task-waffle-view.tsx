@@ -36,7 +36,7 @@ import type { WafflePayload, WaffleTrial } from "@/lib/waffle";
 
 const WAFFLE_EXPORT_TARGET_ID = "terminal-bench-waffle-export";
 
-const ROW_MODES = ["task", "domain"] as const;
+const ROW_MODES = ["task", "domain", "all"] as const;
 type RowMode = (typeof ROW_MODES)[number];
 const parseRowMode = parseAsStringLiteral(ROW_MODES);
 
@@ -187,6 +187,8 @@ type Matrix = {
   maxReps: number;
   tasks: MatrixTaskRow[];
   domains: MatrixDomainRow[];
+  /** Every trial merged into one row, for the "all" row mode. */
+  all: MatrixDomainRow;
 };
 
 function buildMatrix(
@@ -286,7 +288,26 @@ function buildMatrix(
     (a, b) => b.taskCount - a.taskCount || a.name.localeCompare(b.name),
   );
 
-  return { columns, maxReps, tasks, domains };
+  const allCells: MatrixSlot[][] = columns.map((_, index) =>
+    domains.flatMap((domain) => domain.cells[index]!),
+  );
+  let allPass = 0;
+  let allTotal = 0;
+  for (const cell of allCells) {
+    cell.sort((a, b) => OUTCOME_RANK[a.trial.o] - OUTCOME_RANK[b.trial.o]);
+    for (const slot of cell) {
+      allTotal += 1;
+      if (slot.trial.o === "p") allPass += 1;
+    }
+  }
+  const all: MatrixDomainRow = {
+    name: "all",
+    solve: allTotal > 0 ? Math.round((100 * allPass) / allTotal) : 0,
+    taskCount: tasks.length,
+    cells: allCells,
+  };
+
+  return { columns, maxReps, tasks, domains, all };
 }
 
 function MatrixCell({
@@ -376,10 +397,11 @@ const WaffleSvg = memo(function WaffleSvg({
   // every square identically.
   const maxReps = Math.max(1, matrix.maxReps);
   const available = containerWidth > 0 ? containerWidth - 32 : 0;
+  const domainRows = mode === "all" ? [matrix.all] : matrix.domains;
   const rowLabels =
     mode === "task"
       ? matrix.tasks.map((row) => row.task)
-      : matrix.domains.map((row) => row.name);
+      : domainRows.map((row) => row.name);
   const maxLabelChars = Math.max(0, ...rowLabels.map((label) => label.length));
   // Chrome above/below the plot: nav, toolbar, card header, legend, padding.
   const budget = Math.max(420, viewportH - 230);
@@ -412,7 +434,7 @@ const WaffleSvg = memo(function WaffleSvg({
         1,
         Math.floor(
           ((available > 0
-            ? (m === "domain" ? available * 0.6 : available) - gutEst - 16
+            ? (m === "task" ? available : available * 0.6) - gutEst - 16
             : 800) +
             SGAP) /
             (SW + SGAP),
@@ -427,23 +449,25 @@ const WaffleSvg = memo(function WaffleSvg({
         // so every group renders one line per task.
         est += matrix.tasks.length * Math.max(RH, pitchYEst);
       } else {
-        matrix.domains.forEach((domain, index) => {
-          const slots = domain.cells.reduce(
-            (sum, cell) => sum + cell.length,
-            0,
-          );
-          const lines =
-            g === "outcome"
-              ? Math.max(1, Math.ceil(slots / perLineEst))
-              : Math.max(
-                  ...domain.cells.map((cell) =>
-                    Math.ceil(cell.length / maxReps),
-                  ),
-                  domain.taskCount,
-                  1,
-                );
-          est += lines * pitchYEst + (index > 0 ? domGap : 0);
-        });
+        (m === "all" ? [matrix.all] : matrix.domains).forEach(
+          (domain, index) => {
+            const slots = domain.cells.reduce(
+              (sum, cell) => sum + cell.length,
+              0,
+            );
+            const lines =
+              g === "outcome"
+                ? Math.max(1, Math.ceil(slots / perLineEst))
+                : Math.max(
+                    ...domain.cells.map((cell) =>
+                      Math.ceil(cell.length / maxReps),
+                    ),
+                    domain.taskCount,
+                    1,
+                  );
+            est += lines * pitchYEst + (index > 0 ? domGap : 0);
+          },
+        );
       }
       return est;
     };
@@ -452,6 +476,8 @@ const WaffleSvg = memo(function WaffleSvg({
       estimateFor("task", "outcome"),
       estimateFor("domain", "model"),
       estimateFor("domain", "outcome"),
+      estimateFor("all", "model"),
+      estimateFor("all", "outcome"),
     );
     if (estimate <= budget || scale <= 0.35) break;
     scale *= Math.max(0.35, (budget - HEAD) / (estimate - HEAD));
@@ -477,7 +503,7 @@ const WaffleSvg = memo(function WaffleSvg({
   // size the plot to its own content, not to the model-column layout, so no
   // trailing whitespace forces a scrollbar. Domain rows wrap at ~60% of the
   // container so the blocks stay in the middle of the screen.
-  const wrapWidth = mode === "domain" ? available * 0.6 : available;
+  const wrapWidth = mode === "task" ? available : available * 0.6;
   const perLineCap = Math.max(
     1,
     Math.floor(
@@ -485,7 +511,7 @@ const WaffleSvg = memo(function WaffleSvg({
         (SW + SGAP),
     ),
   );
-  const outcomeCounts = (mode === "task" ? matrix.tasks : matrix.domains).map(
+  const outcomeCounts = (mode === "task" ? matrix.tasks : domainRows).map(
     (row) => row.cells.reduce((sum, cell) => sum + cell.length, 0),
   );
   const maxOutcomeCount = Math.max(1, ...outcomeCounts, 1);
@@ -619,7 +645,7 @@ const WaffleSvg = memo(function WaffleSvg({
     height = y + 10;
   } else {
     let y = HEAD;
-    for (const domain of matrix.domains) {
+    for (const domain of domainRows) {
       const merged = group === "outcome" ? mergedSlots(domain.cells) : null;
       const rows = merged
         ? Math.max(1, Math.ceil(merged.length / perLine))
@@ -973,14 +999,21 @@ export function TaskWaffleView() {
           <Select
             value={mode}
             onValueChange={(next) => {
-              if (next === "task" || next === "domain") void setMode(next);
+              if (next === "task" || next === "domain" || next === "all")
+                void setMode(next);
             }}
           >
             <SelectTrigger
               size="sm"
               className="min-w-28 bg-background uppercase dark:bg-card"
             >
-              <SelectValue>{mode === "task" ? "Task" : "Domain"}</SelectValue>
+              <SelectValue>
+                {mode === "task"
+                  ? "Task"
+                  : mode === "domain"
+                    ? "Domain"
+                    : "All"}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent
               align="start"
@@ -992,6 +1025,9 @@ export function TaskWaffleView() {
               </SelectItem>
               <SelectItem value="domain" className="uppercase">
                 Domain
+              </SelectItem>
+              <SelectItem value="all" className="uppercase">
+                All
               </SelectItem>
             </SelectContent>
           </Select>
