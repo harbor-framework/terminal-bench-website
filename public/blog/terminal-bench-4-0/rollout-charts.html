@@ -10,7 +10,7 @@
     --bg:#000000; --card:#000000; --border:#2a2a2a; --ink:#d3d3ce; --muted:#6d6d67;
     --grid:#1f1f1d; --mark:#e4e4de;
     --sol:#e8e8e2; --opus:#8a8a84;
-    --p-env:#e8e8e2; --p-setup:#b4b4ae; --p-exec:#78786f; --p-verif:#45453f;
+    --p-env:#45453f; --p-setup:#78786f; --p-exec:#b4b4ae; --p-verif:#e8e8e2;
     --rw-pass:#e8e8e2; --rw-fail:#33332f;
     --font:'Google Sans Code','JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
   }
@@ -544,8 +544,8 @@
     function rampSync() {
       const ramp = RAMPS.grok;
       const rootStyle = document.documentElement.style;
-      rootStyle.setProperty('--p-setup', ramp[1]);
-      rootStyle.setProperty('--p-exec', ramp[2]);
+      rootStyle.setProperty('--p-setup', ramp[2]);
+      rootStyle.setProperty('--p-exec', ramp[1]);
     }
     let phaseIdx = Math.max(0, PHASES.findIndex(
       j => j.key === new URLSearchParams(location.search).get('model')));
