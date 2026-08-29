@@ -759,7 +759,13 @@ export function TaskWaffleView() {
     rows: LeaderboardRow[];
   } | null>(null);
   if (data && leaderboardData?.leaderboard.name === data.leaderboard.name) {
-    lastConsistent.current = { data, rows: filteredRows };
+    // Keep the snapshot referentially stable across unrelated renders (e.g.
+    // hover state) — a fresh object here would rebuild the matrix and
+    // re-render the whole SVG on every tooltip move.
+    const prev = lastConsistent.current;
+    if (!prev || prev.data !== data || prev.rows !== filteredRows) {
+      lastConsistent.current = { data, rows: filteredRows };
+    }
   }
   const snapshot = lastConsistent.current ?? (data ? { data, rows: [] } : null);
 
@@ -804,52 +810,74 @@ export function TaskWaffleView() {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  const showTooltip = useCallback(
-    (event: React.MouseEvent<SVGElement>, task: string, trial: WaffleTrial) => {
+  // All hover work (square enters and glide moves) is coalesced into one
+  // rAF callback per frame. Measuring synchronously in every event forces a
+  // layout reflow per crossed square — laggy on dense outcome runs where a
+  // sweep crosses several squares per frame on many-trial versions.
+  const hoverRaf = useRef(0);
+  const hoverPoint = useRef({ x: 0, y: 0 });
+  const pendingShow = useRef<{
+    el: Element;
+    task: string;
+    trial: WaffleTrial;
+  } | null>(null);
+  const scheduleHover = useCallback(() => {
+    if (hoverRaf.current) return;
+    hoverRaf.current = requestAnimationFrame(() => {
+      hoverRaf.current = 0;
       const container = scrollRef.current;
       if (!container) return;
       const bounds = container.getBoundingClientRect();
-      const square = (event.currentTarget as Element).getBoundingClientRect();
-      setTooltip({
-        task,
-        trial,
-        x: event.clientX - bounds.left + container.scrollLeft,
-        y: event.clientY - bounds.top + container.scrollTop,
-        hx: square.left - bounds.left + container.scrollLeft,
-        hy: square.top - bounds.top + container.scrollTop,
-        hw: square.width,
-        hh: square.height,
-      });
-      setTipOpen(true);
+      const x = hoverPoint.current.x - bounds.left + container.scrollLeft;
+      const y = hoverPoint.current.y - bounds.top + container.scrollTop;
+      const show = pendingShow.current;
+      pendingShow.current = null;
+      if (show && show.el.isConnected) {
+        const square = show.el.getBoundingClientRect();
+        setTooltip({
+          task: show.task,
+          trial: show.trial,
+          x,
+          y,
+          hx: square.left - bounds.left + container.scrollLeft,
+          hy: square.top - bounds.top + container.scrollTop,
+          hw: square.width,
+          hh: square.height,
+        });
+        setTipOpen(true);
+      } else {
+        setTooltip((prev) =>
+          prev && (prev.x !== x || prev.y !== y) ? { ...prev, x, y } : prev,
+        );
+      }
+    });
+  }, []);
+  useEffect(() => () => cancelAnimationFrame(hoverRaf.current), []);
+
+  const showTooltip = useCallback(
+    (event: React.MouseEvent<SVGElement>, task: string, trial: WaffleTrial) => {
+      hoverPoint.current = { x: event.clientX, y: event.clientY };
+      pendingShow.current = { el: event.currentTarget as Element, task, trial };
+      scheduleHover();
     },
-    [],
+    [scheduleHover],
   );
 
   // Keeps the anchor under the cursor while crossing the gaps between
   // squares, so the tooltip glides instead of flickering closed. WaffleSvg
   // only calls this while the cursor is inside the squares' perimeter.
-  // Coalesced to one state update per frame; unthrottled moves force a
-  // layout reflow per event, which lags on versions with many trials.
-  const moveRaf = useRef(0);
-  const movePoint = useRef({ x: 0, y: 0 });
-  const moveTooltip = useCallback((event: React.MouseEvent<SVGElement>) => {
-    movePoint.current = { x: event.clientX, y: event.clientY };
-    if (moveRaf.current) return;
-    moveRaf.current = requestAnimationFrame(() => {
-      moveRaf.current = 0;
-      const container = scrollRef.current;
-      if (!container) return;
-      const bounds = container.getBoundingClientRect();
-      const x = movePoint.current.x - bounds.left + container.scrollLeft;
-      const y = movePoint.current.y - bounds.top + container.scrollTop;
-      setTooltip((prev) =>
-        prev && (prev.x !== x || prev.y !== y) ? { ...prev, x, y } : prev,
-      );
-    });
-  }, []);
-  useEffect(() => () => cancelAnimationFrame(moveRaf.current), []);
+  const moveTooltip = useCallback(
+    (event: React.MouseEvent<SVGElement>) => {
+      hoverPoint.current = { x: event.clientX, y: event.clientY };
+      scheduleHover();
+    },
+    [scheduleHover],
+  );
 
-  const hideTooltip = useCallback(() => setTipOpen(false), []);
+  const hideTooltip = useCallback(() => {
+    pendingShow.current = null;
+    setTipOpen(false);
+  }, []);
 
   if (isPending) {
     return (
