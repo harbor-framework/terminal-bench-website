@@ -41,7 +41,7 @@ We noticed that Sonnet 5 sometimes hit timeouts and output-token-exceeded errors
 
 ## Removing and fixing tasks
 
-We removed 8 tasks: for saturation (2), refusals (2), public solutions (2), and unresolved quality or platform-compatibility issues (2). We considered a task "saturated" when all classes within all families of the latest generation of models solve it 5/5 times — such a task no longer meaningfully differentiates between models. We fixed 19 tasks, updating instructions, environments, and verifiers to address flakiness or misspecification reported by users or found in our leaderboard runs.
+We removed 8 tasks: for saturation (2), refusals (2), public solutions (2), and unresolved quality or platform-compatibility issues (2). We considered a task "saturated" when all classes within all families of the latest generation of models solve it 5/5 times. Such a task no longer meaningfully differentiates between models. We fixed 19 tasks, updating instructions, environments, and verifiers to address flakiness or misspecification reported by users or found in our leaderboard runs.
 
 Full details are in the [GitHub release](https://github.com/harbor-framework/terminal-bench/releases/tag/v4.0.0) and each individual task's README changelog.
 
@@ -54,7 +54,7 @@ This update included resource changes in the agent environment. It also changed 
 <figure className="my-8">
   <img
     src="/blog/terminal-bench-4-0/versioning-light.svg"
-    alt="Semantic versioning for benchmarks: incrementing x in (x, y, z) means rerun — agent-environment changes like new tasks, prompt fixes, data and tool modifications, or agent resource adjustments; incrementing y means regrade — verifier changes like fixing overly-strict verifiers, eliminating reward hacks, or re-tuning a judge; incrementing z means reuse — metadata changes like documentation updates, oracle-flakiness fixes, or pinning moving dependencies"
+    alt="Semantic versioning for benchmarks: incrementing x in (x, y, z) means rerun: agent-environment changes like new tasks, prompt fixes, data and tool modifications, or agent resource adjustments; incrementing y means regrade: verifier changes like fixing overly-strict verifiers, eliminating reward hacks, or re-tuning a judge; incrementing z means reuse: metadata changes like documentation updates, oracle-flakiness fixes, or pinning moving dependencies"
     className="dark:hidden"
   />
   <img
@@ -91,7 +91,7 @@ You can see how we triaged issues (validated each as a true or false positive) a
 
 The milestones for upcoming releases are live:
 
-- [Terminal-Bench 4.1](https://github.com/harbor-framework/terminal-bench/milestone/2): verifier improvements (e.g. hardening against tampering when executing agent code)
+- [Terminal-Bench 4.1](https://github.com/harbor-framework/terminal-bench/milestone/2): verifier improvements (e.g. tamper-resistant verifiers)
 - [Terminal-Bench 5.0](https://github.com/harbor-framework/terminal-bench/milestone/3): new tasks
 
 You are welcome to participate by reporting task issues or coming up with new tasks (the bar is very, very high)!
