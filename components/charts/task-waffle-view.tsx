@@ -397,13 +397,14 @@ const WaffleSvg = memo(function WaffleSvg({
   let fontSm = 11;
   let scale = 1;
   for (let iter = 0; iter < 4; iter++) {
-    SW = Math.max(4, Math.round(12 * scale));
+    SW = Math.min(12, Math.max(5, Math.round(12 * scale) + 1));
     SGAP = Math.max(1, Math.round(2.5 * scale));
     MG = Math.max(8, Math.round(18 * scale));
-    RH = Math.max(8, Math.round(20 * scale));
-    HEAD = Math.max(34, Math.round(48 * scale));
+    RH = Math.max(SW + SGAP, Math.round(20 * scale));
     domGap = Math.max(10, Math.round(24 * scale));
-    fontSm = Math.max(6.5, Math.min(11, RH - 3));
+    fontSm = Math.min(11, Math.max(7, SW));
+    // Two header text lines plus tight top/bottom clearance.
+    HEAD = Math.round(2 * fontSm + 16);
     const pitchYEst = SW + SGAP;
     const gutEst =
       mode === "task"
@@ -498,14 +499,14 @@ const WaffleSvg = memo(function WaffleSvg({
       const label = (
         <text
           x={cx}
-          y={HEAD - 26}
+          y={HEAD - (fontSm + 9)}
           textAnchor="middle"
           fontSize={fontSm}
           className="fill-foreground"
         >
           {truncate(column.model)}
           {column.agent ? (
-            <tspan x={cx} dy={14} className="fill-muted-foreground">
+            <tspan x={cx} dy={fontSm + 3} className="fill-muted-foreground">
               {truncate(column.agent)}
             </tspan>
           ) : null}
