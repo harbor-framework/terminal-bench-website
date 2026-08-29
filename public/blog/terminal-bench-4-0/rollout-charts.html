@@ -110,10 +110,10 @@
   .row-hit{fill:transparent;outline:none;}
   .row-hit:focus,.row-hit:focus-visible{outline:none;}
   .row-wash{fill:#1a1a18;pointer-events:none;}
-  .wlegend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;
-    margin-bottom:14px;font-size:12px;color:var(--muted);}
-  .wlegend .lg{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
-  .wlegend .sw{width:12px;height:12px;display:inline-block;}
+  .wlegend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;
+    margin-bottom:14px;font-size:11px;color:var(--muted);}
+  .wlegend .lg{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;}
+  .wlegend .sw{width:11px;height:11px;display:inline-block;}
   .wgrid{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start;}
   @media (max-width:640px){.wgrid{grid-template-columns:1fr;}}
   .wcol .wlabel{font-size:12.5px;color:var(--mark);letter-spacing:.02em;margin-bottom:10px;}
@@ -1039,9 +1039,6 @@
       lg.appendChild(document.createTextNode(name));
       legendW.appendChild(lg);
     });
-    const note = document.createElement('span');
-    note.textContent = 'each square is one trial - click to view';
-    legendW.appendChild(note);
 
     function showWaffleTip(data, task, tr, cx, cy) {
       tip.textContent = '';
