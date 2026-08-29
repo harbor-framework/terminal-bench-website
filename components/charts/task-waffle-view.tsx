@@ -420,12 +420,9 @@ const WaffleSvg = memo(function WaffleSvg({
       const perLineEst = perLineFor(m);
       let est = HEAD + 10;
       if (m === "task") {
-        for (const row of matrix.tasks) {
-          const slots = row.cells.reduce((sum, cell) => sum + cell.length, 0);
-          const lines =
-            g === "outcome" ? Math.max(1, Math.ceil(slots / perLineEst)) : 1;
-          est += Math.max(RH, lines * pitchYEst);
-        }
+        // Task rows never wrap (outcome mode scrolls horizontally instead),
+        // so every group renders one line per task.
+        est += matrix.tasks.length * Math.max(RH, pitchYEst);
       } else {
         matrix.domains.forEach((domain, index) => {
           const slots = domain.cells.reduce(
@@ -487,7 +484,10 @@ const WaffleSvg = memo(function WaffleSvg({
     (row) => row.cells.reduce((sum, cell) => sum + cell.length, 0),
   );
   const maxOutcomeCount = Math.max(1, ...outcomeCounts, 1);
-  const perLine = Math.min(perLineCap, maxOutcomeCount);
+  // Task rows keep every trial on one line and scroll horizontally when the
+  // run outgrows the container; only domain rows wrap to the container width.
+  const perLine =
+    mode === "task" ? maxOutcomeCount : Math.min(perLineCap, maxOutcomeCount);
   const plotW = group === "outcome" ? perLine * (SW + SGAP) - SGAP : modelPlotW;
 
   const RPAD =
