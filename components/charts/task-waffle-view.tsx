@@ -522,7 +522,7 @@ const WaffleSvg = memo(function WaffleSvg({
         >
           {truncate(column.model)}
           {column.agent ? (
-            <tspan x={cx} dy={fontSm + 3} className="fill-muted-foreground">
+            <tspan x={cx} dy={fontSm + 1} className="fill-muted-foreground">
               {truncate(column.agent)}
             </tspan>
           ) : null}
