@@ -543,10 +543,13 @@
                      glm53: 'glm', sol: 'openai', terra: 'openai', luna: 'openai',
                      grok45: 'grok', grok46: 'grok' };
     function rampSync() {
-      const ramp = RAMPS[FAMILY[PHASES[phaseIdx].key]] || RAMPS.grok;
+      const key = PHASES[phaseIdx].key;
+      const ramp = RAMPS[FAMILY[key]] || RAMPS.grok;
       const rootStyle = document.documentElement.style;
       rootStyle.setProperty('--p-setup', ramp[1]);
-      rootStyle.setProperty('--p-exec', ramp[2]);
+      // Agent execution uses the model's series color from the rollout
+      // and pareto charts.
+      rootStyle.setProperty('--p-exec', COLORS[key] || ramp[2]);
     }
     let phaseIdx = Math.max(0, PHASES.findIndex(
       j => j.key === new URLSearchParams(location.search).get('model')));
