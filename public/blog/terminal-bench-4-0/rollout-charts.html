@@ -1138,7 +1138,7 @@
       legendW.appendChild(lg);
     });
 
-    function showWaffleTip(data, task, tr, cx, cy) {
+    function showWaffleTip(data, task, tr, cx, cy, mirror) {
       tip.textContent = '';
       tip.classList.remove('wide');
       tip.appendChild(div('t-title', task.t));
@@ -1154,8 +1154,11 @@
       tip.style.opacity = '1';
       tip.setAttribute('aria-hidden', 'false');
       const tw = tip.offsetWidth, th = tip.offsetHeight;
-      let tx = cx + 14, ty = cy + 14;
-      if (tx + tw > window.innerWidth - 8) tx = cx - tw - 14;
+      // The right grid mirrors the offset so its tooltip opens leftward.
+      let tx = mirror ? cx - tw - 14 : cx + 14;
+      let ty = cy + 14;
+      if (mirror && tx < 8) tx = cx + 14;
+      if (!mirror && tx + tw > window.innerWidth - 8) tx = cx - tw - 14;
       if (ty + th > window.innerHeight - 8) ty = cy - th - 14;
       tip.style.left = Math.max(8, tx) + 'px';
       tip.style.top = Math.max(8, ty) + 'px';
@@ -1280,7 +1283,7 @@
         col.hl.setAttribute('width', g.sq);
         col.hl.setAttribute('height', g.sq);
         col.hl.setAttribute('visibility', 'visible');
-        showWaffleTip(data, found.task, found.tr, e.clientX, e.clientY);
+        showWaffleTip(data, found.task, found.tr, e.clientX, e.clientY, col.mirror);
       });
       hit.addEventListener('pointerleave', clearHover);
       hit.addEventListener('click', e => {
@@ -1297,7 +1300,7 @@
     }
 
     setupCol({ data: WAFFLE4, hit: document.getElementById('whit4'), svg: document.getElementById('wsvg4') });
-    setupCol({ data: WAFFLE3, hit: document.getElementById('whit3'), svg: document.getElementById('wsvg3') });
+    setupCol({ data: WAFFLE3, hit: document.getElementById('whit3'), svg: document.getElementById('wsvg3'), mirror: true });
     let wraf = 0;
     new ResizeObserver(() => { cancelAnimationFrame(wraf); wraf = requestAnimationFrame(drawAll); }).observe(gridEl);
     drawAll();
