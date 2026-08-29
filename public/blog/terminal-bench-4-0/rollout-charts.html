@@ -1028,13 +1028,13 @@
     // error. Series stay family ramps (oranges, teals, purple, grays).
     const OUTS = [
       ['pass', 'var(--mark)', 1],
-      ['timeout', '#e3b341', 1],
+      ['timeout', '#a8571f', 1],
       ['error', '#e5484d', 1],
       ['fail', 'var(--mark)', 0.12]
     ];
     const OUT_WORD = ['pass', 'timeout', 'error', 'fail'];
     const legendW = document.querySelector('#waffles-card .wlegend');
-    const SWATCH = ['#e4e4de', '#e3b341', '#e5484d', '#1b1b1b'];
+    const SWATCH = ['#e4e4de', '#a8571f', '#e5484d', '#1b1b1b'];
     OUTS.forEach(([name], oi) => {
       const lg = document.createElement('span');
       lg.className = 'lg';
