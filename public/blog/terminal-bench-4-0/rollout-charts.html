@@ -128,6 +128,30 @@
   .embed-light .sw-fixed,
   .embed-light .tip{filter:invert(1) hue-rotate(180deg);}
 </style>
+<script>
+// Runs before first paint to avoid a color flicker on load: guesses the
+// embed theme from the OS (the parent's postMessage corrects it if the
+// site toggle disagrees) and pre-sets the trial-time phase colors for
+// the selected model.
+(function () {
+  try {
+    if (matchMedia('(prefers-color-scheme: light)').matches)
+      document.documentElement.classList.add('embed-light');
+    var C = { opus5: '#a8571f', opus48: '#d4732b', sonnet5: '#f0904a',
+      fable5: '#ffb27a', glm53: '#b48ae8', sol: '#2e9683', terra: '#4fb8a6',
+      luna: '#8fe0d0', grok45: '#e8e8e2', grok46: '#78786f' };
+    var F = { opus5: 'claude', opus48: 'claude', sonnet5: 'claude',
+      fable5: 'claude', glm53: 'glm', sol: 'openai', terra: 'openai',
+      luna: 'openai', grok45: 'grok', grok46: 'grok' };
+    var R = { claude: '#ffab6e', glm: '#c2a0ee', openai: '#8fe0d0', grok: '#b4b4ae' };
+    var m = new URLSearchParams(location.search).get('model') || 'opus5';
+    if (C[m]) {
+      document.documentElement.style.setProperty('--p-exec', C[m]);
+      document.documentElement.style.setProperty('--p-setup', R[F[m]]);
+    }
+  } catch (e) { /* defaults stand */ }
+})();
+</script>
 </head>
 <body>
 <div class="card" id="rollout-card">
