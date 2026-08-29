@@ -662,7 +662,14 @@
         for (const [key, , cls] of PH) {
           const w = x(d[key]);
           if (w > 0.5) {
-            g.appendChild(el('rect', { x: cx, y: by, width: Math.max(w, 1), height: barH, class: 'cell ' + cls }));
+            if (cls === 'seg-verif') {
+              // Inset by half the stroke so the border sits inside the bar.
+              const vw = Math.max(w, 1);
+              g.appendChild(el('rect', { x: cx + 0.5, y: by + 0.5,
+                width: Math.max(vw - 1, 0.5), height: barH - 1, class: 'cell ' + cls }));
+            } else {
+              g.appendChild(el('rect', { x: cx, y: by, width: Math.max(w, 1), height: barH, class: 'cell ' + cls }));
+            }
             cx += w;
           }
         }
