@@ -71,14 +71,19 @@
   .tip .t-sub b.z{color:var(--muted);}
   .dd{position:relative;}
   .head-right{display:inline-flex;align-items:center;gap:14px;}
+  .expand-btn{display:block;margin:12px auto 0;background:transparent;border:0;
+    font-family:var(--font);font-size:11px;color:var(--muted);cursor:pointer;
+    letter-spacing:.02em;padding:4px 8px;}
+  .expand-btn:hover{color:var(--ink);text-decoration:underline;}
+  .expand-btn:focus-visible{outline:1px solid var(--ink);outline-offset:2px;}
   .dd-btn{font-family:var(--font);font-size:11px;color:var(--ink);cursor:pointer;
     background:var(--card);border:1px solid rgba(255,255,255,.15);border-radius:0;
-    height:24px;padding:0 10px;line-height:1.2;
-    display:inline-flex;align-items:center;}
+    height:24px;padding:0 6px 0 10px;line-height:1.2;
+    display:inline-flex;align-items:center;gap:5px;}
   .dd-btn:hover{background:#141414;}
   .dd-btn:focus-visible{outline:1px solid var(--ink);outline-offset:2px;}
   .dd-chev{display:inline-flex;color:var(--muted);}
-  .dd-chev svg{width:16px;height:16px;}
+  .dd-chev svg{width:14px;height:14px;display:block;}
   .dd-menu{position:absolute;right:0;top:calc(100% + 4px);z-index:5;min-width:100%;
     background:var(--card);border:1px solid rgba(255,255,255,.15);border-radius:0;
     overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.5);}
@@ -537,6 +542,10 @@
     ddBtn.setAttribute('aria-expanded', 'false');
     const ddLabel = document.createElement('span');
     ddBtn.appendChild(ddLabel);
+    const chev = document.createElement('span');
+    chev.className = 'dd-chev';
+    chev.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>';
+    ddBtn.appendChild(chev);
 
     dd.appendChild(ddBtn);
     const ddMenu = document.createElement('div');
@@ -555,6 +564,16 @@
     const psvg = el('svg', { role: 'img',
       'aria-label': 'trial time per task, stacked by phase' });
     sec.appendChild(psvg);
+    const TOP_N = 20;
+    let expanded = false;
+    const expandBtn = document.createElement('button');
+    expandBtn.type = 'button';
+    expandBtn.className = 'expand-btn';
+    expandBtn.addEventListener('click', () => {
+      expanded = !expanded;
+      drawPhases();
+    });
+    sec.appendChild(expandBtn);
     phRoot.appendChild(sec);
 
     const RAMPS = {
@@ -623,7 +642,11 @@
       const SQW = 44;
       const gx = labelW;
       const iw = Math.max(40, width - labelW - valueW - SQW - 14);
-      const ih = rowH * job.items.length;
+      const items = expanded ? job.items : job.items.slice(0, TOP_N);
+      expandBtn.textContent = expanded
+        ? 'show top ' + TOP_N + ' tasks'
+        : 'show all ' + job.items.length + ' tasks';
+      const ih = rowH * items.length;
       const height = top + ih + bottom;
       psvg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
       psvg.setAttribute('height', height);
@@ -651,7 +674,7 @@
       psvg.appendChild(trHdr);
 
       const maxChars = Math.floor(labelW / 6.6);
-      job.items.forEach((d, i) => {
+      items.forEach((d, i) => {
         const ry = top + i * rowH;
         const by = ry + (rowH - barH) / 2;
         const g = el('g', {});
