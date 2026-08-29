@@ -1136,11 +1136,11 @@
       col.hl = el('rect', { fill: 'none', stroke: 'var(--mark)',
         'stroke-width': 0.9, visibility: 'hidden', class: 'cell' });
       svg.appendChild(col.hl);
-      // Center the version label over the squares, not the task labels.
+      // Right-align the version label on the squares' right edge.
       const head = col.wcol.querySelector('.wlabel');
       if (head) {
         head.style.marginLeft = g.labelW + 'px';
-        head.style.textAlign = 'center';
+        head.style.textAlign = 'right';
       }
     }
 
