@@ -226,7 +226,6 @@ function SortableHeader({
 }
 
 const HIDDEN_TABLE_COLUMN_IDS = new Set(['reasoning_effort']);
-const EXPORT_FILE_BASENAME = 'terminal-bench-4-leaderboard';
 const LEADERBOARD_EXPORT_TARGET_ID = 'terminal-bench-leaderboard-export';
 
 function displayColumnHeader(column: LeaderboardColumn): string {
@@ -699,7 +698,7 @@ export function LeaderboardTable() {
           <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-1.5">
             <ViewExportActions
               targetId={LEADERBOARD_EXPORT_TARGET_ID}
-              fileBaseName={EXPORT_FILE_BASENAME}
+              fileBaseName={`terminal-bench-${benchmark.id}-leaderboard`}
               getMarkdown={() =>
                 buildMarkdownTable(
                   filteredRows,

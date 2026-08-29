@@ -41,7 +41,6 @@ import { useRowJobIds } from '@/lib/row-jobs';
 
 const parseParetoXAxis = parseAsStringLiteral(PARETO_X_AXIS_IDS);
 const PARETO_EXPORT_TARGET_ID = 'terminal-bench-pareto-export';
-const PARETO_EXPORT_FILE_BASENAME = 'terminal-bench-4-pareto';
 const PARETO_CAPTIONS: Record<(typeof PARETO_X_AXIS_IDS)[number], string> = {
   cost: 'against total cost, summed across all trials.',
   tokens:
@@ -119,7 +118,7 @@ export function ParetoView() {
         <div className="flex items-center justify-between gap-1.5">
           <ViewExportActions
             targetId={PARETO_EXPORT_TARGET_ID}
-            fileBaseName={PARETO_EXPORT_FILE_BASENAME}
+            fileBaseName={`terminal-bench-${benchmark.id}-pareto`}
             getMarkdown={() => ''}
             disabled
           />
@@ -138,7 +137,7 @@ export function ParetoView() {
         <div className="flex items-center justify-between gap-1.5">
           <ViewExportActions
             targetId={PARETO_EXPORT_TARGET_ID}
-            fileBaseName={PARETO_EXPORT_FILE_BASENAME}
+            fileBaseName={`terminal-bench-${benchmark.id}-pareto`}
             getMarkdown={() => ''}
             disabled
           />
@@ -156,7 +155,7 @@ export function ParetoView() {
       <div className="flex items-center justify-between gap-1.5">
         <ViewExportActions
           targetId={PARETO_EXPORT_TARGET_ID}
-          fileBaseName={PARETO_EXPORT_FILE_BASENAME}
+          fileBaseName={`terminal-bench-${benchmark.id}-pareto`}
           getMarkdown={() =>
             buildParetoMarkdownTable(chartData, xAxisId, yAxisId)
           }

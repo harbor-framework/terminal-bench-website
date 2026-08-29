@@ -35,7 +35,6 @@ import {
 import type { WafflePayload, WaffleTrial } from '@/lib/waffle';
 
 const WAFFLE_EXPORT_TARGET_ID = 'terminal-bench-waffle-export';
-const WAFFLE_EXPORT_FILE_BASENAME = 'terminal-bench-4-waffle';
 
 const ROW_MODES = ['task', 'domain'] as const;
 type RowMode = (typeof ROW_MODES)[number];
@@ -742,7 +741,7 @@ export function TaskWaffleView() {
         <div className="flex items-center justify-between gap-1.5">
           <ViewExportActions
             targetId={WAFFLE_EXPORT_TARGET_ID}
-            fileBaseName={WAFFLE_EXPORT_FILE_BASENAME}
+            fileBaseName={`terminal-bench-${benchmark.id}-waffle`}
             getMarkdown={() => ''}
             disabled
           />
@@ -761,7 +760,7 @@ export function TaskWaffleView() {
         <div className="flex items-center justify-between gap-1.5">
           <ViewExportActions
             targetId={WAFFLE_EXPORT_TARGET_ID}
-            fileBaseName={WAFFLE_EXPORT_FILE_BASENAME}
+            fileBaseName={`terminal-bench-${benchmark.id}-waffle`}
             getMarkdown={() => ''}
             disabled
           />
@@ -781,7 +780,7 @@ export function TaskWaffleView() {
       <div className="flex items-center justify-between gap-1.5">
         <ViewExportActions
           targetId={WAFFLE_EXPORT_TARGET_ID}
-          fileBaseName={WAFFLE_EXPORT_FILE_BASENAME}
+          fileBaseName={`terminal-bench-${benchmark.id}-waffle`}
           getMarkdown={() => buildWaffleMarkdownTable(snapshot?.data ?? data)}
         />
         <div className="flex min-w-0 items-center gap-1.5">
