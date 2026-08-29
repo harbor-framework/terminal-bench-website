@@ -1,6 +1,4 @@
-import { Terminal, Atom, Github, Users, Mail, Calendar } from "lucide-react";
-
-const scienceColor = "#038F99";
+import { Github, Users, Mail, Calendar } from "lucide-react";
 
 const links = {
   github: "https://github.com/harbor-framework/terminal-bench-science",
@@ -13,28 +11,7 @@ const links = {
 export function TbScienceLogo() {
   return (
     <div className="not-prose flex flex-col items-center my-8">
-      <div className="flex items-center gap-3">
-        <div className="relative flex items-center justify-center">
-          <Terminal className="size-12 sm:size-14" style={{ color: scienceColor }} />
-          <Atom
-            className="absolute top-1 right-1 size-5 sm:size-6"
-            style={{ color: scienceColor }}
-            strokeWidth={2.5}
-          />
-        </div>
-        <div className="flex flex-col gap-0 leading-none">
-          <p className="font-mono text-2xl font-medium tracking-tight sm:text-3xl text-foreground">
-            terminal-bench
-          </p>
-          <p
-            className="font-mono text-2xl font-medium tracking-tight -mt-1 sm:text-3xl"
-            style={{ color: scienceColor }}
-          >
-            science
-          </p>
-        </div>
-      </div>
-      <div className="flex items-center gap-4 mt-4">
+      <div className="flex items-center gap-4">
         <a
           href={links.github}
           target="_blank"
