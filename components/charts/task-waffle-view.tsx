@@ -332,6 +332,7 @@ function MatrixCell({
         strokeWidth={0.9}
         shapeRendering="crispEdges"
         onMouseEnter={(event) => onTrialMove(event, slot.task, slot.trial)}
+        onMouseMove={(event) => onTrialMove(event, slot.task, slot.trial)}
         onMouseLeave={onTrialLeave}
       />
     );
@@ -733,13 +734,12 @@ export function TaskWaffleView() {
   ) {
     const container = scrollRef.current;
     if (!container) return;
-    const square = (event.currentTarget as Element).getBoundingClientRect();
     const bounds = container.getBoundingClientRect();
     setTooltip({
       task,
       trial,
-      x: square.left + square.width / 2 - bounds.left + container.scrollLeft,
-      y: square.top - bounds.top + container.scrollTop,
+      x: event.clientX - bounds.left + container.scrollLeft,
+      y: event.clientY - bounds.top + container.scrollTop,
     });
     setTipOpen(true);
   }
@@ -893,8 +893,10 @@ export function TaskWaffleView() {
                   }}
                 />
                 <TooltipContent
-                  side="top"
+                  side="bottom"
+                  align="start"
                   sideOffset={10}
+                  alignOffset={18}
                   variant="chart"
                   className="pointer-events-none min-w-40"
                 >

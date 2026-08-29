@@ -458,7 +458,10 @@ export function ParetoScatterChart({
                       "noopener",
                     )
                   }
-                  onMouseEnter={() => {
+                  onMouseEnter={(event) => {
+                    const svgBounds = (
+                      event.currentTarget as SVGElement
+                    ).ownerSVGElement!.getBoundingClientRect();
                     setActive({
                       id: datum.id,
                       label: [datum.label.model, datum.label.agent]
@@ -470,10 +473,23 @@ export function ParetoScatterChart({
                           ? `\u00b1${datum.yCi.toFixed(1)}%`
                           : null,
                       xValue: xAxis.format(datum.x),
-                      cx,
-                      cy,
+                      cx: event.clientX - svgBounds.left,
+                      cy: event.clientY - svgBounds.top,
                     });
                     setTipOpen(true);
+                  }}
+                  onMouseMove={(event) => {
+                    const svgBounds = (
+                      event.currentTarget as SVGElement
+                    ).ownerSVGElement!.getBoundingClientRect();
+                    setActive(
+                      (prev) =>
+                        prev && {
+                          ...prev,
+                          cx: event.clientX - svgBounds.left,
+                          cy: event.clientY - svgBounds.top,
+                        },
+                    );
                   }}
                   onMouseLeave={() => setTipOpen(false)}
                 />
@@ -541,8 +557,10 @@ export function ParetoScatterChart({
             }}
           />
           <TooltipContent
-            side="top"
+            side="bottom"
+            align="start"
             sideOffset={10}
+            alignOffset={18}
             variant="chart"
             className="pointer-events-none min-w-40"
           >
