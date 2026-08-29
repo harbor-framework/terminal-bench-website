@@ -106,7 +106,7 @@ const BENCHMARKS: Benchmark[] = [
     description:
       'A benchmark for evaluating AI agents on research workflows across scientific domains.',
     links: [
-      { label: 'Blog', href: '/news/tb-science-announcement' },
+      { label: 'Blog', href: '/news/terminal-bench-science-0-1' },
       {
         label: 'Leaderboard',
         href: 'https://hub.harborframework.com/datasets/terminal-bench-science/terminal-bench-science/10?tab=leaderboard&leaderboard=v0-1-eval',

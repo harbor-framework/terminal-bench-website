@@ -24,7 +24,7 @@ export default async function BlogPostPage({ params }: PageProps) {
   const Mdx = page.data.body;
   const isTerminalBenchAnnouncement = page.slugs[0] === 'terminal-bench-3-0';
   const isTerminalBenchScienceAnnouncement =
-    page.slugs[0] === 'tb-science-announcement';
+    page.slugs[0] === 'terminal-bench-science-0-1';
 
   if (isTerminalBenchAnnouncement) {
     return (

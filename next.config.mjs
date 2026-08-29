@@ -116,6 +116,13 @@ const config = {
         destination: '/run',
         permanent: false,
       },
+      // The science release post took over this slug; the original
+      // contribution call lives at its own slug now.
+      {
+        source: '/news/tb-science-announcement',
+        destination: '/news/tbsci-contribution-call',
+        permanent: true,
+      },
       // Science contributors live on the science site.
       {
         source: '/contributors/terminal-bench-science',
