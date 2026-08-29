@@ -1,28 +1,108 @@
 ---
 title: Terminal-Bench 4.0
 description: Calibrating task resources, fixing tasks, and removing saturated tasks
-authors: [
-  {
-    name: "Ryan Marten",
-    url: "https://github.com/ryanmarten",
-  },
-]
+authors: [{ name: "Ryan Marten", url: "https://github.com/ryanmarten" }]
 date: 2026-08-28
 category: "Release"
 ---
 
-{/* The chart page is dark by design; in light mode invert+hue-rotate
-    approximates a light theme while keeping the accent hues. */}
-<iframe
-  src="/blog/terminal-bench-4-0/rollout-charts.html"
-  title="Terminal-Bench 4.0 rollout charts"
-  className="invert hue-rotate-180 dark:invert-0 dark:hue-rotate-0"
-  style={{ width: '100%', height: '2530px', border: 0, overflow: 'hidden' }}
-  scrolling="no"
-  loading="lazy"
+import { ChartFrame } from "@/components/blog/chart-frame";
+
+We've pushed a version update to the Terminal-Bench dataset and leaderboard. Terminal-Bench 4.0 calibrates task resources (time, CPU, memory), implements task fixes, and removes saturated tasks.
+
+TB 4.0 has fewer agent timeouts and errors than 3.0, reducing measurement noise. The remaining errors in 4.0 are largely model refusals and output-token-exceeded errors. The tasks represent a wide spread of difficulty.
+
+<ChartFrame
+  chart="waffles"
+  title="Trials by task and outcome: Terminal-Bench 4.0 vs 3.0"
+  initialHeight={900}
 />
 
-<div className="text-sm text-muted-foreground">
-  Everything in this blog post is derived from{' '}
-  <a href="https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/latest?tab=leaderboard&leaderboard=4-0-0">Terminal-Bench 4.0 data</a> stored on the Harbor Hub
-</div>
+## Calibrating resources
+
+To calibrate resources we followed the methodology outlined in [Quantifying infrastructure noise in agentic coding evals](https://www.anthropic.com/engineering/infrastructure-noise). By running the tasks with a large amount of resource headroom, we can select a reasonable setting that does not impact the final metrics.
+
+All tasks in TB 4.0 are now set to a flat agent timeout of 8 hours. Frontier models never or rarely encounter timeouts now.
+
+<ChartFrame
+  chart="rollout"
+  title="Cumulative rollout completion on Terminal-Bench 4.0"
+  initialHeight={560}
+/>
+
+We noticed that Sonnet 5 sometimes hit timeouts and output-token-exceeded errors. The model uses large amounts of tokens (21.6B on its leaderboard run vs 6.5B for Opus 5) and struggles to stay within its max output tokens. We did not enable the 128k max-output-tokens setting, which may help with this. Regardless, we observed large variance in agent execution time for Sonnet 5.
+
+<ChartFrame
+  chart="trialtime"
+  model="sonnet5"
+  title="Trial time per task, Sonnet 5 selected"
+  initialHeight={1500}
+/>
+
+## Removing and fixing tasks
+
+We removed 8 tasks: for saturation (2), refusals (2), public solutions (2), and unresolved quality or platform-compatibility issues (2). We considered a task "saturated" when all classes within all families of the latest generation of models solve it 5/5 times — such a task no longer meaningfully differentiates between models. We fixed 19 tasks, updating instructions, environments, and verifiers to address flakiness or misspecification reported by users or found in our leaderboard runs.
+
+Full details are in the [GitHub release](https://github.com/harbor-framework/terminal-bench/releases/tag/v4.0.0) and each individual task's README changelog.
+
+## Versioning Terminal-Bench
+
+Why is this 4.0 instead of 3.1? Terminal-Bench is now a [continuous benchmark](/news/continuous-benchmarks) and versioning is now semantic.
+
+This update included resource changes in the agent environment. It also changed the task set by removing saturated tasks. These represent breaking changes that require re-running trials.
+
+<figure className="my-8">
+  <img
+    src="/blog/terminal-bench-4-0/versioning-light.svg"
+    alt="Semantic versioning for benchmarks: incrementing x in (x, y, z) means rerun — agent-environment changes like new tasks, prompt fixes, data and tool modifications, or agent resource adjustments; incrementing y means regrade — verifier changes like fixing overly-strict verifiers, eliminating reward hacks, or re-tuning a judge; incrementing z means reuse — metadata changes like documentation updates, oracle-flakiness fixes, or pinning moving dependencies"
+    className="dark:hidden"
+  />
+  <img
+    src="/blog/terminal-bench-4-0/versioning-dark.svg"
+    alt=""
+    aria-hidden="true"
+    className="hidden dark:block"
+  />
+</figure>
+
+In the short term, this might be confusing as the community is used to major version updates being "sequels". However, building benchmarks from scratch is enormously challenging, and benchmarks are complex simulations that contain bugs and need to be maintained. We think continuously updating, pruning, and adding tasks is ultimately a better strategy for building benchmarks.
+
+## Current results
+
+Terminal-Bench 4.0 is built on the [Harbor framework](https://www.harborframework.com/) and is available on the [Harbor Hub](https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/4):
+
+```bash
+harbor run -d terminal-bench/terminal-bench@4.0.0
+```
+
+There is still lots of room to improve on both cost and performance for TB 4.0, but our work does not stop here. We are looking for more difficult, diverse, and high-quality tasks.
+
+<ChartFrame
+  chart="costpareto"
+  title="Resolution rate vs cost on Terminal-Bench 4.0"
+  initialHeight={470}
+/>
+
+## Improving Terminal-Bench
+
+Everything we do is in the open.
+
+You can see how we triaged issues (validated each as a true or false positive) and implemented and reviewed fixes in the [v4.0 milestone](https://github.com/harbor-framework/terminal-bench/milestone/1?closed=1).
+
+The milestones for upcoming releases are live:
+
+- [Terminal-Bench 4.1](https://github.com/harbor-framework/terminal-bench/milestone/2): verifier improvements, e.g. hardening against in-process tampering when executing agent code
+- [Terminal-Bench 5.0](https://github.com/harbor-framework/terminal-bench/milestone/3): new tasks
+
+You are welcome to participate by reporting task issues or coming up with new tasks (the bar is very, very high)!
+
+## Acknowledgements
+
+Thank you to the community, task authors, senior reviewers, and supporting organizations who opened task issues, created task fixes, and reviewed task fixes: Justin Bauer, Björn Plüster, Dariush Wahdany, Jiajun Bao, Kobe Chen, Emmy Liu, Raj Movva, Tommaso Cerruti, Stephen Benjamin, Mikhail Liamets, Ivan Bercovich, Benedikt Droste, Steven Dillmann, Ruiyang Wang, Allen Hart, Karl Krauth, Aaron Feller, Christine Sutcliffe, Jialin Ouyang, Josh Viktorov, Boxuan Li, Haowei Lin, Maksim Ivanov, Shengrui Lyu, Sherif Armanyous, Shivank Garg, Sergey Bogdanik, Walker Hughes, Bespoke Labs, Turing, ellamind AI, gNucleus AI, Scale AI, and Snorkel AI.
+
+The leaderboard experiments are supported with grants from OpenAI, Anthropic, Z.ai, SpaceX AI, and Laude Institute.
+
+Special thanks to Gian Segato, who devised the resource calibration methodology and ran the calibration experiments!
+
+{/* prettier-ignore */}
+<div className="text-sm text-muted-foreground">Everything in this blog post is derived from <a href="https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/latest?tab=leaderboard&leaderboard=4-0-0">Terminal-Bench 4.0 data</a> stored on the Harbor Hub</div>
