@@ -71,22 +71,24 @@
   .tip .t-sub b.z{color:var(--muted);}
   .dd{position:relative;}
   .plegend .dd{margin-left:auto;}
-  .dd-btn{font-family:var(--font);font-size:12px;color:var(--ink);cursor:pointer;
-    background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;
-    height:32px;padding:0 8px 0 10px;letter-spacing:.02em;line-height:1.2;
-    display:inline-flex;align-items:center;gap:6px;transition:background .12s;}
-  .dd-btn:hover{background:rgba(255,255,255,.08);}
+  .dd-btn{font-family:var(--font);font-size:14px;color:var(--mark);cursor:pointer;
+    background:#161616;border:1px solid rgba(255,255,255,.15);border-radius:0;
+    height:32px;padding:0 8px 0 10px;text-transform:uppercase;line-height:1.2;
+    display:inline-flex;align-items:center;gap:6px;}
+  .dd-btn:hover{background:#1d1d1d;}
   .dd-btn:focus-visible{outline:1px solid var(--ink);outline-offset:2px;}
   .dd-chev{display:inline-flex;color:var(--muted);}
-  .dd-chev svg{width:14px;height:14px;}
+  .dd-chev svg{width:16px;height:16px;}
   .dd-menu{position:absolute;right:0;top:calc(100% + 4px);z-index:5;min-width:100%;
-    background:var(--card);border:1px solid var(--border);border-radius:8px;
-    padding:4px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.5);}
+    background:rgba(28,28,30,.75);backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.15);border-radius:0;overflow:hidden;
+    box-shadow:0 6px 18px rgba(0,0,0,.5);}
   .dd-menu button{display:block;width:100%;text-align:left;font-family:var(--font);
-    font-size:12px;letter-spacing:.02em;padding:6px 10px;border:0;background:transparent;
-    border-radius:6px;color:var(--ink);cursor:pointer;white-space:nowrap;}
-  .dd-menu button:hover{background:#1a1a18;}
-  .dd-menu button[aria-selected="true"]{color:var(--mark);background:#141412;}
+    font-size:14px;text-transform:uppercase;padding:4px 32px 4px 8px;border:0;
+    background:transparent;border-radius:0;color:var(--mark);cursor:pointer;
+    white-space:nowrap;}
+  .dd-menu button:hover{background:rgba(255,255,255,.08);}
+  .dd-menu button[aria-selected="true"]{background:rgba(255,255,255,.12);}
   .dd-menu button:focus-visible{outline:1px solid var(--ink);outline-offset:-1px;}
   .plegend{display:flex;flex-wrap:wrap;gap:14px;align-items:center;max-width:900px;
     margin:22px auto 10px;font-size:11px;color:var(--muted);padding:0 2px;}
@@ -811,11 +813,15 @@
       for (const p of pts) {
         const px = x(p.hours);
         const dim = p.onFrontier ? 1 : 0.45;
-        const w1 = el('line', { x1: px, x2: px, y1: y(p.pass - p.se), y2: y(p.pass + p.se), class: 'whisker2', opacity: dim });
+        // Snap the 1px whisker lines to the pixel grid; on fractional
+        // coordinates antialiasing halves their apparent intensity.
+        const wx = Math.round(px) + 0.5;
+        const w1 = el('line', { x1: wx, x2: wx, y1: y(p.pass - p.se), y2: y(p.pass + p.se), class: 'whisker2', opacity: dim, 'shape-rendering': 'crispEdges' });
         w1.setAttribute('stroke', COLORS[p.key]);
         svg2.appendChild(w1);
         for (const end of [p.pass - p.se, p.pass + p.se]) {
-          const c = el('line', { x1: px - 3.5, x2: px + 3.5, y1: y(end), y2: y(end), class: 'whisker2', opacity: dim });
+          const wy = Math.round(y(end)) + 0.5;
+          const c = el('line', { x1: wx - 3.5, x2: wx + 3.5, y1: wy, y2: wy, class: 'whisker2', opacity: dim, 'shape-rendering': 'crispEdges' });
           c.setAttribute('stroke', COLORS[p.key]);
           svg2.appendChild(c);
         }
@@ -967,11 +973,15 @@
       for (const p of pts) {
         const px = x(p.cost);
         const dim = p.onFrontier ? 1 : 0.45;
-        const w1 = el('line', { x1: px, x2: px, y1: y(p.pass - p.se), y2: y(p.pass + p.se), class: 'whisker2', opacity: dim });
+        // Snap the 1px whisker lines to the pixel grid; on fractional
+        // coordinates antialiasing halves their apparent intensity.
+        const wx = Math.round(px) + 0.5;
+        const w1 = el('line', { x1: wx, x2: wx, y1: y(p.pass - p.se), y2: y(p.pass + p.se), class: 'whisker2', opacity: dim, 'shape-rendering': 'crispEdges' });
         w1.setAttribute('stroke', COLORS[p.key]);
         svg2.appendChild(w1);
         for (const end of [p.pass - p.se, p.pass + p.se]) {
-          const c = el('line', { x1: px - 3.5, x2: px + 3.5, y1: y(end), y2: y(end), class: 'whisker2', opacity: dim });
+          const wy = Math.round(y(end)) + 0.5;
+          const c = el('line', { x1: wx - 3.5, x2: wx + 3.5, y1: wy, y2: wy, class: 'whisker2', opacity: dim, 'shape-rendering': 'crispEdges' });
           c.setAttribute('stroke', COLORS[p.key]);
           svg2.appendChild(c);
         }
