@@ -291,6 +291,14 @@
     rowsByProvider[prov].appendChild(b);
   }
 
+  // Solid 45%-toward-background shade; translucent layers would stack
+  // where whiskers pass behind boxes.
+  function dimShade(hex) {
+    const n = parseInt(hex.slice(1), 16);
+    const f = c => Math.round(c * 0.45);
+    return 'rgb(' + f(n >> 16 & 255) + ',' + f(n >> 8 & 255) + ',' + f(n & 255) + ')';
+  }
+
   function niceTicks(max, count) {
     const raw = max / count;
     const mag = Math.pow(10, Math.floor(Math.log10(raw)));
@@ -843,21 +851,21 @@
       // whiskers + points
       for (const p of pts) {
         const px = x(p.hours);
-        const dim = p.onFrontier ? 1 : 0.45;
+        const shade = p.onFrontier ? COLORS[p.key] : dimShade(COLORS[p.key]);
         // Snap the 1px whisker lines to the pixel grid; on fractional
         // coordinates antialiasing halves their apparent intensity.
         const wx = Math.round(px) + 0.5;
-        const w1 = el('line', { x1: wx, x2: wx, y1: y(p.pass - p.se), y2: y(p.pass + p.se), class: 'whisker2', opacity: dim, 'shape-rendering': 'crispEdges' });
-        w1.setAttribute('stroke', COLORS[p.key]);
+        const w1 = el('line', { x1: wx, x2: wx, y1: y(p.pass - p.se), y2: y(p.pass + p.se), class: 'whisker2', 'shape-rendering': 'crispEdges' });
+        w1.setAttribute('stroke', shade);
         svg2.appendChild(w1);
         for (const end of [p.pass - p.se, p.pass + p.se]) {
           const wy = Math.round(y(end)) + 0.5;
-          const c = el('line', { x1: wx - 3.5, x2: wx + 3.5, y1: wy, y2: wy, class: 'whisker2', opacity: dim, 'shape-rendering': 'crispEdges' });
-          c.setAttribute('stroke', COLORS[p.key]);
+          const c = el('line', { x1: wx - 3.5, x2: wx + 3.5, y1: wy, y2: wy, class: 'whisker2', 'shape-rendering': 'crispEdges' });
+          c.setAttribute('stroke', shade);
           svg2.appendChild(c);
         }
         const dot = el('rect', { x: px - 4.5, y: y(p.pass) - 4.5, width: 9, height: 9,
-          fill: COLORS[p.key], opacity: dim });
+          fill: shade });
         svg2.appendChild(dot);
       }
 
@@ -1003,21 +1011,21 @@
       // whiskers + points
       for (const p of pts) {
         const px = x(p.cost);
-        const dim = p.onFrontier ? 1 : 0.45;
+        const shade = p.onFrontier ? COLORS[p.key] : dimShade(COLORS[p.key]);
         // Snap the 1px whisker lines to the pixel grid; on fractional
         // coordinates antialiasing halves their apparent intensity.
         const wx = Math.round(px) + 0.5;
-        const w1 = el('line', { x1: wx, x2: wx, y1: y(p.pass - p.se), y2: y(p.pass + p.se), class: 'whisker2', opacity: dim, 'shape-rendering': 'crispEdges' });
-        w1.setAttribute('stroke', COLORS[p.key]);
+        const w1 = el('line', { x1: wx, x2: wx, y1: y(p.pass - p.se), y2: y(p.pass + p.se), class: 'whisker2', 'shape-rendering': 'crispEdges' });
+        w1.setAttribute('stroke', shade);
         svg2.appendChild(w1);
         for (const end of [p.pass - p.se, p.pass + p.se]) {
           const wy = Math.round(y(end)) + 0.5;
-          const c = el('line', { x1: wx - 3.5, x2: wx + 3.5, y1: wy, y2: wy, class: 'whisker2', opacity: dim, 'shape-rendering': 'crispEdges' });
-          c.setAttribute('stroke', COLORS[p.key]);
+          const c = el('line', { x1: wx - 3.5, x2: wx + 3.5, y1: wy, y2: wy, class: 'whisker2', 'shape-rendering': 'crispEdges' });
+          c.setAttribute('stroke', shade);
           svg2.appendChild(c);
         }
         const dot = el('rect', { x: px - 4.5, y: y(p.pass) - 4.5, width: 9, height: 9,
-          fill: COLORS[p.key], opacity: dim });
+          fill: shade });
         svg2.appendChild(dot);
       }
 
