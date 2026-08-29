@@ -20,7 +20,7 @@ export type ContributorHref = (typeof CONTRIBUTOR_RELEASES)[number]["href"];
 
 // The trigger renders as part of the subtitle sentence: same font, no box.
 const TRIGGER_CLASS =
-  "h-auto cursor-pointer gap-0 rounded-none border-0 bg-transparent p-0 [font:inherit] tracking-[inherit] text-foreground [&_svg]:hidden";
+  "h-auto gap-1 rounded-none border-0 bg-transparent p-0 [font:inherit] tracking-[inherit] text-inherit transition-colors hover:text-foreground";
 
 /**
  * The contributors subtitle with an inline version dropdown that navigates
@@ -53,13 +53,13 @@ export function ContributorPicker({
           align="start"
           alignOffset={-6}
           alignItemWithTrigger={false}
-          className="w-fit min-w-0 font-[family-name:var(--font-google-sans-code)]"
+          className="w-[calc(var(--anchor-width)+12px)] min-w-0 font-[family-name:var(--font-google-sans-code)]"
         >
           {CONTRIBUTOR_RELEASES.map((entry) => (
             <SelectItem
               key={entry.href}
               value={entry.href}
-              className="pr-2 text-[1.125rem] tracking-[-0.05em] text-muted-foreground [&>span:last-child]:hidden"
+              className="text-[1.125rem] tracking-[-0.05em] text-muted-foreground"
             >
               {entry.version}
             </SelectItem>
