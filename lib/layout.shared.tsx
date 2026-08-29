@@ -4,8 +4,8 @@ import { appName, gitConfig } from './shared';
 export function baseOptions(): BaseLayoutProps {
   return {
     nav: {
-      // JSX supported
-      title: appName,
+      // Never let the wordmark wrap to two lines.
+      title: <span className="whitespace-nowrap">{appName}</span>,
     },
     links: [
       {
