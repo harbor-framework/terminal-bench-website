@@ -116,7 +116,7 @@ const config = {
         destination: '/run',
         permanent: false,
       },
-      // Contributor releases not on this site.
+      // Science contributors live on the science site.
       {
         source: '/contributors/terminal-bench-science',
         destination: 'https://www.terminal-bench-science.ai/contributors',
@@ -124,11 +124,6 @@ const config = {
       },
       {
         source: '/contributors/terminal-bench-3',
-        destination: '/contributors',
-        permanent: true,
-      },
-      {
-        source: '/contributors/terminal-bench-challenges',
         destination: '/contributors',
         permanent: true,
       },

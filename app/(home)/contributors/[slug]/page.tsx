@@ -1,20 +1,68 @@
-import { CONTRIBUTORS } from '@/app/(home)/contributors/data';
+import { CONTRIBUTORS } from "@/app/(home)/contributors/data";
 import {
-  ContributorReleaseNav,
-  CONTRIBUTOR_RELEASES,
-} from '@/app/(home)/contributors/release-nav';
-import { ContributorsGrid } from '@/components/contributors-grid';
-import { GeistSans } from 'geist/font/sans';
-import { notFound } from 'next/navigation';
+  ContributorPicker,
+  type ContributorHref,
+} from "@/app/(home)/contributors/picker";
+import { ContributorsGrid } from "@/components/contributors-grid";
+import { GeistSans } from "geist/font/sans";
+import { notFound } from "next/navigation";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 const CONTRIBUTORS_DESCRIPTION =
-  'The people and organizations behind Terminal-Bench';
+  "The people and organizations behind Terminal-Bench";
+
+const ROLE_GROUPS = [
+  { role: "Co-Lead", title: "Project Leadership" },
+  { role: "Contributor", title: "Contributors" },
+  { role: "Advisor", title: "Advisors" },
+];
+
+const legacyContributorGroups = ROLE_GROUPS.map((group) => ({
+  title: group.title,
+  contributors: CONTRIBUTORS.filter(
+    (contributor) => contributor.role === group.role,
+  ).map((contributor) => ({
+    name: contributor.name,
+    href: contributor.link,
+  })),
+})).filter((group) => group.contributors.length > 0);
+
+const legacyAcknowledgements = (
+  <div className="mt-10 space-y-4 text-sm text-muted-foreground">
+    <p>
+      Built with support from the Microsoft Grant in Customer Experience
+      Innovation and{" "}
+      <a
+        href="https://www.2077ai.com/"
+        className="text-foreground underline underline-offset-4"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        2077AI
+      </a>
+      .
+    </p>
+    <p>
+      Thanks for feedback from the teams at OpenHands, Anthropic, Cognition,
+      Aider, Goose, Manus, and Replit.
+    </p>
+  </div>
+);
 
 const RELEASES = {
-  'terminal-bench-1': {},
-  'terminal-bench-2': {},
+  "terminal-bench-1": {
+    groups: legacyContributorGroups,
+    acknowledgements: legacyAcknowledgements,
+  },
+  "terminal-bench-2": {
+    groups: legacyContributorGroups,
+    acknowledgements: legacyAcknowledgements,
+  },
+  "terminal-bench-challenges": {
+    groups: legacyContributorGroups,
+    acknowledgements: legacyAcknowledgements,
+  },
 } as const;
 
 type ReleaseSlug = keyof typeof RELEASES;
@@ -28,21 +76,6 @@ function getRelease(slug: string) {
   return null;
 }
 
-const ROLE_GROUPS = [
-  { role: 'Co-Lead', title: 'Project Leadership' },
-  { role: 'Contributor', title: 'Contributors' },
-  { role: 'Advisor', title: 'Advisors' },
-];
-
-const contributorGroups = ROLE_GROUPS.map((group) => ({
-  title: group.title,
-  contributors: CONTRIBUTORS.filter((contributor) => contributor.role === group.role)
-    .map((contributor) => ({
-      name: contributor.name,
-      href: contributor.link,
-    })),
-})).filter((group) => group.contributors.length > 0);
-
 export default async function ContributorsByReleasePage({ params }: PageProps) {
   const { slug } = await params;
   const release = getRelease(slug);
@@ -52,37 +85,18 @@ export default async function ContributorsByReleasePage({ params }: PageProps) {
   return (
     <article
       className={cn(
-        'content-page mx-auto w-full max-w-3xl flex-1 px-4 py-12',
+        "content-page mx-auto w-full max-w-3xl flex-1 px-4 py-12",
         GeistSans.className,
       )}
     >
       <h1>Contributors</h1>
-      <p className="page-subtitle mb-10 mt-2 text-muted-foreground">{CONTRIBUTORS_DESCRIPTION}</p>
-      <ContributorReleaseNav
-        currentHref={`/contributors/${slug}` as (typeof CONTRIBUTOR_RELEASES)[number]['href']}
+      <ContributorPicker
+        currentHref={`/contributors/${slug}` as ContributorHref}
       />
 
-      <ContributorsGrid groups={contributorGroups} />
+      <ContributorsGrid groups={release.groups} />
 
-      <div className="mt-10 space-y-4 text-sm text-muted-foreground">
-        <p>
-          Built with support from the Microsoft Grant in Customer Experience
-          Innovation and{' '}
-          <a
-            href="https://www.2077ai.com/"
-            className="text-foreground underline underline-offset-4"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            2077AI
-          </a>
-          .
-        </p>
-        <p>
-          Thanks for feedback from the teams at OpenHands, Anthropic, Cognition,
-          Aider, Goose, Manus, and Replit.
-        </p>
-      </div>
+      {release.acknowledgements}
     </article>
   );
 }
@@ -98,7 +112,7 @@ export async function generateMetadata({ params }: PageProps) {
   if (!release) return {};
 
   return {
-    title: 'Contributors',
+    title: "Contributors",
     description: CONTRIBUTORS_DESCRIPTION,
   };
 }
