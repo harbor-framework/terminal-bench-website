@@ -328,7 +328,6 @@ function MatrixCell({
         className={OUTCOME_CELL_CLASS[slot.trial.o]}
         shapeRendering="crispEdges"
         onMouseEnter={(event) => onTrialMove(event, slot.task, slot.trial)}
-        onMouseMove={(event) => onTrialMove(event, slot.task, slot.trial)}
       />
     );
     const key = slot.trial.id || `${slot.task}-${index}`;
@@ -721,7 +720,7 @@ function Legend() {
           {OUTCOME_WORD[outcome]}
         </span>
       ))}
-      <span>each square is one trial - click to view</span>
+      <span>each square is one trial</span>
     </div>
   );
 }
@@ -829,14 +828,26 @@ export function TaskWaffleView() {
   // Keeps the anchor under the cursor while crossing the gaps between
   // squares, so the tooltip glides instead of flickering closed. WaffleSvg
   // only calls this while the cursor is inside the squares' perimeter.
+  // Coalesced to one state update per frame; unthrottled moves force a
+  // layout reflow per event, which lags on versions with many trials.
+  const moveRaf = useRef(0);
+  const movePoint = useRef({ x: 0, y: 0 });
   const moveTooltip = useCallback((event: React.MouseEvent<SVGElement>) => {
-    const container = scrollRef.current;
-    if (!container) return;
-    const bounds = container.getBoundingClientRect();
-    const x = event.clientX - bounds.left + container.scrollLeft;
-    const y = event.clientY - bounds.top + container.scrollTop;
-    setTooltip((prev) => prev && { ...prev, x, y });
+    movePoint.current = { x: event.clientX, y: event.clientY };
+    if (moveRaf.current) return;
+    moveRaf.current = requestAnimationFrame(() => {
+      moveRaf.current = 0;
+      const container = scrollRef.current;
+      if (!container) return;
+      const bounds = container.getBoundingClientRect();
+      const x = movePoint.current.x - bounds.left + container.scrollLeft;
+      const y = movePoint.current.y - bounds.top + container.scrollTop;
+      setTooltip((prev) =>
+        prev && (prev.x !== x || prev.y !== y) ? { ...prev, x, y } : prev,
+      );
+    });
   }, []);
+  useEffect(() => () => cancelAnimationFrame(moveRaf.current), []);
 
   const hideTooltip = useCallback(() => setTipOpen(false), []);
 
