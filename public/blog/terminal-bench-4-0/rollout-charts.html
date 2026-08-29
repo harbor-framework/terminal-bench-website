@@ -1072,10 +1072,15 @@
     function drawAll() {
       const G = Math.max(280, Math.floor(gridEl.getBoundingClientRect().width));
       const stacked = G < 560;
-      const labelW = stacked ? 112 : 106;
-      const pitch = stacked
-        ? Math.max(3, Math.floor((G - labelW) / NMAX))
-        : Math.max(3, Math.floor((G - COL_GAP - 2 * labelW) / (N4 + N3)));
+      // Prefer 5px squares (pitch 6); labels take the leftover width, and
+      // pitch steps down only when labels would get too cramped.
+      const calcLabel = pt => stacked
+        ? G - NMAX * pt
+        : Math.floor((G - COL_GAP - (N4 + N3) * pt) / 2);
+      let pitch = 6;
+      let labelW = calcLabel(pitch);
+      while (pitch > 3 && labelW < 56) { pitch--; labelW = calcLabel(pitch); }
+      labelW = Math.max(40, Math.min(labelW, 148));
       const sq = Math.max(2,
         Math.min(Math.round(pitch * (12 / 14.5)), pitch - 1));
       const gap = pitch - sq;
