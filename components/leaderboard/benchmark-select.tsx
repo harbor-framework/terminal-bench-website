@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { parseAsStringLiteral, useQueryState } from 'nuqs';
+import { parseAsStringLiteral, useQueryState } from "nuqs";
 
 import {
   Select,
@@ -8,13 +8,13 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   DEFAULT_HOME_BENCHMARK_ID,
   HOME_BENCHMARKS,
   homeBenchmarkById,
   type HomeBenchmark,
-} from '@/lib/leaderboard';
+} from "@/lib/leaderboard";
 
 const parseBenchmarkId = parseAsStringLiteral(
   HOME_BENCHMARKS.map((benchmark) => benchmark.id),
@@ -26,7 +26,7 @@ export function useHomeBenchmark(): {
   setBenchmarkId: (id: string) => void;
 } {
   const [benchmarkId, setBenchmarkId] = useQueryState(
-    'version',
+    "version",
     parseBenchmarkId.withDefault(DEFAULT_HOME_BENCHMARK_ID),
   );
   return {
@@ -42,7 +42,7 @@ export function BenchmarkSelect() {
     <Select
       value={benchmark.id}
       onValueChange={(next) => {
-        if (typeof next === 'string') setBenchmarkId(next);
+        if (typeof next === "string") setBenchmarkId(next);
       }}
     >
       <SelectTrigger
@@ -51,7 +51,11 @@ export function BenchmarkSelect() {
       >
         <SelectValue>{benchmark.id}</SelectValue>
       </SelectTrigger>
-      <SelectContent align="end" className="min-w-0">
+      <SelectContent
+        align="start"
+        alignItemWithTrigger={false}
+        className="min-w-(--anchor-width)"
+      >
         {HOME_BENCHMARKS.map((option) => (
           <SelectItem key={option.id} value={option.id} className="uppercase">
             {option.id}

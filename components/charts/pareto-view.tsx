@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { parseAsStringLiteral, useQueryState } from 'nuqs';
-import { useMemo } from 'react';
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { parseAsStringLiteral, useQueryState } from "nuqs";
+import { useMemo } from "react";
 
 import {
   DEFAULT_PARETO_X,
@@ -10,50 +10,50 @@ import {
   PARETO_AXES,
   PARETO_X_AXIS_IDS,
   isParetoXAxisId,
-} from '@/components/charts/pareto-axes';
+} from "@/components/charts/pareto-axes";
 import {
   ParetoScatterChart,
   type ParetoDatum,
   buildParetoData,
-} from '@/components/charts/pareto-scatter-chart';
-import { HomeViewToggle } from '@/components/home-view-toggle';
+} from "@/components/charts/pareto-scatter-chart";
+import { HomeViewToggle } from "@/components/home-view-toggle";
 import {
   BenchmarkSelect,
   useHomeBenchmark,
-} from '@/components/leaderboard/benchmark-select';
-import { LeaderboardToolbar } from '@/components/leaderboard/leaderboard-toolbar';
-import { useLeaderboardFilters } from '@/components/leaderboard/use-leaderboard-filters';
+} from "@/components/leaderboard/benchmark-select";
+import { LeaderboardToolbar } from "@/components/leaderboard/leaderboard-toolbar";
+import { useLeaderboardFilters } from "@/components/leaderboard/use-leaderboard-filters";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { ViewExportActions } from '@/components/view-export-actions';
+} from "@/components/ui/select";
+import { ViewExportActions } from "@/components/view-export-actions";
 import {
   TERMINAL_BENCH_LEADERBOARD,
   TERMINAL_BENCH_PACKAGE,
   fetchLeaderboard,
   leaderboardQueryKey,
-} from '@/lib/leaderboard';
-import { useRowJobIds } from '@/lib/row-jobs';
+} from "@/lib/leaderboard";
+import { useRowJobIds } from "@/lib/row-jobs";
 
 const parseParetoXAxis = parseAsStringLiteral(PARETO_X_AXIS_IDS);
-const PARETO_EXPORT_TARGET_ID = 'terminal-bench-pareto-export';
+const PARETO_EXPORT_TARGET_ID = "terminal-bench-pareto-export";
 const PARETO_CAPTIONS: Record<(typeof PARETO_X_AXIS_IDS)[number], string> = {
-  cost: 'against total cost, summed across all trials.',
+  cost: "against total cost, summed across all trials.",
   tokens:
-    'against total token usage, summing input, output, and cached tokens across all trials.',
-  time: 'against total wall-clock time, summed across all trials.',
-  release_date: 'against model release date.',
+    "against total token usage, summing input, output, and cached tokens across all trials.",
+  time: "against total wall-clock time, summed across all trials.",
+  release_date: "against model release date.",
 };
 
 function escapeMarkdownCell(value: string): string {
   return value
-    .replaceAll('\\', '\\\\')
-    .replaceAll('|', '\\|')
-    .replace(/[\r\n]+/g, ' ')
+    .replaceAll("\\", "\\\\")
+    .replaceAll("|", "\\|")
+    .replace(/[\r\n]+/g, " ")
     .trim();
 }
 
@@ -64,24 +64,24 @@ function buildParetoMarkdownTable(
 ): string {
   const xAxis = PARETO_AXES[xAxisId];
   const yAxis = PARETO_AXES[yAxisId];
-  const header = ['Model', 'Agent', yAxis.label, xAxis.label, 'Pareto'];
-  const divider = ['---', '---', '---:', '---:', '---'];
+  const header = ["Model", "Agent", yAxis.label, xAxis.label, "Pareto"];
+  const divider = ["---", "---", "---:", "---:", "---"];
   const body = data.map((datum) => [
     datum.label.model,
-    datum.label.agent || '-',
+    datum.label.agent || "-",
     yAxis.format(datum.y),
     xAxis.format(datum.x),
-    datum.onFrontier ? 'Yes' : 'No',
+    datum.onFrontier ? "Yes" : "No",
   ]);
 
   return [header, divider, ...body]
-    .map((line) => `| ${line.map(escapeMarkdownCell).join(' | ')} |`)
-    .join('\n');
+    .map((line) => `| ${line.map(escapeMarkdownCell).join(" | ")} |`)
+    .join("\n");
 }
 
 export function ParetoView() {
   const [xAxisId, setXAxisId] = useQueryState(
-    'x',
+    "x",
     parseParetoXAxis.withDefault(DEFAULT_PARETO_X),
   );
 
@@ -119,7 +119,7 @@ export function ParetoView() {
           <ViewExportActions
             targetId={PARETO_EXPORT_TARGET_ID}
             fileBaseName={`terminal-bench-${benchmark.id}-pareto`}
-            getMarkdown={() => ''}
+            getMarkdown={() => ""}
             disabled
           />
           <HomeViewToggle />
@@ -138,13 +138,13 @@ export function ParetoView() {
           <ViewExportActions
             targetId={PARETO_EXPORT_TARGET_ID}
             fileBaseName={`terminal-bench-${benchmark.id}-pareto`}
-            getMarkdown={() => ''}
+            getMarkdown={() => ""}
             disabled
           />
           <HomeViewToggle />
         </div>
         <div className="-mx-4 rounded-none border border-x-0 border-destructive/30 bg-destructive/5 px-4 py-10 text-center text-sm text-destructive md:mx-0 md:rounded-xl md:border-x">
-          {error?.message ?? 'Failed to load Pareto data'}
+          {error?.message ?? "Failed to load Pareto data"}
         </div>
       </div>
     );
@@ -186,7 +186,7 @@ export function ParetoView() {
           <Select
             value={xAxisId}
             onValueChange={(next) => {
-              if (typeof next === 'string' && isParetoXAxisId(next)) {
+              if (typeof next === "string" && isParetoXAxisId(next)) {
                 void setXAxisId(next);
               }
             }}
@@ -197,7 +197,11 @@ export function ParetoView() {
             >
               <SelectValue>{xLabel}</SelectValue>
             </SelectTrigger>
-            <SelectContent align="start">
+            <SelectContent
+              align="start"
+              alignItemWithTrigger={false}
+              className="min-w-(--anchor-width)"
+            >
               {PARETO_X_AXIS_IDS.map((axisId) => (
                 <SelectItem key={axisId} value={axisId} className="uppercase">
                   {PARETO_AXES[axisId].label}

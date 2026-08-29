@@ -960,7 +960,11 @@ export function TaskWaffleView() {
             >
               <SelectValue>{mode === "task" ? "Task" : "Domain"}</SelectValue>
             </SelectTrigger>
-            <SelectContent align="start">
+            <SelectContent
+              align="start"
+              alignItemWithTrigger={false}
+              className="min-w-(--anchor-width)"
+            >
               <SelectItem value="task" className="uppercase">
                 Task
               </SelectItem>
@@ -984,7 +988,11 @@ export function TaskWaffleView() {
                 {group === "model" ? "Model" : "Outcome"}
               </SelectValue>
             </SelectTrigger>
-            <SelectContent align="start">
+            <SelectContent
+              align="start"
+              alignItemWithTrigger={false}
+              className="min-w-(--anchor-width)"
+            >
               <SelectItem value="model" className="uppercase">
                 Model
               </SelectItem>
