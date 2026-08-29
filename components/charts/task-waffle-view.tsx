@@ -295,7 +295,6 @@ function MatrixCell({
   pitchY,
   activeTrialId,
   onTrialMove,
-  onTrialLeave,
 }: {
   slots: MatrixSlot[];
   x: number;
@@ -312,7 +311,6 @@ function MatrixCell({
     task: string,
     trial: WaffleTrial,
   ) => void;
-  onTrialLeave: () => void;
 }) {
   return slots.map((slot, index) => {
     const col = index % wrap;
@@ -333,7 +331,6 @@ function MatrixCell({
         shapeRendering="crispEdges"
         onMouseEnter={(event) => onTrialMove(event, slot.task, slot.trial)}
         onMouseMove={(event) => onTrialMove(event, slot.task, slot.trial)}
-        onMouseLeave={onTrialLeave}
       />
     );
     const key = slot.trial.id || `${slot.task}-${index}`;
@@ -360,6 +357,7 @@ function WaffleSvg({
   tooltip,
   onTrialMove,
   onTrialLeave,
+  onSurfaceMove,
 }: {
   matrix: Matrix;
   mode: RowMode;
@@ -373,6 +371,7 @@ function WaffleSvg({
     trial: WaffleTrial,
   ) => void;
   onTrialLeave: () => void;
+  onSurfaceMove: (event: React.MouseEvent<SVGElement>) => void;
 }) {
   // Fixed pixel geometry: the SVG renders 1:1 (no viewBox stretch) so squares
   // and text stay the same size as the pareto chart's at any viewport width.
@@ -529,7 +528,6 @@ function WaffleSvg({
               pitchY={pitchY}
               activeTrialId={activeTrialId}
               onTrialMove={onTrialMove}
-              onTrialLeave={onTrialLeave}
             />
           </g>,
         );
@@ -548,7 +546,6 @@ function WaffleSvg({
                 pitchY={pitchY}
                 activeTrialId={activeTrialId}
                 onTrialMove={onTrialMove}
-                onTrialLeave={onTrialLeave}
               />
             </g>,
           );
@@ -607,7 +604,6 @@ function WaffleSvg({
               pitchY={pitchY}
               activeTrialId={activeTrialId}
               onTrialMove={onTrialMove}
-              onTrialLeave={onTrialLeave}
             />
           </g>,
         );
@@ -626,7 +622,6 @@ function WaffleSvg({
                 pitchY={pitchY}
                 activeTrialId={activeTrialId}
                 onTrialMove={onTrialMove}
-                onTrialLeave={onTrialLeave}
               />
             </g>,
           );
@@ -645,6 +640,8 @@ function WaffleSvg({
       height={height}
       viewBox={`0 0 ${width} ${height}`}
       className="mx-auto block"
+      onMouseLeave={onTrialLeave}
+      onMouseMove={onSurfaceMove}
     >
       {elements}
     </svg>
@@ -742,6 +739,17 @@ export function TaskWaffleView() {
       y: event.clientY - bounds.top + container.scrollTop,
     });
     setTipOpen(true);
+  }
+
+  // Keeps the anchor under the cursor while crossing the gaps between
+  // squares, so the tooltip glides instead of flickering closed.
+  function moveTooltip(event: React.MouseEvent<SVGElement>) {
+    const container = scrollRef.current;
+    if (!container) return;
+    const bounds = container.getBoundingClientRect();
+    const x = event.clientX - bounds.left + container.scrollLeft;
+    const y = event.clientY - bounds.top + container.scrollTop;
+    setTooltip((prev) => prev && { ...prev, x, y });
   }
 
   if (isPending) {
@@ -873,6 +881,7 @@ export function TaskWaffleView() {
                 tooltip={tipOpen ? tooltip : null}
                 onTrialMove={showTooltip}
                 onTrialLeave={() => setTipOpen(false)}
+                onSurfaceMove={moveTooltip}
               />
               <Tooltip
                 open={tipOpen}
