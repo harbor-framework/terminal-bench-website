@@ -110,22 +110,23 @@
   .row-hit{fill:transparent;outline:none;}
   .row-hit:focus,.row-hit:focus-visible{outline:none;}
   .row-wash{fill:#1a1a18;pointer-events:none;}
-  .wafflecard{padding:0;}
-  .whead{display:flex;align-items:center;gap:6px;height:48px;padding:0 24px;
-    border-bottom:1px solid var(--border);font-size:13px;color:var(--mark);
-    text-transform:uppercase;letter-spacing:.02em;}
-  .whead b{font-weight:600;}
-  .wbody{padding:18px 24px 16px;}
   .wlegend{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;
     gap:6px 16px;border-top:1px solid var(--border);padding:12px 16px;
-    font-size:12px;color:var(--muted);}
+    margin:14px -24px -16px;font-size:12px;color:var(--muted);}
   .wlegend .lg{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
   .wlegend .sw{width:12px;height:12px;display:inline-block;}
   .wgrid{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start;}
   @media (max-width:640px){.wgrid{grid-template-columns:1fr;}}
   .wcol .wlabel{font-size:12.5px;color:var(--mark);letter-spacing:.02em;margin-bottom:10px;}
   .wtask{fill:var(--muted);}
-  .tip .t-err{color:#f87171;}
+  .tip .t-line{opacity:.7;}
+  .tip .t-err{color:#f87171;opacity:1;}
+  /* The parent page inverts this iframe in light mode. Elements whose colors
+     are fixed across themes on the homepage (error pink, dark tooltip)
+     re-invert so they display exactly. */
+  .embed-light .cell-err,
+  .embed-light .sw-err,
+  .embed-light .tip{filter:invert(1) hue-rotate(180deg);}
 </style>
 </head>
 <body>
@@ -159,18 +160,16 @@
   </div>
 </div>
 
-<div class="card wafflecard" id="waffles-card">
-  <div class="whead">Trials by <b>task</b> and <b>outcome</b></div>
-  <div class="wbody">
-    <div class="wgrid">
-      <div class="wcol">
-        <div class="wlabel">terminal-bench 4.0</div>
-        <div class="whit" id="whit4"><svg id="wsvg4" role="img" aria-label="Terminal-Bench 4.0 trials by task and outcome"></svg></div>
-      </div>
-      <div class="wcol">
-        <div class="wlabel">terminal-bench 3.0</div>
-        <div class="whit" id="whit3"><svg id="wsvg3" role="img" aria-label="Terminal-Bench 3.0 trials by task and outcome"></svg></div>
-      </div>
+<div class="card" id="waffles-card">
+  <div class="head"><span class="title">trial outcomes</span></div>
+  <div class="wgrid">
+    <div class="wcol">
+      <div class="wlabel">terminal-bench 4.0</div>
+      <div class="whit" id="whit4"><svg id="wsvg4" role="img" aria-label="Terminal-Bench 4.0 trials by task and outcome"></svg></div>
+    </div>
+    <div class="wcol">
+      <div class="wlabel">terminal-bench 3.0</div>
+      <div class="whit" id="whit3"><svg id="wsvg3" role="img" aria-label="Terminal-Bench 3.0 trials by task and outcome"></svg></div>
     </div>
   </div>
   <div class="wlegend" aria-label="Outcome legend"></div>
@@ -1035,7 +1034,7 @@
       const lg = document.createElement('span');
       lg.className = 'lg';
       const sw = document.createElement('span');
-      sw.className = 'sw';
+      sw.className = oi === 2 ? 'sw sw-err' : 'sw';
       sw.style.background = SWATCH[oi];
       lg.appendChild(sw);
       lg.appendChild(document.createTextNode(name));
@@ -1049,18 +1048,9 @@
       tip.textContent = '';
       tip.classList.remove('wide');
       tip.appendChild(div('t-title', task.t));
-      const rows = [
-        ['model', data.models[tr[1]]],
-        ['outcome', OUT_WORD[tr[0]]]
-      ];
-      for (const [name, val] of rows) {
-        const row = div('t-row');
-        row.appendChild(div('t-key'));
-        row.appendChild(div('t-name', name));
-        row.appendChild(div('t-val', val));
-        tip.appendChild(row);
-      }
-      if (tr[3]) tip.appendChild(div('t-err', data.errs[tr[3] - 1]));
+      tip.appendChild(div('t-line', data.models[tr[1]]));
+      tip.appendChild(div(tr[0] === 2 ? 't-line t-err' : 't-line',
+        OUT_WORD[tr[0]] + (tr[3] ? ' - ' + data.errs[tr[3] - 1] : '')));
       tip.appendChild(div('t-foot', 'click to view trial'));
       tip.style.opacity = '1';
       tip.setAttribute('aria-hidden', 'false');
@@ -1091,41 +1081,79 @@
         const fs = Math.min(11, rh - 1.5);
         const maxChars = Math.floor((labelW - 10) / (fs * 0.68));
         col.geom = { labelW, gap, sq, rh, n };
+        col.labels = [];
         data.tasks.forEach((task, ti) => {
           const cy = ti * rh + (rh - sq) / 2;
           const lbl = el('text', { x: labelW - 10, y: ti * rh + rh / 2 + fs * 0.36,
             class: 'wtask', 'font-size': fs, 'text-anchor': 'end' });
           lbl.textContent = task.t.length > maxChars ? task.t.slice(0, maxChars) : task.t;
           svg.appendChild(lbl);
+          col.labels.push(lbl);
           task.s.forEach((tr, i) => {
             svg.appendChild(el('rect', {
               x: labelW + i * pitch, y: cy, width: sq, height: sq,
-              fill: OUTS[tr[0]][1], 'fill-opacity': OUTS[tr[0]][2], class: 'cell'
+              fill: OUTS[tr[0]][1], 'fill-opacity': OUTS[tr[0]][2],
+              class: tr[0] === 2 ? 'cell cell-err' : 'cell'
             }));
           });
         });
+        col.hl = el('rect', { fill: 'none', stroke: 'var(--mark)',
+          'stroke-width': 0.9, visibility: 'hidden', class: 'cell' });
+        svg.appendChild(col.hl);
       }
       function locate(e) {
         const g = col.geom;
         if (!g) return null;
         const r = svg.getBoundingClientRect();
         const px = e.clientX - r.left, py = e.clientY - r.top;
-        if (px < g.labelW - 2) return null;
-        const i = Math.floor((px - g.labelW) / (g.sq + g.gap));
         const ti = Math.floor(py / g.rh);
-        if (i < 0 || i >= g.n || ti < 0 || ti >= data.tasks.length) return null;
-        return { task: data.tasks[ti], tr: data.tasks[ti].s[i] };
+        if (ti < 0 || ti >= data.tasks.length) return null;
+        if (px < g.labelW - 2) return { task: data.tasks[ti], ti, label: true };
+        const i = Math.floor((px - g.labelW) / (g.sq + g.gap));
+        if (i < 0 || i >= g.n) return null;
+        return { task: data.tasks[ti], ti, tr: data.tasks[ti].s[i], i };
+      }
+      function clearHover() {
+        hidePhaseTip();
+        hit.style.cursor = 'default';
+        if (col.hl) col.hl.setAttribute('visibility', 'hidden');
+        if (col.hoverLabel) {
+          col.hoverLabel.removeAttribute('text-decoration');
+          col.hoverLabel = null;
+        }
       }
       hit.addEventListener('pointermove', e => {
         const found = locate(e);
-        if (!found) { hidePhaseTip(); hit.style.cursor = 'default'; return; }
+        if (!found) { clearHover(); return; }
+        if (found.label) {
+          clearHover();
+          hit.style.cursor = 'pointer';
+          col.hoverLabel = col.labels[found.ti];
+          col.hoverLabel.setAttribute('text-decoration', 'underline');
+          return;
+        }
+        if (col.hoverLabel) {
+          col.hoverLabel.removeAttribute('text-decoration');
+          col.hoverLabel = null;
+        }
         hit.style.cursor = 'pointer';
+        const g = col.geom;
+        col.hl.setAttribute('x', g.labelW + found.i * (g.sq + g.gap));
+        col.hl.setAttribute('y', found.ti * g.rh + (g.rh - g.sq) / 2);
+        col.hl.setAttribute('width', g.sq);
+        col.hl.setAttribute('height', g.sq);
+        col.hl.setAttribute('visibility', 'visible');
         showWaffleTip(data, found.task, found.tr, e.clientX, e.clientY);
       });
-      hit.addEventListener('pointerleave', () => { hidePhaseTip(); hit.style.cursor = 'default'; });
+      hit.addEventListener('pointerleave', clearHover);
       hit.addEventListener('click', e => {
         const found = locate(e);
         if (!found) return;
+        if (found.label) {
+          window.open('https://hub.harborframework.com/tasks/terminal-bench/' +
+            encodeURIComponent(found.task.t), '_blank');
+          return;
+        }
         const jobId = data.jobs[found.tr[1]];
         window.open(HUB + encodeURIComponent(jobId) + '/trials/' + encodeURIComponent(found.tr[2]), '_blank');
       });
@@ -1171,6 +1199,12 @@
         parent.postMessage({ type: 'tb-chart-height', height: contentHeight() }, '*');
       } catch (e) { /* not embedded */ }
     }
+    window.addEventListener('message', e => {
+      const d = e.data;
+      if (d && d.type === 'tb-theme') {
+        document.documentElement.classList.toggle('embed-light', !d.dark);
+      }
+    });
     let hraf = 0;
     const hro = new ResizeObserver(() => { cancelAnimationFrame(hraf); hraf = requestAnimationFrame(postHeight); });
     hro.observe(document.body);

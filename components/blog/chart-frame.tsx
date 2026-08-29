@@ -32,6 +32,27 @@ export function ChartFrame({
     return () => window.removeEventListener("message", onMessage);
   }, []);
 
+  // Tell the chart page the site theme so it can keep fixed-color elements
+  // (error pink, dark tooltips) exact under the light-mode invert filter.
+  useEffect(() => {
+    const root = document.documentElement;
+    const frame = frameRef.current;
+    function send() {
+      frame?.contentWindow?.postMessage(
+        { type: "tb-theme", dark: root.classList.contains("dark") },
+        "*",
+      );
+    }
+    const observer = new MutationObserver(send);
+    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
+    frame?.addEventListener("load", send);
+    send();
+    return () => {
+      observer.disconnect();
+      frame?.removeEventListener("load", send);
+    };
+  }, []);
+
   const src = `/blog/terminal-bench-4-0/rollout-charts.html?chart=${encodeURIComponent(chart)}${model ? `&model=${encodeURIComponent(model)}` : ""}`;
 
   return (
