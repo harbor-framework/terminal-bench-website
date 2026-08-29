@@ -393,8 +393,9 @@ function WaffleSvg({
       ? matrix.tasks.map((row) => row.task)
       : matrix.domains.map((row) => row.name);
   const maxLabelChars = Math.max(0, ...rowLabels.map((label) => label.length));
-  const labelCharW = mode === "task" ? 6.6 : 7.6;
-  const GUT = Math.min(210, Math.ceil(maxLabelChars * labelCharW) + 16);
+  // Domain labels render vertically, so their gutter is just one line tall.
+  const GUT =
+    mode === "task" ? Math.min(210, Math.ceil(maxLabelChars * 6.6) + 16) : 36;
   // Mirror the label gutter on the right so mx-auto centers the columns
   // themselves, not the gutter-plus-columns block — but never wider than the
   // container allows, or a scrollbar appears over pure whitespace.
@@ -570,24 +571,14 @@ function WaffleSvg({
       elements.push(
         <text
           key={`dname-${domain.name}`}
-          x={GUT - 10}
-          y={midY - 2}
-          textAnchor="end"
+          x={GUT - 18}
+          y={midY}
+          textAnchor="middle"
           fontSize={fontMd}
           className="fill-foreground font-medium"
+          transform={`rotate(-90 ${GUT - 18} ${midY})`}
         >
           {domain.name.toUpperCase()}
-        </text>,
-        <text
-          key={`dsub-${domain.name}`}
-          x={GUT - 10}
-          y={midY + 13}
-          textAnchor="end"
-          fontSize={fontSm}
-          className="fill-muted-foreground"
-          style={{ fontVariantNumeric: "tabular-nums" }}
-        >
-          {domain.solve}%
         </text>,
       );
       if (merged) {
