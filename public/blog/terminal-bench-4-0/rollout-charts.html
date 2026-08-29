@@ -73,8 +73,8 @@
   .plegend .dd{margin-left:auto;}
   .dd-btn{font-family:var(--font);font-size:11px;color:var(--ink);cursor:pointer;
     background:var(--card);border:1px solid rgba(255,255,255,.15);border-radius:0;
-    height:32px;padding:0 8px 0 10px;line-height:1.2;
-    display:inline-flex;align-items:center;gap:6px;}
+    height:24px;padding:0 10px;line-height:1.2;
+    display:inline-flex;align-items:center;}
   .dd-btn:hover{background:#141414;}
   .dd-btn:focus-visible{outline:1px solid var(--ink);outline-offset:2px;}
   .dd-chev{display:inline-flex;color:var(--muted);}
@@ -538,10 +538,7 @@
     ddBtn.setAttribute('aria-expanded', 'false');
     const ddLabel = document.createElement('span');
     ddBtn.appendChild(ddLabel);
-    const chev = document.createElement('span');
-    chev.className = 'dd-chev';
-    chev.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>';
-    ddBtn.appendChild(chev);
+
     dd.appendChild(ddBtn);
     const ddMenu = document.createElement('div');
     ddMenu.className = 'dd-menu';
