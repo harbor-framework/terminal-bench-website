@@ -124,8 +124,8 @@
   /* The parent page inverts this iframe in light mode. Elements whose colors
      are fixed across themes on the homepage (error pink, dark tooltip)
      re-invert so they display exactly. */
-  .embed-light .cell-err,
-  .embed-light .sw-err,
+  .embed-light .cell-fixed,
+  .embed-light .sw-fixed,
   .embed-light .tip{filter:invert(1) hue-rotate(180deg);}
 </style>
 </head>
@@ -1023,18 +1023,18 @@
     // fixed light red, foreground/12.
     const OUTS = [
       ['pass', 'var(--mark)', 1],
-      ['timeout', 'var(--mark)', 0.55],
-      ['error', '#f9bfc2', 1],
+      ['timeout', '#f0904a', 1],
+      ['error', '#f87171', 1],
       ['fail', 'var(--mark)', 0.12]
     ];
     const OUT_WORD = ['pass', 'timeout', 'error', 'fail'];
     const legendW = document.querySelector('#waffles-card .wlegend');
-    const SWATCH = ['#e4e4de', '#7e7e7a', '#f9bfc2', '#1b1b1b'];
+    const SWATCH = ['#e4e4de', '#f0904a', '#f87171', '#1b1b1b'];
     OUTS.forEach(([name], oi) => {
       const lg = document.createElement('span');
       lg.className = 'lg';
       const sw = document.createElement('span');
-      sw.className = oi === 2 ? 'sw sw-err' : 'sw';
+      sw.className = oi === 1 || oi === 2 ? 'sw sw-fixed' : 'sw';
       sw.style.background = SWATCH[oi];
       lg.appendChild(sw);
       lg.appendChild(document.createTextNode(name));
@@ -1112,7 +1112,7 @@
           svg.appendChild(el('rect', {
             x: g.labelW + i * g.pitch, y: ry, width: g.sq, height: g.sq,
             fill: OUTS[tr[0]][1], 'fill-opacity': OUTS[tr[0]][2],
-            class: tr[0] === 2 ? 'cell cell-err' : 'cell'
+            class: tr[0] === 1 || tr[0] === 2 ? 'cell cell-fixed' : 'cell'
           }));
         });
       });
