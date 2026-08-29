@@ -925,7 +925,7 @@ export function TaskWaffleView() {
                   align="start"
                   sideOffset={10}
                   variant="chart"
-                  className="pointer-events-none w-[248px] max-w-none"
+                  className="pointer-events-none w-[235px] max-w-none"
                 >
                   {tooltip ? (
                     <div className="flex w-full flex-col">
