@@ -129,6 +129,7 @@
   .wtask{fill:var(--muted);}
   .tip .t-line{opacity:.7;}
   .tip .t-err{color:#e5484d;opacity:1;}
+  .tip .t-to{color:#f2872e;opacity:1;}
   /* The parent page inverts this iframe in light mode. Elements whose colors
      are fixed across themes on the homepage (error pink, dark tooltip)
      re-invert so they display exactly. */
@@ -202,7 +203,7 @@
       <div class="whit" id="whit3"><svg id="wsvg3" role="img" aria-label="Terminal-Bench 3.0 trials by task and outcome"></svg></div>
     </div>
   </div>
-  <div class="cap">Both grids show the 8 model + agent pairs that ran on both leaderboards.</div>
+  <div class="cap">8 tasks were removed between version 3.0 and version 4.0</div>
 </div>
 
 <div class="tip" id="tip" role="tooltip" aria-hidden="true"></div>
@@ -1117,7 +1118,9 @@
       tip.classList.remove('wide');
       tip.appendChild(div('t-title', task.t));
       tip.appendChild(div('t-line', data.models[tr[1]]));
-      tip.appendChild(div(tr[0] === 2 ? 't-line t-err' : 't-line',
+      const outcomeCls = tr[0] === 2 ? 't-line t-err'
+        : tr[0] === 1 ? 't-line t-to' : 't-line';
+      tip.appendChild(div(outcomeCls,
         OUT_WORD[tr[0]] + (tr[3] ? ' - ' + data.errs[tr[3] - 1] : '')));
       tip.appendChild(div('t-foot', 'click to view trial'));
       tip.style.opacity = '1';
