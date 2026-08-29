@@ -777,18 +777,27 @@ export function TaskWaffleView() {
   }
   const snapshot = lastConsistent.current ?? (data ? { data, rows: [] } : null);
 
-  const maxTaskLen = useMemo(
-    () =>
-      snapshot
-        ? Math.max(
-            1,
-            ...snapshot.data.doms.flatMap((dom) =>
-              dom.tasks.map((task) => task.task.length),
-            ),
-          )
-        : 32,
-    [snapshot],
-  );
+  // Fixed tooltip width: the rendered width of the longest task name
+  // (semibold title) or error name, so the box never resizes while sweeping.
+  const tipWidth = useMemo(() => {
+    if (!snapshot || typeof document === "undefined") return 235;
+    const context = document.createElement("canvas").getContext("2d");
+    if (!context) return 235;
+    const family = getComputedStyle(document.body).fontFamily;
+    let widest = 0;
+    const measure = (value: string, weight: number) => {
+      context.font = `${weight} 12px ${family}`;
+      widest = Math.max(widest, context.measureText(value).width);
+    };
+    for (const dom of snapshot.data.doms) {
+      for (const task of dom.tasks) {
+        measure(task.task, 600);
+        for (const trial of task.ts) if (trial.e) measure(trial.e, 400);
+      }
+    }
+    // px-3 padding on each side, plus a hair for rounding.
+    return Math.ceil(widest) + 26;
+  }, [snapshot]);
   const matrix = useMemo(
     () => (snapshot ? buildMatrix(snapshot.data, snapshot.rows) : null),
     [snapshot],
@@ -1063,24 +1072,26 @@ export function TaskWaffleView() {
                   align="start"
                   sideOffset={10}
                   variant="chart"
-                  className="pointer-events-none w-[235px] max-w-none"
+                  className="pointer-events-none max-w-none"
+                  style={{ width: tipWidth }}
                 >
                   {tooltip ? (
-                    <div className="flex w-full flex-col">
-                      <p className="mb-1 font-semibold">{tooltip.task}</p>
-                      <p className="opacity-70">{tooltip.trial.m}</p>
+                    <div className="flex w-full min-w-0 flex-col">
+                      <p className="mb-1 font-semibold whitespace-nowrap">
+                        {tooltip.task}
+                      </p>
+                      <p className="truncate opacity-70">{tooltip.trial.m}</p>
                       <p
-                        className={
+                        className={`whitespace-nowrap ${
                           {
                             err: "text-[#e5484d]",
                             to: "text-[#f2872e]",
                             p: "text-foreground",
                             f: "text-foreground/45",
                           }[tooltip.trial.o]
-                        }
+                        }`}
                       >
-                        {tooltip.trial.e?.slice(0, maxTaskLen) ??
-                          OUTCOME_WORD[tooltip.trial.o]}
+                        {tooltip.trial.e ?? OUTCOME_WORD[tooltip.trial.o]}
                       </p>
                       <p className="mt-1.5 border-t border-border pt-1.5 text-[10.5px] opacity-50">
                         click to view trial
