@@ -632,7 +632,22 @@ function WaffleSvg({
       viewBox={`0 0 ${width} ${height}`}
       className="mx-auto block"
       onMouseLeave={onTrialLeave}
-      onMouseMove={onSurfaceMove}
+      onMouseMove={(event) => {
+        // Hide outside the squares' bounding box; glide within it.
+        const rect = event.currentTarget.getBoundingClientRect();
+        const lx = event.clientX - rect.left;
+        const ly = event.clientY - rect.top;
+        if (
+          lx < GUT - 2 ||
+          lx > GUT + plotW + 2 ||
+          ly < HEAD - 2 ||
+          ly > height - 8
+        ) {
+          onTrialLeave();
+          return;
+        }
+        onSurfaceMove(event);
+      }}
     >
       {elements}
     </svg>
@@ -714,7 +729,6 @@ export function TaskWaffleView() {
   }, []);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const [tipOpen, setTipOpen] = useState(false);
-  const lastHitRef = useRef<{ x: number; y: number } | null>(null);
 
   function showTooltip(
     event: React.MouseEvent<SVGElement>,
@@ -730,24 +744,15 @@ export function TaskWaffleView() {
       x: event.clientX - bounds.left + container.scrollLeft,
       y: event.clientY - bounds.top + container.scrollTop,
     });
-    lastHitRef.current = { x: event.clientX, y: event.clientY };
     setTipOpen(true);
   }
 
   // Keeps the anchor under the cursor while crossing the gaps between
-  // squares, so the tooltip glides instead of flickering closed — but hides
-  // once the cursor drifts beyond a square's reach into open space.
+  // squares, so the tooltip glides instead of flickering closed. WaffleSvg
+  // only calls this while the cursor is inside the squares' perimeter.
   function moveTooltip(event: React.MouseEvent<SVGElement>) {
     const container = scrollRef.current;
     if (!container) return;
-    const hit = lastHitRef.current;
-    if (hit) {
-      const drift = Math.hypot(event.clientX - hit.x, event.clientY - hit.y);
-      if (drift > 24) {
-        setTipOpen(false);
-        return;
-      }
-    }
     const bounds = container.getBoundingClientRect();
     const x = event.clientX - bounds.left + container.scrollLeft;
     const y = event.clientY - bounds.top + container.scrollTop;

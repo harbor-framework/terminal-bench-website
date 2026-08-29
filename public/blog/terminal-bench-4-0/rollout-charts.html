@@ -404,10 +404,11 @@
         const k = div('t-key'); k.style.background = COLORS[s.key];
         row.appendChild(k);
         row.appendChild(div('t-name', SHORT[s.key] || s.label));
-        // Figure-space padding keeps the column width constant across digits.
+        // Figure-space padding keeps the column width constant across digits
+        // (padding sits outside the brackets).
         row.appendChild(div('t-val',
-          String(p.completed).padStart(3, '\u2007') + ' [' +
-          String(Math.round(p.y)).padStart(3, '\u2007') + '%]'));
+          String(p.completed).padStart(3, '\u2007') + ' ' +
+          ('[' + Math.round(p.y) + '%]').padStart(6, '\u2007')));
         tip.appendChild(row);
       }
       tip.style.opacity = '1';
