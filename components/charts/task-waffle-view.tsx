@@ -384,7 +384,17 @@ function WaffleSvg({
   const maxReps = Math.max(1, matrix.maxReps);
   const blockW = maxReps * SW + (maxReps - 1) * SGAP;
   const stepM = blockW + MG;
-  const GUT = 210;
+  // Fit the label gutter to the longest visible row label so mx-auto centers
+  // the actual content; a fixed gutter leaves dead space on the left when
+  // labels are short. Task labels are 11px mono (~6.6px/char); domain labels
+  // render uppercase at 12px (~7.6px/char).
+  const rowLabels =
+    mode === "task"
+      ? matrix.tasks.map((row) => row.task)
+      : matrix.domains.map((row) => row.name);
+  const maxLabelChars = Math.max(0, ...rowLabels.map((label) => label.length));
+  const labelCharW = mode === "task" ? 6.6 : 7.6;
+  const GUT = Math.min(210, Math.ceil(maxLabelChars * labelCharW) + 16);
   // Mirror the label gutter on the right so mx-auto centers the columns
   // themselves, not the gutter-plus-columns block — but never wider than the
   // container allows, or a scrollbar appears over pure whitespace.
