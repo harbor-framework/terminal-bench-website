@@ -53,13 +53,13 @@ export function ContributorPicker({
           align="start"
           alignOffset={-6}
           alignItemWithTrigger={false}
-          className="w-fit min-w-0 font-[family-name:var(--font-google-sans-code)]"
+          className="w-[calc(var(--anchor-width)+12px)] min-w-0 font-[family-name:var(--font-google-sans-code)]"
         >
           {CONTRIBUTOR_RELEASES.map((entry) => (
             <SelectItem
               key={entry.href}
               value={entry.href}
-              className="pr-2 text-[1.125rem] tracking-[-0.05em] text-muted-foreground [&>span:last-child]:hidden"
+              className="text-[1.125rem] tracking-[-0.05em] text-muted-foreground"
             >
               {entry.version}
             </SelectItem>
