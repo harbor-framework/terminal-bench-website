@@ -137,16 +137,14 @@
   try {
     if (matchMedia('(prefers-color-scheme: light)').matches)
       document.documentElement.classList.add('embed-light');
-    var C = { opus5: '#a8571f', opus48: '#d4732b', sonnet5: '#f0904a',
-      fable5: '#ffb27a', glm53: '#b48ae8', sol: '#2e9683', terra: '#4fb8a6',
-      luna: '#8fe0d0', grok45: '#e8e8e2', grok46: '#78786f' };
+    var FLAG = { claude: '#a8571f', glm: '#b48ae8', openai: '#2e9683', grok: '#78786f' };
     var F = { opus5: 'claude', opus48: 'claude', sonnet5: 'claude',
       fable5: 'claude', glm53: 'glm', sol: 'openai', terra: 'openai',
       luna: 'openai', grok45: 'grok', grok46: 'grok' };
     var R = { claude: '#ffab6e', glm: '#c2a0ee', openai: '#8fe0d0', grok: '#b4b4ae' };
     var m = new URLSearchParams(location.search).get('model') || 'opus5';
-    if (C[m]) {
-      document.documentElement.style.setProperty('--p-exec', C[m]);
+    if (F[m]) {
+      document.documentElement.style.setProperty('--p-exec', FLAG[F[m]]);
       document.documentElement.style.setProperty('--p-setup', R[F[m]]);
     }
   } catch (e) { /* defaults stand */ }
@@ -566,14 +564,17 @@
     const FAMILY = { opus5: 'claude', opus48: 'claude', sonnet5: 'claude', fable5: 'claude',
                      glm53: 'glm', sol: 'openai', terra: 'openai', luna: 'openai',
                      grok45: 'grok', grok46: 'grok' };
+    // Agent execution always uses the family flagship's series color
+    // (opus-5, gpt-5.6-sol, grok-4.6, glm-5.3) from the other charts.
+    const FLAGSHIP = { claude: COLORS.opus5, openai: COLORS.sol,
+      grok: COLORS.grok46, glm: COLORS.glm53 };
     function rampSync() {
       const key = PHASES[phaseIdx].key;
-      const ramp = RAMPS[FAMILY[key]] || RAMPS.grok;
+      const fam = FAMILY[key] || 'grok';
+      const ramp = RAMPS[fam] || RAMPS.grok;
       const rootStyle = document.documentElement.style;
       rootStyle.setProperty('--p-setup', ramp[1]);
-      // Agent execution uses the model's series color from the rollout
-      // and pareto charts.
-      rootStyle.setProperty('--p-exec', COLORS[key] || ramp[2]);
+      rootStyle.setProperty('--p-exec', FLAGSHIP[fam] || ramp[2]);
     }
     let phaseIdx = Math.max(0, PHASES.findIndex(
       j => j.key === new URLSearchParams(location.search).get('model')));
