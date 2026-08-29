@@ -47,9 +47,14 @@ const parseGroupMode = parseAsStringLiteral(GROUP_MODES);
 type TooltipState = {
   task: string;
   trial: WaffleTrial;
-  /** Anchor (square center) in scroll-container coordinates. */
+  /** Anchor (cursor) in scroll-container coordinates. */
   x: number;
   y: number;
+  /** Hovered square's box in scroll-container coordinates. */
+  hx: number;
+  hy: number;
+  hw: number;
+  hh: number;
 };
 
 const OUTCOME_CELL_CLASS: Record<WaffleTrial["o"], string> = {
@@ -293,7 +298,6 @@ function MatrixCell({
   sgap,
   wrap,
   pitchY,
-  activeTrialId,
   onTrialMove,
 }: {
   slots: MatrixSlot[];
@@ -305,7 +309,6 @@ function MatrixCell({
   /** Squares per row before wrapping (task mode never wraps). */
   wrap: number;
   pitchY: number;
-  activeTrialId: string | null;
   onTrialMove: (
     event: React.MouseEvent<SVGElement>,
     task: string,
@@ -322,12 +325,7 @@ function MatrixCell({
         y={y + row * pitchY}
         width={sw}
         height={sh}
-        className={`${OUTCOME_CELL_CLASS[slot.trial.o]} ${
-          activeTrialId != null && activeTrialId === slot.trial.id
-            ? "stroke-foreground"
-            : "stroke-transparent"
-        }`}
-        strokeWidth={0.9}
+        className={OUTCOME_CELL_CLASS[slot.trial.o]}
         shapeRendering="crispEdges"
         onMouseEnter={(event) => onTrialMove(event, slot.task, slot.trial)}
         onMouseMove={(event) => onTrialMove(event, slot.task, slot.trial)}
@@ -355,7 +353,6 @@ const WaffleSvg = memo(function WaffleSvg({
   group,
   containerWidth,
   viewportH,
-  activeTrialId,
   onTrialMove,
   onTrialLeave,
   onSurfaceMove,
@@ -366,7 +363,6 @@ const WaffleSvg = memo(function WaffleSvg({
   /** Scroll container width, to size the centering pad without overflow. */
   containerWidth: number;
   viewportH: number;
-  activeTrialId: string | null;
   onTrialMove: (
     event: React.MouseEvent<SVGElement>,
     task: string,
@@ -571,7 +567,6 @@ const WaffleSvg = memo(function WaffleSvg({
               sgap={SGAP}
               wrap={perLine}
               pitchY={pitchY}
-              activeTrialId={activeTrialId}
               onTrialMove={onTrialMove}
             />
           </g>,
@@ -589,7 +584,6 @@ const WaffleSvg = memo(function WaffleSvg({
                 sgap={SGAP}
                 wrap={maxReps}
                 pitchY={pitchY}
-                activeTrialId={activeTrialId}
                 onTrialMove={onTrialMove}
               />
             </g>,
@@ -637,7 +631,6 @@ const WaffleSvg = memo(function WaffleSvg({
               sgap={SGAP}
               wrap={perLine}
               pitchY={pitchY}
-              activeTrialId={activeTrialId}
               onTrialMove={onTrialMove}
             />
           </g>,
@@ -655,7 +648,6 @@ const WaffleSvg = memo(function WaffleSvg({
                 sgap={SGAP}
                 wrap={maxReps}
                 pitchY={pitchY}
-                activeTrialId={activeTrialId}
                 onTrialMove={onTrialMove}
               />
             </g>,
@@ -798,11 +790,16 @@ export function TaskWaffleView() {
       const container = scrollRef.current;
       if (!container) return;
       const bounds = container.getBoundingClientRect();
+      const square = (event.currentTarget as Element).getBoundingClientRect();
       setTooltip({
         task,
         trial,
         x: event.clientX - bounds.left + container.scrollLeft,
         y: event.clientY - bounds.top + container.scrollTop,
+        hx: square.left - bounds.left + container.scrollLeft,
+        hy: square.top - bounds.top + container.scrollTop,
+        hw: square.width,
+        hh: square.height,
       });
       setTipOpen(true);
     },
@@ -950,11 +947,24 @@ export function TaskWaffleView() {
                 group={group}
                 containerWidth={containerWidth}
                 viewportH={viewportH}
-                activeTrialId={tipOpen ? (tooltip?.trial.id ?? null) : null}
                 onTrialMove={showTooltip}
                 onTrialLeave={hideTooltip}
                 onSurfaceMove={moveTooltip}
               />
+              {/* Hover highlight drawn outside the big SVG so sweeping never
+                  re-renders the grid. */}
+              {tipOpen && tooltip ? (
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute border border-foreground"
+                  style={{
+                    left: tooltip.hx,
+                    top: tooltip.hy,
+                    width: tooltip.hw,
+                    height: tooltip.hh,
+                  }}
+                />
+              ) : null}
               <Tooltip
                 open={tipOpen}
                 onOpenChange={setTipOpen}
