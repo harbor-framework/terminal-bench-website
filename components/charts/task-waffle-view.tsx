@@ -392,9 +392,28 @@ function WaffleSvg({
   // Same header height in both groupings so toggling model/outcome causes
   // no vertical layout shift; outcome mode just leaves the space empty.
   const HEAD = 48;
-  const plotW = Math.max(1, matrix.columns.length) * stepM - MG;
+  const modelPlotW = Math.max(1, matrix.columns.length) * stepM - MG;
   // px-4 on the scroll container.
   const available = containerWidth > 0 ? containerWidth - 32 : 0;
+
+  // Outcome mode merges every model's trials into one gap-free run per row;
+  // size the plot to its own content (capped at the container), not to the
+  // model-column layout, so no trailing whitespace forces a scrollbar.
+  const perLineCap = Math.max(
+    1,
+    Math.floor(
+      ((available > 0 ? available - GUT - 16 : modelPlotW) + SGAP) /
+        (SW + SGAP),
+    ),
+  );
+  const outcomeCounts = (mode === 'task' ? matrix.tasks : matrix.domains).map(
+    (row) => row.cells.reduce((sum, cell) => sum + cell.length, 0),
+  );
+  const maxOutcomeCount = Math.max(1, ...outcomeCounts, 1);
+  const perLine = Math.min(perLineCap, maxOutcomeCount);
+  const plotW =
+    group === 'outcome' ? perLine * (SW + SGAP) - SGAP : modelPlotW;
+
   const RPAD =
     available > 0
       ? Math.max(16, Math.min(RPAD_FALLBACK, available - GUT - plotW))
@@ -407,9 +426,6 @@ function WaffleSvg({
   // Match the pareto chart's text sizes (11px labels, 12px headings).
   const fontSm = 11;
   const fontMd = 12;
-
-  // Outcome mode merges every model's trials into one gap-free run per row.
-  const perLine = Math.max(1, Math.floor((plotW + SGAP) / (SW + SGAP)));
 
   const activeTrialId = tooltip?.trial.id ?? null;
   const elements: React.ReactNode[] = [];
