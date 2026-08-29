@@ -585,6 +585,9 @@
     expandBtn.addEventListener('click', () => {
       expanded = !expanded;
       drawPhases();
+      requestAnimationFrame(() => {
+        if (window.__tbToggleHeight) window.__tbToggleHeight();
+      });
     });
     sec.appendChild(expandBtn);
     phRoot.appendChild(sec);
@@ -1313,11 +1316,15 @@
       }
       return Math.ceil(max);
     }
-    function postHeight() {
+    function postHeight(fromToggle) {
       try {
-        parent.postMessage({ type: 'tb-chart-height', height: contentHeight() }, '*');
+        parent.postMessage({ type: 'tb-chart-height', height: contentHeight(),
+          fromToggle: fromToggle === true }, '*');
       } catch (e) { /* not embedded */ }
     }
+    // Lets in-card expand/collapse controls report their height change so the
+    // parent can compensate the scroll position.
+    window.__tbToggleHeight = () => postHeight(true);
     window.addEventListener('message', e => {
       const d = e.data;
       if (d && d.type === 'tb-theme') {

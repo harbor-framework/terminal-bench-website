@@ -19,13 +19,25 @@ export function ChartFrame({
 }) {
   const frameRef = useRef<HTMLIFrameElement>(null);
   const [height, setHeight] = useState(initialHeight);
+  const heightRef = useRef(initialHeight);
 
   useEffect(() => {
     function onMessage(event: MessageEvent) {
       if (event.source !== frameRef.current?.contentWindow) return;
-      const data = event.data as { type?: string; height?: number };
+      const data = event.data as {
+        type?: string;
+        height?: number;
+        fromToggle?: boolean;
+      };
       if (data?.type === "tb-chart-height" && typeof data.height === "number") {
-        setHeight(Math.ceil(data.height));
+        const next = Math.ceil(data.height);
+        // When an in-card collapse shrinks the chart, scroll up by the same
+        // amount so the content below it stays put on screen.
+        if (data.fromToggle && next < heightRef.current) {
+          window.scrollBy({ top: next - heightRef.current });
+        }
+        heightRef.current = next;
+        setHeight(next);
       }
     }
     window.addEventListener("message", onMessage);

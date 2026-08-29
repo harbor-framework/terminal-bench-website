@@ -888,7 +888,7 @@ export function TaskWaffleView() {
                   aria-hidden
                   className="pointer-events-none absolute size-2 -translate-x-1/2 -translate-y-1/2 opacity-0"
                   style={{
-                    left: tooltip?.x ?? 0,
+                    left: (tooltip?.x ?? 0) + 19,
                     top: tooltip?.y ?? 0,
                   }}
                 />
@@ -896,7 +896,6 @@ export function TaskWaffleView() {
                   side="bottom"
                   align="start"
                   sideOffset={10}
-                  alignOffset={18}
                   variant="chart"
                   className="pointer-events-none min-w-40"
                 >

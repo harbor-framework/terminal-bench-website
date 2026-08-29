@@ -211,6 +211,9 @@ export function ParetoScatterChart({
   className,
 }: ParetoScatterChartProps) {
   const [width, setWidth] = useState(MIN_WIDTH);
+  // SSR can't measure, so the first paint would show the MIN_WIDTH chart
+  // until hydration; keep it hidden until the client has measured once.
+  const [measured, setMeasured] = useState(false);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   // Callback ref so the observer re-attaches whenever the plot node remounts
   // (the empty-data branch unmounts it; an effect with [] deps would never
@@ -221,6 +224,7 @@ export function ParetoScatterChart({
     if (!el) return;
     const update = () => {
       setWidth(Math.max(MIN_WIDTH, Math.floor(el.clientWidth)));
+      setMeasured(true);
     };
     update();
     const observer = new ResizeObserver(update);
@@ -296,6 +300,7 @@ export function ParetoScatterChart({
         style={{ height: HEIGHT }}
       >
         <svg
+          style={measured ? undefined : { visibility: "hidden" }}
           viewBox={`0 0 ${width} ${HEIGHT}`}
           width={width}
           height={HEIGHT}
@@ -552,7 +557,7 @@ export function ParetoScatterChart({
             aria-hidden
             className="pointer-events-none absolute size-2 -translate-x-1/2 -translate-y-1/2 opacity-0"
             style={{
-              left: active?.cx ?? 0,
+              left: (active?.cx ?? 0) + 19,
               top: active?.cy ?? 0,
             }}
           />
@@ -560,7 +565,6 @@ export function ParetoScatterChart({
             side="bottom"
             align="start"
             sideOffset={10}
-            alignOffset={18}
             variant="chart"
             className="pointer-events-none min-w-40"
           >
