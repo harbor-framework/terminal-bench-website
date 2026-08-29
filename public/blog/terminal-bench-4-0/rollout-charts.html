@@ -597,7 +597,7 @@
         d.runs.forEach((run, k) => {
           const sx = width - 38 + k * 7.5;
           g.appendChild(el('rect', { x: sx, y: ry + (rowH - 6) / 2,
-            width: 6, height: 6, rx: 1, class: 'cell rw' + run.reward }));
+            width: 6, height: 6, class: 'cell rw' + run.reward }));
           const sqHit = el('rect', { x: sx - 0.75, y: ry, width: 7.5, height: rowH, fill: 'transparent' });
           sqHit.style.cursor = 'pointer';
           sqHit.addEventListener('pointerenter', e => showRunTip(run, e.clientX, e.clientY));
@@ -610,7 +610,7 @@
         for (const [key, , cls] of PH) {
           const w = x(d[key]);
           if (w > 0.5) {
-            g.appendChild(el('rect', { x: cx, y: by, width: Math.max(w, 1), height: barH, rx: 1, class: 'cell ' + cls }));
+            g.appendChild(el('rect', { x: cx, y: by, width: Math.max(w, 1), height: barH, class: 'cell ' + cls }));
             cx += w;
           }
         }
