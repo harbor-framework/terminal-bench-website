@@ -71,22 +71,22 @@
   .tip .t-sub b.z{color:var(--muted);}
   .dd{position:relative;}
   .plegend .dd{margin-left:auto;}
-  .dd-btn{font-family:var(--font);font-size:11px;color:var(--ink);cursor:pointer;
-    background:transparent;border:0;border-bottom:1px dashed var(--muted);
-    padding:2px 0 1px;letter-spacing:.02em;line-height:1.2;
-    display:inline-flex;align-items:center;gap:7px;}
-  .dd-btn:hover{color:var(--mark);}
+  .dd-btn{font-family:var(--font);font-size:12px;color:var(--ink);cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;
+    height:32px;padding:0 8px 0 10px;letter-spacing:.02em;line-height:1.2;
+    display:inline-flex;align-items:center;gap:6px;transition:background .12s;}
+  .dd-btn:hover{background:rgba(255,255,255,.08);}
   .dd-btn:focus-visible{outline:1px solid var(--ink);outline-offset:2px;}
-  .dd-chev{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;
-    border-top:5px solid var(--muted);}
+  .dd-chev{display:inline-flex;color:var(--muted);}
+  .dd-chev svg{width:14px;height:14px;}
   .dd-menu{position:absolute;right:0;top:calc(100% + 4px);z-index:5;min-width:100%;
-    background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;
-    box-shadow:0 6px 18px rgba(0,0,0,.5);}
+    background:var(--card);border:1px solid var(--border);border-radius:8px;
+    padding:4px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.5);}
   .dd-menu button{display:block;width:100%;text-align:left;font-family:var(--font);
-    font-size:11px;letter-spacing:.02em;padding:6px 12px;border:0;background:transparent;
-    color:var(--muted);cursor:pointer;white-space:nowrap;}
-  .dd-menu button:hover{background:#1a1a18;color:var(--ink);}
-  .dd-menu button[aria-selected="true"]{color:var(--mark);}
+    font-size:12px;letter-spacing:.02em;padding:6px 10px;border:0;background:transparent;
+    border-radius:6px;color:var(--ink);cursor:pointer;white-space:nowrap;}
+  .dd-menu button:hover{background:#1a1a18;}
+  .dd-menu button[aria-selected="true"]{color:var(--mark);background:#141412;}
   .dd-menu button:focus-visible{outline:1px solid var(--ink);outline-offset:-1px;}
   .plegend{display:flex;flex-wrap:wrap;gap:14px;align-items:center;max-width:900px;
     margin:22px auto 10px;font-size:11px;color:var(--muted);padding:0 2px;}
@@ -539,6 +539,7 @@
     ddBtn.appendChild(ddLabel);
     const chev = document.createElement('span');
     chev.className = 'dd-chev';
+    chev.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>';
     ddBtn.appendChild(chev);
     dd.appendChild(ddBtn);
     const ddMenu = document.createElement('div');
