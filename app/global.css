@@ -63,6 +63,12 @@ html {
 
 /* Nav contents align with the viewport edge margins, not the content
    max-width. */
+/* Square theme toggle: no pill, no circular buttons. */
+[data-theme-toggle],
+[data-theme-toggle] > * {
+  border-radius: 0 !important;
+}
+
 #nd-nav nav > div {
   max-width: none;
   padding-inline: 1rem;
