@@ -885,6 +885,7 @@ export function TaskWaffleView() {
                 <TooltipContent
                   side="top"
                   sideOffset={10}
+                  variant="chart"
                   className="pointer-events-none min-w-40"
                 >
                   {tooltip ? (
@@ -903,7 +904,7 @@ export function TaskWaffleView() {
                         {OUTCOME_WORD[tooltip.trial.o]}
                         {tooltip.trial.e ? ` - ${tooltip.trial.e}` : ""}
                       </p>
-                      <p className="mt-1.5 border-t border-background/20 pt-1.5 text-[10.5px] opacity-50">
+                      <p className="mt-1.5 border-t border-border pt-1.5 text-[10.5px] opacity-50">
                         click to view trial
                       </p>
                     </div>

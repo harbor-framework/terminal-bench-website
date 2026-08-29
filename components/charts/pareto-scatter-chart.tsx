@@ -1,18 +1,21 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import { chartRowLabel, type ChartRowLabel } from '@/components/charts/chart-labels';
+import {
+  chartRowLabel,
+  type ChartRowLabel,
+} from "@/components/charts/chart-labels";
 import {
   PARETO_AXES,
   type ParetoAxisDef,
   type ParetoAxisId,
-} from '@/components/charts/pareto-axes';
+} from "@/components/charts/pareto-axes";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from "@/components/ui/tooltip";
 import {
   TERMINAL_BENCH_DATASET_VERSION,
   TERMINAL_BENCH_LEADERBOARD,
@@ -20,8 +23,8 @@ import {
   getAccessorValue,
   harborLeaderboardRowUrl,
   type LeaderboardRow,
-} from '@/lib/leaderboard';
-import { harborJobUrl } from '@/lib/row-jobs';
+} from "@/lib/leaderboard";
+import { harborJobUrl } from "@/lib/row-jobs";
 
 export type ParetoDatum = {
   id: string;
@@ -75,12 +78,12 @@ function axisTicks(
   const maxV = Math.max(...values);
   const pad = (maxV - minV) * padRatio || Math.abs(maxV) * 0.05 || 1;
 
-  if (axisId === 'release_date') {
+  if (axisId === "release_date") {
     const day = 24 * 60 * 60 * 1000;
     return dateTicks(minV - day * 2, maxV + day * 2, 5);
   }
 
-  if (axisId === 'time') {
+  if (axisId === "time") {
     // Clean gridlines at multiples of 100 hours (values are seconds).
     const hour = 3600;
     const step =
@@ -94,10 +97,10 @@ function axisTicks(
 
   let lo = minV - pad;
   let hi = maxV + pad;
-  if (axisId === 'accuracy') {
+  if (axisId === "accuracy") {
     lo = Math.max(0, lo);
     hi = Math.min(100, hi);
-  } else if (axisId === 'cost' || axisId === 'tokens') {
+  } else if (axisId === "cost" || axisId === "tokens") {
     lo = Math.max(0, lo);
   }
 
@@ -107,21 +110,21 @@ function axisTicks(
 function isBetterOrEqual(
   a: number,
   b: number,
-  prefer: ParetoAxisDef['prefer'],
+  prefer: ParetoAxisDef["prefer"],
 ): boolean {
-  return prefer === 'max' ? a >= b : a <= b;
+  return prefer === "max" ? a >= b : a <= b;
 }
 
 function isStrictlyBetter(
   a: number,
   b: number,
-  prefer: ParetoAxisDef['prefer'],
+  prefer: ParetoAxisDef["prefer"],
 ): boolean {
-  return prefer === 'max' ? a > b : a < b;
+  return prefer === "max" ? a > b : a < b;
 }
 
 export function computeParetoFrontier(
-  points: Omit<ParetoDatum, 'onFrontier'>[],
+  points: Omit<ParetoDatum, "onFrontier">[],
   xAxis: ParetoAxisDef,
   yAxis: ParetoAxisDef,
 ): Set<string> {
@@ -153,13 +156,13 @@ export function buildParetoData(
       const x = xAxis.read(row);
       const y = yAxis.read(row);
       if (x == null || y == null) return null;
-      const ci = getAccessorValue(row, 'metrics.accuracy_ci95_half_width');
-      const stderr = getAccessorValue(row, 'metrics.accuracy_stderr');
+      const ci = getAccessorValue(row, "metrics.accuracy_ci95_half_width");
+      const stderr = getAccessorValue(row, "metrics.accuracy_stderr");
       // Older leaderboards publish only the standard error.
       const halfWidth =
-        typeof ci === 'number' && ci > 0
+        typeof ci === "number" && ci > 0
           ? ci
-          : typeof stderr === 'number' && stderr > 0
+          : typeof stderr === "number" && stderr > 0
             ? 1.96 * stderr
             : null;
       return {
@@ -167,10 +170,10 @@ export function buildParetoData(
         label: chartRowLabel(row),
         x,
         y,
-        yCi: yAxisId === 'accuracy' ? halfWidth : null,
+        yCi: yAxisId === "accuracy" ? halfWidth : null,
       };
     })
-    .filter((row): row is Omit<ParetoDatum, 'onFrontier'> => row != null);
+    .filter((row): row is Omit<ParetoDatum, "onFrontier"> => row != null);
 
   const frontier = computeParetoFrontier(points, xAxis, yAxis);
   return points
@@ -255,7 +258,7 @@ export function ParetoScatterChart({
   const xTicks = axisTicks(xAxisId, xs, 0.08);
   // Resolution rate always spans the full 0-100% scale.
   const yTicks =
-    yAxisId === 'accuracy'
+    yAxisId === "accuracy"
       ? [0, 20, 40, 60, 80, 100]
       : axisTicks(yAxisId, ys, 0.12);
   const xMin = xTicks[0]!;
@@ -271,7 +274,7 @@ export function ParetoScatterChart({
   const frontier = data.filter((d) => d.onFrontier).sort((a, b) => a.x - b.x);
   // Wash the unattained region up-left of the frontier (min-x, max-y charts).
   const washPath =
-    frontier.length > 0 && xAxis.prefer === 'min' && yAxis.prefer === 'max'
+    frontier.length > 0 && xAxis.prefer === "min" && yAxis.prefer === "max"
       ? [
           `M ${MARGIN.left} ${MARGIN.top + plotH}`,
           `L ${MARGIN.left} ${MARGIN.top}`,
@@ -281,280 +284,285 @@ export function ParetoScatterChart({
             .reverse()
             .map((d) => `L ${xScale(d.x)} ${yScale(d.y)}`),
           `L ${xScale(frontier[0]!.x)} ${MARGIN.top + plotH}`,
-          'Z',
-        ].join(' ')
+          "Z",
+        ].join(" ")
       : null;
 
   return (
     <div className={className}>
-      <div ref={plotRef} className="relative w-full overflow-hidden" style={{ height: HEIGHT }}>
-      <svg
-        viewBox={`0 0 ${width} ${HEIGHT}`}
-        width={width}
-        height={HEIGHT}
-        role="img"
-        aria-label={`Pareto scatter of ${yAxis.label} versus ${xAxis.label}`}
-        className="block max-w-full"
+      <div
+        ref={plotRef}
+        className="relative w-full overflow-hidden"
+        style={{ height: HEIGHT }}
       >
-        {xTicks.slice(1, -1).map((tick) => (
+        <svg
+          viewBox={`0 0 ${width} ${HEIGHT}`}
+          width={width}
+          height={HEIGHT}
+          role="img"
+          aria-label={`Pareto scatter of ${yAxis.label} versus ${xAxis.label}`}
+          className="block max-w-full"
+        >
+          {xTicks.slice(1, -1).map((tick) => (
+            <line
+              key={`x-grid-${tick}`}
+              x1={xScale(tick)}
+              y1={MARGIN.top}
+              x2={xScale(tick)}
+              y2={MARGIN.top + plotH}
+              className="stroke-border"
+              strokeWidth={1}
+            />
+          ))}
+          {yTicks.slice(1, -1).map((tick) => (
+            <line
+              key={`y-grid-${tick}`}
+              x1={MARGIN.left}
+              y1={yScale(tick)}
+              x2={MARGIN.left + plotW}
+              y2={yScale(tick)}
+              className="stroke-border"
+              strokeWidth={1}
+            />
+          ))}
+
           <line
-            key={`x-grid-${tick}`}
-            x1={xScale(tick)}
-            y1={MARGIN.top}
-            x2={xScale(tick)}
-            y2={MARGIN.top + plotH}
-            className="stroke-border"
-            strokeWidth={1}
-          />
-        ))}
-        {yTicks.slice(1, -1).map((tick) => (
-          <line
-            key={`y-grid-${tick}`}
             x1={MARGIN.left}
-            y1={yScale(tick)}
+            y1={MARGIN.top + plotH}
             x2={MARGIN.left + plotW}
-            y2={yScale(tick)}
-            className="stroke-border"
+            y2={MARGIN.top + plotH}
+            className="stroke-muted-foreground/40"
             strokeWidth={1}
           />
-        ))}
+          <line
+            x1={MARGIN.left}
+            y1={MARGIN.top}
+            x2={MARGIN.left}
+            y2={MARGIN.top + plotH}
+            className="stroke-muted-foreground/40"
+            strokeWidth={1}
+          />
 
-        <line
-          x1={MARGIN.left}
-          y1={MARGIN.top + plotH}
-          x2={MARGIN.left + plotW}
-          y2={MARGIN.top + plotH}
-          className="stroke-muted-foreground/40"
-          strokeWidth={1}
-        />
-        <line
-          x1={MARGIN.left}
-          y1={MARGIN.top}
-          x2={MARGIN.left}
-          y2={MARGIN.top + plotH}
-          className="stroke-muted-foreground/40"
-          strokeWidth={1}
-        />
+          {xTicks.map((tick) => (
+            <text
+              key={`x-label-${tick}`}
+              x={xScale(tick)}
+              y={MARGIN.top + plotH + 20}
+              textAnchor="middle"
+              className="fill-muted-foreground font-normal"
+              fontSize={12}
+            >
+              {xAxis.format(tick)}
+            </text>
+          ))}
+          {yTicks.map((tick) => (
+            <text
+              key={`y-label-${tick}`}
+              x={MARGIN.left - 12}
+              y={yScale(tick)}
+              textAnchor="end"
+              dominantBaseline="central"
+              className="fill-muted-foreground font-normal"
+              fontSize={12}
+            >
+              {yAxis.format(tick)}
+            </text>
+          ))}
 
-        {xTicks.map((tick) => (
           <text
-            key={`x-label-${tick}`}
-            x={xScale(tick)}
-            y={MARGIN.top + plotH + 20}
+            x={MARGIN.left + plotW / 2}
+            y={HEIGHT - 12}
             textAnchor="middle"
             className="fill-muted-foreground font-normal"
             fontSize={12}
           >
-            {xAxis.format(tick)}
+            {xAxis.axisLabel ?? xAxis.label}
           </text>
-        ))}
-        {yTicks.map((tick) => (
-          <text
-            key={`y-label-${tick}`}
-            x={MARGIN.left - 12}
-            y={yScale(tick)}
-            textAnchor="end"
-            dominantBaseline="central"
-            className="fill-muted-foreground font-normal"
-            fontSize={12}
-          >
-            {yAxis.format(tick)}
-          </text>
-        ))}
+          <g transform={`translate(16 ${MARGIN.top + plotH / 2}) rotate(-90)`}>
+            <text
+              textAnchor="middle"
+              dominantBaseline="central"
+              className="fill-muted-foreground font-normal"
+              fontSize={12}
+            >
+              {yAxis.label}
+            </text>
+          </g>
 
-        <text
-          x={MARGIN.left + plotW / 2}
-          y={HEIGHT - 12}
-          textAnchor="middle"
-          className="fill-muted-foreground font-normal"
-          fontSize={12}
-        >
-          {xAxis.axisLabel ?? xAxis.label}
-        </text>
-        <g transform={`translate(16 ${MARGIN.top + plotH / 2}) rotate(-90)`}>
-          <text
-            textAnchor="middle"
-            dominantBaseline="central"
-            className="fill-muted-foreground font-normal"
-            fontSize={12}
-          >
-            {yAxis.label}
-          </text>
-        </g>
-
-        {washPath ? (
-          <path d={washPath} className="fill-foreground/[0.05]" />
-        ) : null}
-
-        {data.map((datum) => {
-          const cx = xScale(datum.x);
-          const cy = yScale(datum.y);
-          const half = datum.onFrontier ? FRONTIER_DOT_HALF : DOT_HALF;
-          const size = half * 2;
-          const modelText = datum.label.model;
-          const agentPart = datum.label.agent ? ` ${datum.label.agent}` : '';
-          const whiskerClass = datum.onFrontier
-            ? 'stroke-foreground/70'
-            : 'stroke-muted-foreground/35';
-          // Labels sit directly to the right of the marker, flipping to the
-          // left only when the point is close to the right edge.
-          const labelLeft = cx > MARGIN.left + plotW - 170;
-          return (
-            <g key={datum.id}>
-              {datum.yCi != null ? (
-                <g style={{ pointerEvents: 'none' }}>
-                  <line
-                    x1={cx}
-                    x2={cx}
-                    y1={yScale(Math.min(yMax, datum.y + datum.yCi))}
-                    y2={yScale(Math.max(yMin, datum.y - datum.yCi))}
-                    className={whiskerClass}
-                    strokeWidth={1}
-                  />
-                  <line
-                    x1={cx - 3.5}
-                    x2={cx + 3.5}
-                    y1={yScale(Math.min(yMax, datum.y + datum.yCi))}
-                    y2={yScale(Math.min(yMax, datum.y + datum.yCi))}
-                    className={whiskerClass}
-                    strokeWidth={1}
-                  />
-                  <line
-                    x1={cx - 3.5}
-                    x2={cx + 3.5}
-                    y1={yScale(Math.max(yMin, datum.y - datum.yCi))}
-                    y2={yScale(Math.max(yMin, datum.y - datum.yCi))}
-                    className={whiskerClass}
-                    strokeWidth={1}
-                  />
-                </g>
-              ) : null}
-              {/* Invisible hit target in SVG space (avoids HTML/SVG coordinate drift). */}
-              <rect
-                x={cx - 14}
-                y={cy - 14}
-                width={28}
-                height={28}
-                className="fill-transparent"
-                style={{ cursor: 'pointer' }}
-                onClick={() =>
-                  window.open(
-                    jobIdByRow?.[datum.id]
-                      ? harborJobUrl(jobIdByRow[datum.id]!)
-                      : harborLeaderboardRowUrl(
-                          TERMINAL_BENCH_PACKAGE,
-                          TERMINAL_BENCH_LEADERBOARD,
-                          datum.id,
-                          TERMINAL_BENCH_DATASET_VERSION,
-                        ),
-                    '_blank',
-                    'noopener',
-                  )
-                }
-                onMouseEnter={() => {
-                  setActive({
-                    id: datum.id,
-                    label: [datum.label.model, datum.label.agent]
-                      .filter(Boolean)
-                      .join(' / '),
-                    yValue: yAxis.format(datum.y),
-                    ciValue:
-                      datum.yCi != null
-                        ? `\u00b1${datum.yCi.toFixed(1)}%`
-                        : null,
-                    xValue: xAxis.format(datum.x),
-                    cx,
-                    cy,
-                  });
-                  setTipOpen(true);
-                }}
-                onMouseLeave={() => setTipOpen(false)}
-              />
-              <rect
-                x={cx - half}
-                y={cy - half}
-                width={size}
-                height={size}
-                className={
-                  datum.onFrontier || active?.id === datum.id
-                    ? 'fill-foreground'
-                    : 'fill-muted-foreground/35'
-                }
-                style={{ pointerEvents: 'none' }}
-              />
-              <text
-                x={labelLeft ? cx - half - 7 : cx + half + 7}
-                y={cy}
-                textAnchor={labelLeft ? 'end' : 'start'}
-                dominantBaseline="central"
-                className={
-                  datum.onFrontier
-                    ? 'fill-foreground font-normal'
-                    : 'fill-muted-foreground/70 font-normal'
-                }
-                fontSize={11}
-                style={{ pointerEvents: 'none' }}
-              >
-                <tspan>{modelText}</tspan>
-                {agentPart ? (
-                  <tspan
-                    className={
-                      datum.onFrontier
-                        ? 'fill-muted-foreground'
-                        : 'fill-muted-foreground/50'
-                    }
-                  >
-                    {agentPart}
-                  </tspan>
-                ) : null}
-              </text>
-            </g>
-          );
-        })}
-      </svg>
-
-      <Tooltip
-        open={tipOpen}
-        onOpenChange={setTipOpen}
-        onOpenChangeComplete={(open) => {
-          // Keep anchor/content until the close animation finishes so it
-          // doesn't jump to the top-left while fading out.
-          if (!open) setActive(null);
-        }}
-      >
-        <TooltipTrigger
-          type="button"
-          tabIndex={-1}
-          delay={0}
-          aria-hidden
-          className="pointer-events-none absolute size-2 -translate-x-1/2 -translate-y-1/2 opacity-0"
-          style={{
-            left: active?.cx ?? 0,
-            top: active?.cy ?? 0,
-          }}
-        />
-        <TooltipContent
-          side="top"
-          sideOffset={10}
-          className="pointer-events-none min-w-40"
-        >
-          {active ? (
-            <div className="flex w-full flex-col">
-              <p className="mb-1 font-semibold">{active.label}</p>
-              <p className="flex items-baseline justify-between gap-6 opacity-70">
-                <span>
-                  {active.yValue}
-                  {active.ciValue ? ` ${active.ciValue}` : ''}
-                </span>
-                <span>{active.xValue}</span>
-              </p>
-              <p className="mt-1.5 border-t border-background/20 pt-1.5 text-[10.5px] opacity-50">
-                click to view job
-              </p>
-            </div>
+          {washPath ? (
+            <path d={washPath} className="fill-foreground/[0.05]" />
           ) : null}
-        </TooltipContent>
-      </Tooltip>
+
+          {data.map((datum) => {
+            const cx = xScale(datum.x);
+            const cy = yScale(datum.y);
+            const half = datum.onFrontier ? FRONTIER_DOT_HALF : DOT_HALF;
+            const size = half * 2;
+            const modelText = datum.label.model;
+            const agentPart = datum.label.agent ? ` ${datum.label.agent}` : "";
+            const whiskerClass = datum.onFrontier
+              ? "stroke-foreground/70"
+              : "stroke-muted-foreground/35";
+            // Labels sit directly to the right of the marker, flipping to the
+            // left only when the point is close to the right edge.
+            const labelLeft = cx > MARGIN.left + plotW - 170;
+            return (
+              <g key={datum.id}>
+                {datum.yCi != null ? (
+                  <g style={{ pointerEvents: "none" }}>
+                    <line
+                      x1={cx}
+                      x2={cx}
+                      y1={yScale(Math.min(yMax, datum.y + datum.yCi))}
+                      y2={yScale(Math.max(yMin, datum.y - datum.yCi))}
+                      className={whiskerClass}
+                      strokeWidth={1}
+                    />
+                    <line
+                      x1={cx - 3.5}
+                      x2={cx + 3.5}
+                      y1={yScale(Math.min(yMax, datum.y + datum.yCi))}
+                      y2={yScale(Math.min(yMax, datum.y + datum.yCi))}
+                      className={whiskerClass}
+                      strokeWidth={1}
+                    />
+                    <line
+                      x1={cx - 3.5}
+                      x2={cx + 3.5}
+                      y1={yScale(Math.max(yMin, datum.y - datum.yCi))}
+                      y2={yScale(Math.max(yMin, datum.y - datum.yCi))}
+                      className={whiskerClass}
+                      strokeWidth={1}
+                    />
+                  </g>
+                ) : null}
+                {/* Invisible hit target in SVG space (avoids HTML/SVG coordinate drift). */}
+                <rect
+                  x={cx - 14}
+                  y={cy - 14}
+                  width={28}
+                  height={28}
+                  className="fill-transparent"
+                  style={{ cursor: "pointer" }}
+                  onClick={() =>
+                    window.open(
+                      jobIdByRow?.[datum.id]
+                        ? harborJobUrl(jobIdByRow[datum.id]!)
+                        : harborLeaderboardRowUrl(
+                            TERMINAL_BENCH_PACKAGE,
+                            TERMINAL_BENCH_LEADERBOARD,
+                            datum.id,
+                            TERMINAL_BENCH_DATASET_VERSION,
+                          ),
+                      "_blank",
+                      "noopener",
+                    )
+                  }
+                  onMouseEnter={() => {
+                    setActive({
+                      id: datum.id,
+                      label: [datum.label.model, datum.label.agent]
+                        .filter(Boolean)
+                        .join(" / "),
+                      yValue: yAxis.format(datum.y),
+                      ciValue:
+                        datum.yCi != null
+                          ? `\u00b1${datum.yCi.toFixed(1)}%`
+                          : null,
+                      xValue: xAxis.format(datum.x),
+                      cx,
+                      cy,
+                    });
+                    setTipOpen(true);
+                  }}
+                  onMouseLeave={() => setTipOpen(false)}
+                />
+                <rect
+                  x={cx - half}
+                  y={cy - half}
+                  width={size}
+                  height={size}
+                  className={
+                    datum.onFrontier || active?.id === datum.id
+                      ? "fill-foreground"
+                      : "fill-muted-foreground/35"
+                  }
+                  style={{ pointerEvents: "none" }}
+                />
+                <text
+                  x={labelLeft ? cx - half - 7 : cx + half + 7}
+                  y={cy}
+                  textAnchor={labelLeft ? "end" : "start"}
+                  dominantBaseline="central"
+                  className={
+                    datum.onFrontier
+                      ? "fill-foreground font-normal"
+                      : "fill-muted-foreground/70 font-normal"
+                  }
+                  fontSize={11}
+                  style={{ pointerEvents: "none" }}
+                >
+                  <tspan>{modelText}</tspan>
+                  {agentPart ? (
+                    <tspan
+                      className={
+                        datum.onFrontier
+                          ? "fill-muted-foreground"
+                          : "fill-muted-foreground/50"
+                      }
+                    >
+                      {agentPart}
+                    </tspan>
+                  ) : null}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+
+        <Tooltip
+          open={tipOpen}
+          onOpenChange={setTipOpen}
+          onOpenChangeComplete={(open) => {
+            // Keep anchor/content until the close animation finishes so it
+            // doesn't jump to the top-left while fading out.
+            if (!open) setActive(null);
+          }}
+        >
+          <TooltipTrigger
+            type="button"
+            tabIndex={-1}
+            delay={0}
+            aria-hidden
+            className="pointer-events-none absolute size-2 -translate-x-1/2 -translate-y-1/2 opacity-0"
+            style={{
+              left: active?.cx ?? 0,
+              top: active?.cy ?? 0,
+            }}
+          />
+          <TooltipContent
+            side="top"
+            sideOffset={10}
+            variant="chart"
+            className="pointer-events-none min-w-40"
+          >
+            {active ? (
+              <div className="flex w-full flex-col">
+                <p className="mb-1 font-semibold">{active.label}</p>
+                <p className="flex items-baseline justify-between gap-6 opacity-70">
+                  <span>
+                    {active.yValue}
+                    {active.ciValue ? ` ${active.ciValue}` : ""}
+                  </span>
+                  <span>{active.xValue}</span>
+                </p>
+                <p className="mt-1.5 border-t border-border pt-1.5 text-[10.5px] opacity-50">
+                  click to view job
+                </p>
+              </div>
+            ) : null}
+          </TooltipContent>
+        </Tooltip>
       </div>
     </div>
   );
