@@ -686,10 +686,16 @@ const WaffleSvg = memo(function WaffleSvg({
       height={height}
       viewBox={`0 0 ${width} ${height}`}
       className="mx-auto block"
-      onMouseLeave={onTrialLeave}
+      onMouseLeave={(event) => {
+        event.currentTarget.style.cursor = "";
+        onTrialLeave();
+      }}
       onMouseMove={(event) => {
-        // Hide outside the squares' bounding box; glide within it.
-        const rect = event.currentTarget.getBoundingClientRect();
+        // Hide outside the squares' bounding box; glide within it. The svg
+        // itself carries the pointer cursor inside that box so the cursor
+        // doesn't flicker over the 1px gaps between the square links.
+        const svg = event.currentTarget;
+        const rect = svg.getBoundingClientRect();
         const lx = event.clientX - rect.left;
         const ly = event.clientY - rect.top;
         if (
@@ -698,9 +704,11 @@ const WaffleSvg = memo(function WaffleSvg({
           ly < HEAD - 2 ||
           ly > height - 8
         ) {
+          if (svg.style.cursor) svg.style.cursor = "";
           onTrialLeave();
           return;
         }
+        if (!svg.style.cursor) svg.style.cursor = "pointer";
         onSurfaceMove(event);
       }}
     >
