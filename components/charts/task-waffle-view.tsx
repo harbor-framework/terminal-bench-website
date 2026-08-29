@@ -714,6 +714,7 @@ export function TaskWaffleView() {
   }, []);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const [tipOpen, setTipOpen] = useState(false);
+  const lastHitRef = useRef<{ x: number; y: number } | null>(null);
 
   function showTooltip(
     event: React.MouseEvent<SVGElement>,
@@ -729,14 +730,24 @@ export function TaskWaffleView() {
       x: event.clientX - bounds.left + container.scrollLeft,
       y: event.clientY - bounds.top + container.scrollTop,
     });
+    lastHitRef.current = { x: event.clientX, y: event.clientY };
     setTipOpen(true);
   }
 
   // Keeps the anchor under the cursor while crossing the gaps between
-  // squares, so the tooltip glides instead of flickering closed.
+  // squares, so the tooltip glides instead of flickering closed — but hides
+  // once the cursor drifts beyond a square's reach into open space.
   function moveTooltip(event: React.MouseEvent<SVGElement>) {
     const container = scrollRef.current;
     if (!container) return;
+    const hit = lastHitRef.current;
+    if (hit) {
+      const drift = Math.hypot(event.clientX - hit.x, event.clientY - hit.y);
+      if (drift > 24) {
+        setTipOpen(false);
+        return;
+      }
+    }
     const bounds = container.getBoundingClientRect();
     const x = event.clientX - bounds.left + container.scrollLeft;
     const y = event.clientY - bounds.top + container.scrollTop;
