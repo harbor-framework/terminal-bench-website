@@ -38,7 +38,7 @@
   .legend button{appearance:none;border:0;background:transparent;cursor:pointer;
     display:inline-flex;align-items:center;gap:7px;padding:0;
     font-family:var(--font);font-size:11px;color:var(--ink);}
-  .legend button[aria-pressed="false"]{opacity:.4;}
+  .legend button[aria-pressed="false"] .lbl{opacity:.5;}
   .legend button:focus-visible{outline:1px solid var(--ink);outline-offset:2px;}
   .legend .sw{width:11px;height:11px;display:inline-block;}
   .legend .n{color:var(--muted);}
@@ -247,14 +247,25 @@
     b.setAttribute('aria-pressed', String(active.get(s.key)));
     const sw = document.createElement('span');
     sw.className = 'sw';
-    sw.style.background = COLORS[s.key];
+    function syncSw() {
+      if (active.get(s.key)) {
+        sw.style.background = COLORS[s.key];
+        sw.style.border = 'none';
+      } else {
+        sw.style.background = 'transparent';
+        sw.style.border = '1px solid ' + COLORS[s.key];
+      }
+    }
+    syncSw();
     b.appendChild(sw);
     const lbl = document.createElement('span');
+    lbl.className = 'lbl';
     lbl.textContent = SHORT[s.key] || s.label;
     b.appendChild(lbl);
     b.addEventListener('click', () => {
       active.set(s.key, !active.get(s.key));
       b.setAttribute('aria-pressed', String(active.get(s.key)));
+      syncSw();
       draw();
     });
     rowsByProvider[prov].appendChild(b);
@@ -304,8 +315,11 @@
     xt.textContent = 'agent execution hours';
     svg.appendChild(xt);
 
-    // step lines
-    for (const s of visible) {
+    // step lines: every series is drawn; unselected ones sit faded underneath
+    const ordered = SERIES.filter(s => !active.get(s.key)).concat(visible);
+    for (const s of ordered) {
+      const on = active.get(s.key);
+      const dim = on ? 1 : 0.18;
       let d = '';
       s.points.forEach((p, i) => {
         const px = x(p.x).toFixed(2), py = y(p.y).toFixed(2);
@@ -313,10 +327,11 @@
         else d += 'H' + px + 'V' + py;
       });
       svg.appendChild(el('path', { d, fill: 'none', stroke: COLORS[s.key],
-        'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+        'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round',
+        opacity: dim }));
       const end = s.points[s.points.length - 1];
-      svg.appendChild(el('circle', { cx: x(end.x), cy: y(end.y), r: 3.5,
-        fill: COLORS[s.key], stroke: 'var(--card)', 'stroke-width': 2 }));
+      svg.appendChild(el('rect', { x: x(end.x) - 3.5, y: y(end.y) - 3.5,
+        width: 7, height: 7, fill: COLORS[s.key], opacity: dim }));
     }
 
     geom = { m, iw, ih, x, y, domX, visible, width };
