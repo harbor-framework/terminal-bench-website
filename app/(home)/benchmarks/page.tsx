@@ -80,6 +80,11 @@ const BENCHMARKS: Benchmark[] = [
         href: 'https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/1',
         external: true,
       },
+      {
+        label: 'GitHub',
+        href: 'https://github.com/harbor-framework/terminal-bench/releases/tag/v3.0.0',
+        external: true,
+      },
     ],
   },
   {
@@ -92,6 +97,11 @@ const BENCHMARKS: Benchmark[] = [
       {
         label: 'Harbor Hub',
         href: 'https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/4',
+        external: true,
+      },
+      {
+        label: 'GitHub',
+        href: 'https://github.com/harbor-framework/terminal-bench/releases/tag/v4.0.0',
         external: true,
       },
     ],

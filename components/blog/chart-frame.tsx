@@ -20,6 +20,8 @@ export function ChartFrame({
   const frameRef = useRef<HTMLIFrameElement>(null);
   const [height, setHeight] = useState(initialHeight);
   const heightRef = useRef(initialHeight);
+  // Show a card-outline placeholder until the chart reports its height.
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     function onMessage(event: MessageEvent) {
@@ -38,6 +40,7 @@ export function ChartFrame({
         }
         heightRef.current = next;
         setHeight(next);
+        setReady(true);
       }
     }
     window.addEventListener("message", onMessage);
@@ -68,22 +71,30 @@ export function ChartFrame({
   const src = `/blog/terminal-bench-4-0/rollout-charts.html?chart=${encodeURIComponent(chart)}${model ? `&model=${encodeURIComponent(model)}` : ""}`;
 
   return (
-    // The chart page is dark by design; in light mode invert+hue-rotate
-    // approximates a light theme while keeping the accent hues.
-    <iframe
-      ref={frameRef}
-      src={src}
-      title={title}
-      className="invert hue-rotate-180 dark:invert-0 dark:hue-rotate-0"
-      style={{
-        width: "100%",
-        height,
-        border: 0,
-        overflow: "hidden",
-        display: "block",
-      }}
-      scrolling="no"
-      loading="lazy"
-    />
+    <div className="relative" style={{ height }}>
+      {/* The chart page is dark by design; in light mode invert+hue-rotate
+          approximates a light theme while keeping the accent hues. */}
+      <iframe
+        ref={frameRef}
+        src={src}
+        title={title}
+        className="invert hue-rotate-180 dark:invert-0 dark:hue-rotate-0"
+        style={{
+          width: "100%",
+          height: "100%",
+          border: 0,
+          overflow: "hidden",
+          display: "block",
+        }}
+        scrolling="no"
+        loading="lazy"
+      />
+      {ready ? null : (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 border border-border bg-card"
+        />
+      )}
+    </div>
   );
 }

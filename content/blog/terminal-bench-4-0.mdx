@@ -15,7 +15,7 @@ TB 4.0 has fewer agent timeouts and errors than 3.0, reducing measurement noise.
 <ChartFrame
   chart="waffles"
   title="Trials by task and outcome: Terminal-Bench 4.0 vs 3.0"
-  initialHeight={900}
+  initialHeight={819}
 />
 
 ## Calibrating resources
@@ -27,7 +27,7 @@ All tasks in TB 4.0 are now set to a flat agent timeout of 8 hours. Frontier mod
 <ChartFrame
   chart="rollout"
   title="Cumulative rollout completion on Terminal-Bench 4.0"
-  initialHeight={560}
+  initialHeight={545}
 />
 
 We noticed that Sonnet 5 sometimes hit timeouts and output-token-exceeded errors. The model uses large amounts of tokens (21.6B on its leaderboard run vs 6.5B for Opus 5) and struggles to stay within its max output tokens. We did not enable the 128k max-output-tokens setting, which may help with this. Regardless, we observed large variance in agent execution time for Sonnet 5.
@@ -36,7 +36,7 @@ We noticed that Sonnet 5 sometimes hit timeouts and output-token-exceeded errors
   chart="trialtime"
   model="sonnet5"
   title="Trial time per task, Sonnet 5 selected"
-  initialHeight={1500}
+  initialHeight={545}
 />
 
 ## Removing and fixing tasks
