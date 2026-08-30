@@ -707,7 +707,7 @@ export function LeaderboardTable() {
                 )
               }
             />
-            <div className="flex min-w-0 items-center gap-1.5">
+            <div className="flex min-w-0 items-center gap-1.5 max-[529px]:contents">
               <BenchmarkSelect />
               <LeaderboardToolbar
                 columns={toolbarColumns}

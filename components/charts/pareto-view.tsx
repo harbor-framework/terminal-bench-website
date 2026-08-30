@@ -115,7 +115,7 @@ export function ParetoView() {
   if (isPending) {
     return (
       <div className="flex w-full min-w-0 flex-col gap-1.5">
-        <div className="flex items-center justify-between gap-1.5">
+        <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-1.5">
           <ViewExportActions
             targetId={PARETO_EXPORT_TARGET_ID}
             fileBaseName={`terminal-bench-${benchmark.id}-pareto`}
@@ -134,7 +134,7 @@ export function ParetoView() {
   if (error || !data) {
     return (
       <div className="flex w-full min-w-0 flex-col gap-1.5">
-        <div className="flex items-center justify-between gap-1.5">
+        <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-1.5">
           <ViewExportActions
             targetId={PARETO_EXPORT_TARGET_ID}
             fileBaseName={`terminal-bench-${benchmark.id}-pareto`}
@@ -152,7 +152,7 @@ export function ParetoView() {
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-1.5">
-      <div className="flex items-center justify-between gap-1.5">
+      <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-1.5">
         <ViewExportActions
           targetId={PARETO_EXPORT_TARGET_ID}
           fileBaseName={`terminal-bench-${benchmark.id}-pareto`}
@@ -160,7 +160,7 @@ export function ParetoView() {
             buildParetoMarkdownTable(chartData, xAxisId, yAxisId)
           }
         />
-        <div className="flex min-w-0 items-center gap-1.5">
+        <div className="flex min-w-0 items-center gap-1.5 max-[529px]:contents">
           <BenchmarkSelect />
           <LeaderboardToolbar
             columns={toolbarColumns}

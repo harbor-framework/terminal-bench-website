@@ -398,7 +398,7 @@ export function LeaderboardToolbar({
   }, [columnById, filters, numberBounds]);
 
   return (
-    <div className="flex min-w-0 flex-1 flex-wrap-reverse items-center justify-end gap-1.5">
+    <div className="flex min-w-0 flex-1 flex-wrap-reverse items-center justify-end gap-1.5 max-[529px]:basis-full">
       {activeFilterCount > 0 ? (
         <Button
           type="button"
@@ -436,7 +436,7 @@ export function LeaderboardToolbar({
           </button>
         </Badge>
       ))}
-      <div className="flex shrink-0 items-center gap-1.5">
+      <div className="flex shrink-0 items-center gap-1.5 max-[529px]:w-full max-[529px]:flex-wrap max-[529px]:justify-between">
         {/* Mobile: drawers below sm */}
         <div className="flex items-center gap-1.5 sm:hidden">
           <Drawer showSwipeHandle>

@@ -12,6 +12,7 @@ import { HeroTitle } from '@/components/hero-title';
 import { HomeView } from '@/components/home-view';
 import { LeaderboardSkeleton } from '@/components/leaderboard/leaderboard-skeleton';
 import { LeaderboardTable } from '@/components/leaderboard/leaderboard-table';
+import { TaskActions } from '@/components/task-actions';
 import { buttonVariants } from '@/components/ui/button';
 import {
   TERMINAL_BENCH_LEADERBOARD,
@@ -65,6 +66,7 @@ export default async function HomePage() {
               Read the blog
               <HugeiconsIcon icon={ArrowUpRight03Icon} strokeWidth={2} />
             </Link>
+            <TaskActions />
           </div>
         </div>
 

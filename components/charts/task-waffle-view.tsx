@@ -930,7 +930,7 @@ export function TaskWaffleView() {
   if (isPending) {
     return (
       <div className="flex w-full min-w-0 flex-col gap-1.5">
-        <div className="flex items-center justify-between gap-1.5">
+        <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-1.5">
           <ViewExportActions
             targetId={WAFFLE_EXPORT_TARGET_ID}
             fileBaseName={`terminal-bench-${benchmark.id}-waffle`}
@@ -949,7 +949,7 @@ export function TaskWaffleView() {
   if (error || !data || !matrix) {
     return (
       <div className="flex w-full min-w-0 flex-col gap-1.5">
-        <div className="flex items-center justify-between gap-1.5">
+        <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-1.5">
           <ViewExportActions
             targetId={WAFFLE_EXPORT_TARGET_ID}
             fileBaseName={`terminal-bench-${benchmark.id}-waffle`}
@@ -969,13 +969,13 @@ export function TaskWaffleView() {
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-1.5">
-      <div className="flex items-center justify-between gap-1.5">
+      <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-1.5">
         <ViewExportActions
           targetId={WAFFLE_EXPORT_TARGET_ID}
           fileBaseName={`terminal-bench-${benchmark.id}-waffle`}
           getMarkdown={() => buildWaffleMarkdownTable(snapshot?.data ?? data)}
         />
-        <div className="flex min-w-0 items-center gap-1.5">
+        <div className="flex min-w-0 items-center gap-1.5 max-[529px]:contents">
           <BenchmarkSelect />
           <LeaderboardToolbar
             columns={toolbarColumns}

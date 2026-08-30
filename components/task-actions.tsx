@@ -10,7 +10,7 @@ import {
 
 export function TaskActions() {
   return (
-    <div className="flex flex-wrap items-center justify-center gap-2">
+    <div className="contents">
       <a
         href={harborDatasetUrl(
           TERMINAL_BENCH_PACKAGE,
