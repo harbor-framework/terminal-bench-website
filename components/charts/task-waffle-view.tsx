@@ -560,16 +560,19 @@ const WaffleSvg = memo(function WaffleSvg({
   if (group === "model" && (labelModel || labelAgent))
     matrix.columns.forEach((column, index) => {
       const cx = GUT + index * stepM + blockW / 2;
+      // With a single line shown, sit on the lower (agent) baseline so the
+      // label stays stacked next to the squares.
+      const twoLines = labelModel && labelAgent && Boolean(column.agent);
       const label = (
         <text
           x={cx}
-          y={HEAD - (fontSm + 9)}
+          y={twoLines ? HEAD - (fontSm + 9) : HEAD - 8}
           textAnchor="middle"
           fontSize={fontSm}
           className={labelModel ? "fill-foreground" : "fill-muted-foreground"}
         >
           {labelModel ? truncate(column.model) : truncate(column.agent)}
-          {labelModel && labelAgent && column.agent ? (
+          {twoLines ? (
             <tspan x={cx} dy={fontSm + 1} className="fill-muted-foreground">
               {truncate(column.agent)}
             </tspan>

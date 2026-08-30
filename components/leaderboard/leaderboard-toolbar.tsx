@@ -821,7 +821,7 @@ export function LeaderboardToolbar({
                 className="text-muted-foreground"
               />
             </PopoverTrigger>
-            <PopoverContent align="end" className="w-64 gap-0 p-0">
+            <PopoverContent align="end" className="w-fit min-w-36 gap-0 p-0">
               <Command>
                 <ScrollArea className="[&_[data-slot=scroll-area-viewport]]:max-h-80">
                   <CommandList className="max-h-none overflow-visible">
