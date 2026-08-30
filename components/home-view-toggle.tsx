@@ -35,12 +35,37 @@ export const parseHomeView = createParser({
 // and the view box.
 const VIEW_SCROLL_MARGIN = 62;
 
-function scrollToViewSection() {
+function adjustViewSnap() {
   const element = document.getElementById('home-view-section');
   if (!element) return;
   const target = () =>
     window.scrollY + element.getBoundingClientRect().top - VIEW_SCROLL_MARGIN;
+  // Short views (e.g. pareto on a phone) don't leave enough page below the
+  // section for the scroll to reach the target; pad the body by exactly the
+  // missing amount so the snap lands, and drop the padding when it isn't
+  // needed so no dead space is reserved otherwise.
+  const currentPad = parseFloat(document.body.style.paddingBottom) || 0;
+  const baseHeight = document.documentElement.scrollHeight - currentPad;
+  const needed = Math.max(
+    0,
+    Math.ceil(target() + window.innerHeight - baseHeight),
+  );
+  document.body.style.paddingBottom = needed > 0 ? `${needed}px` : '';
   window.scrollTo({ top: target(), behavior: 'smooth' });
+}
+
+function scrollToViewSection() {
+  adjustViewSnap();
+  // The clicked view may swap in shorter content after the scroll starts,
+  // clamping it short of the target; re-adjust once the new view has
+  // rendered, unless the user has since scrolled somewhere else.
+  window.setTimeout(() => {
+    const element = document.getElementById('home-view-section');
+    if (!element) return;
+    const target =
+      window.scrollY + element.getBoundingClientRect().top - VIEW_SCROLL_MARGIN;
+    if (Math.abs(window.scrollY - target) <= 150) adjustViewSnap();
+  }, 450);
 }
 
 export function HomeViewToggle({ className }: { className?: string }) {
