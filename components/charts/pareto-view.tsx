@@ -108,6 +108,10 @@ export function ParetoView() {
     [filteredRows, xAxisId, yAxisId],
   );
 
+  const longestXLabel = PARETO_X_AXIS_IDS.map(
+    (axisId) => PARETO_AXES[axisId].label,
+  ).reduce((a, b) => (b.length > a.length ? b : a), "");
+
   const xLabel = PARETO_AXES[xAxisId].label;
   const yLabel = PARETO_AXES[yAxisId].label;
   const caption = `Resolution rate of ${benchmark.label} tasks ${PARETO_CAPTIONS[xAxisId]}`;
@@ -193,9 +197,16 @@ export function ParetoView() {
           >
             <SelectTrigger
               size="sm"
-              className="min-w-28 bg-background uppercase dark:bg-card"
+              className="bg-background uppercase dark:bg-card"
             >
-              <SelectValue>{xLabel}</SelectValue>
+              <SelectValue>
+                <span className="grid text-left">
+                  <span aria-hidden className="invisible [grid-area:1/1]">
+                    {longestXLabel}
+                  </span>
+                  <span className="[grid-area:1/1]">{xLabel}</span>
+                </span>
+              </SelectValue>
             </SelectTrigger>
             <SelectContent
               align="start"

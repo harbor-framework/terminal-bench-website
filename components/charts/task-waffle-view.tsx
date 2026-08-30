@@ -1005,14 +1005,21 @@ export function TaskWaffleView() {
           >
             <SelectTrigger
               size="sm"
-              className="min-w-28 bg-background uppercase dark:bg-card"
+              className="bg-background uppercase dark:bg-card"
             >
               <SelectValue>
-                {mode === "task"
-                  ? "Task"
-                  : mode === "domain"
-                    ? "Domain"
-                    : "All"}
+                <span className="grid text-left">
+                  <span aria-hidden className="invisible [grid-area:1/1]">
+                    Domain
+                  </span>
+                  <span className="[grid-area:1/1]">
+                    {mode === "task"
+                      ? "Task"
+                      : mode === "domain"
+                        ? "Domain"
+                        : "All"}
+                  </span>
+                </span>
               </SelectValue>
             </SelectTrigger>
             <SelectContent
@@ -1040,10 +1047,17 @@ export function TaskWaffleView() {
           >
             <SelectTrigger
               size="sm"
-              className="min-w-28 bg-background uppercase dark:bg-card"
+              className="bg-background uppercase dark:bg-card"
             >
               <SelectValue>
-                {group === "model" ? "Model" : "Outcome"}
+                <span className="grid text-left">
+                  <span aria-hidden className="invisible [grid-area:1/1]">
+                    Outcome
+                  </span>
+                  <span className="[grid-area:1/1]">
+                    {group === "model" ? "Model" : "Outcome"}
+                  </span>
+                </span>
               </SelectValue>
             </SelectTrigger>
             <SelectContent

@@ -211,6 +211,7 @@ export function ParetoScatterChart({
   className,
 }: ParetoScatterChartProps) {
   const [width, setWidth] = useState(MIN_WIDTH);
+  const [containerWidth, setContainerWidth] = useState(MIN_WIDTH);
   // SSR can't measure, so the first paint would show the MIN_WIDTH chart
   // until hydration; keep it hidden until the client has measured once.
   const [measured, setMeasured] = useState(false);
@@ -224,6 +225,7 @@ export function ParetoScatterChart({
     if (!el) return;
     const update = () => {
       setWidth(Math.max(MIN_WIDTH, Math.floor(el.clientWidth)));
+      setContainerWidth(Math.floor(el.clientWidth));
       setMeasured(true);
     };
     update();
@@ -297,7 +299,11 @@ export function ParetoScatterChart({
       <div
         ref={plotRef}
         className="relative w-full overflow-hidden"
-        style={{ height: HEIGHT }}
+        // Below MIN_WIDTH the svg scales down via max-w-full; shrink the
+        // wrapper with it so no dead space is reserved.
+        style={{
+          height: Math.round(HEIGHT * Math.min(1, containerWidth / width)),
+        }}
       >
         <svg
           style={measured ? undefined : { visibility: "hidden" }}
@@ -306,7 +312,7 @@ export function ParetoScatterChart({
           height={HEIGHT}
           role="img"
           aria-label={`Pareto scatter of ${yAxis.label} versus ${xAxis.label}`}
-          className="block max-w-full"
+          className="block h-auto max-w-full"
         >
           {xTicks.slice(1, -1).map((tick) => (
             <line

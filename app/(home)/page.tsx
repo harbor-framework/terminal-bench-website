@@ -1,4 +1,4 @@
-import { ArrowUpRight03Icon, TerminalIcon } from '@hugeicons/core-free-icons';
+import { TerminalIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   dehydrate,
@@ -58,13 +58,6 @@ export default async function HomePage() {
             >
               Run the benchmark
               <HugeiconsIcon icon={TerminalIcon} strokeWidth={2} />
-            </Link>
-            <Link
-              href="/news"
-              className={buttonVariants({ variant: 'secondary', size: 'lg' })}
-            >
-              Read the blog
-              <HugeiconsIcon icon={ArrowUpRight03Icon} strokeWidth={2} />
             </Link>
             <TaskActions />
           </div>
