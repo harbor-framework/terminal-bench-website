@@ -8,14 +8,23 @@ export function SiteFooter() {
       <p className="text-right">
         Hosted by{' '}
         <a
+          href="https://www.cs.stanford.edu/"
+          target="_blank"
+          rel="noreferrer"
+          className="text-foreground hover:underline"
+        >
+          Stanford
+        </a>
+        ,{' '}
+        <a
           href="https://www.harborframework.com/"
           target="_blank"
           rel="noreferrer"
           className="text-foreground hover:underline"
         >
           Harbor
-        </a>{' '}
-        and{' '}
+        </a>
+        , and{' '}
         <a
           href="https://www.laude.org/"
           target="_blank"
