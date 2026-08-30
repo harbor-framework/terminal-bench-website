@@ -3,6 +3,7 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
   parseAsArrayOf,
+  parseAsBoolean,
   parseAsString,
   parseAsStringLiteral,
   useQueryState,
@@ -97,6 +98,11 @@ const WAFFLE_LABEL_OPTIONS = [
   { id: "agent", label: "Agent", canHide: true },
   { id: "reasoning", label: "Reasoning", canHide: true },
   { id: "task", label: "Task", canHide: true },
+];
+
+const WAFFLE_OPTIONS = [
+  ...WAFFLE_LABEL_OPTIONS,
+  { id: "big", label: "Big", canHide: true },
 ];
 
 async function fetchWaffleData(benchmarkId: string): Promise<WafflePayload> {
@@ -397,6 +403,7 @@ const WaffleSvg = memo(function WaffleSvg({
   labelAgent,
   labelReasoning,
   labelTask,
+  big,
   onTrialMove,
   onTrialLeave,
   onSurfaceMove,
@@ -408,6 +415,8 @@ const WaffleSvg = memo(function WaffleSvg({
   labelAgent: boolean;
   labelReasoning: boolean;
   labelTask: boolean;
+  /** Match the leaderboard/pareto text size instead of fitting the viewport. */
+  big: boolean;
   /** Scroll container width, to size the centering pad without overflow. */
   containerWidth: number;
   viewportH: number;
@@ -445,75 +454,86 @@ const WaffleSvg = memo(function WaffleSvg({
   let domGap = 24;
   let fontSm = 11;
   let scale = 1;
-  for (let iter = 0; iter < 4; iter++) {
-    SW = Math.min(12, Math.max(5, Math.round(12 * scale) + 1));
-    SGAP = Math.max(1, Math.round(2.5 * scale));
-    MG = Math.max(8, Math.round(18 * scale));
-    RH = Math.max(SW + SGAP, Math.round(20 * scale));
-    domGap = Math.max(10, Math.round(24 * scale));
-    fontSm = Math.min(11, Math.max(7, SW));
-    // Two header text lines plus tight top/bottom clearance.
+  if (big) {
+    // 14px text like the leaderboard and pareto, squares scaled to match.
+    const factor = 14 / 11;
+    SW = Math.round(12 * factor);
+    SGAP = 3;
+    MG = Math.round(18 * factor);
+    RH = Math.round(20 * factor);
+    domGap = Math.round(24 * factor);
+    fontSm = 14;
     HEAD = Math.round(headerLines * fontSm + 16);
-    const pitchYEst = SW + SGAP;
-    // One scale for every mode/group combination: converge on the tallest
-    // layout so squares stay the same size when toggling views.
-    const perLineFor = (m: RowMode) => {
-      const gutEst =
-        m === "task"
-          ? Math.min(210, Math.ceil(maxLabelChars * fontSm * 0.6) + 16)
-          : 36;
-      return Math.max(
-        1,
-        Math.floor(
-          ((available > 0
-            ? (m === "task" ? available : available * 0.6) - gutEst - 16
-            : 800) +
-            SGAP) /
-            (SW + SGAP),
-        ),
-      );
-    };
-    const estimateFor = (m: RowMode, g: GroupMode) => {
-      const perLineEst = perLineFor(m);
-      let est = HEAD + 10;
-      if (m === "task") {
-        // Task rows never wrap (outcome mode scrolls horizontally instead),
-        // so every group renders one line per task.
-        est += matrix.tasks.length * Math.max(RH, pitchYEst);
-      } else {
-        (m === "all" ? [matrix.all] : matrix.domains).forEach(
-          (domain, index) => {
-            const slots = domain.cells.reduce(
-              (sum, cell) => sum + cell.length,
-              0,
-            );
-            const lines =
-              g === "outcome"
-                ? Math.max(1, Math.ceil(slots / perLineEst))
-                : Math.max(
-                    ...domain.cells.map((cell) =>
-                      Math.ceil(cell.length / maxReps),
-                    ),
-                    domain.taskCount,
-                    1,
-                  );
-            est += lines * pitchYEst + (index > 0 ? domGap : 0);
-          },
+  } else
+    for (let iter = 0; iter < 4; iter++) {
+      SW = Math.min(12, Math.max(5, Math.round(12 * scale) + 1));
+      SGAP = Math.max(1, Math.round(2.5 * scale));
+      MG = Math.max(8, Math.round(18 * scale));
+      RH = Math.max(SW + SGAP, Math.round(20 * scale));
+      domGap = Math.max(10, Math.round(24 * scale));
+      fontSm = Math.min(11, Math.max(7, SW));
+      // Two header text lines plus tight top/bottom clearance.
+      HEAD = Math.round(headerLines * fontSm + 16);
+      const pitchYEst = SW + SGAP;
+      // One scale for every mode/group combination: converge on the tallest
+      // layout so squares stay the same size when toggling views.
+      const perLineFor = (m: RowMode) => {
+        const gutEst =
+          m === "task"
+            ? Math.min(210, Math.ceil(maxLabelChars * fontSm * 0.6) + 16)
+            : 36;
+        return Math.max(
+          1,
+          Math.floor(
+            ((available > 0
+              ? (m === "task" ? available : available * 0.6) - gutEst - 16
+              : 800) +
+              SGAP) /
+              (SW + SGAP),
+          ),
         );
-      }
-      return est;
-    };
-    const estimate = Math.max(
-      estimateFor("task", "model"),
-      estimateFor("task", "outcome"),
-      estimateFor("domain", "model"),
-      estimateFor("domain", "outcome"),
-      estimateFor("all", "model"),
-      estimateFor("all", "outcome"),
-    );
-    if (estimate <= budget || scale <= 0.35) break;
-    scale *= Math.max(0.35, (budget - HEAD) / (estimate - HEAD));
-  }
+      };
+      const estimateFor = (m: RowMode, g: GroupMode) => {
+        const perLineEst = perLineFor(m);
+        let est = HEAD + 10;
+        if (m === "task") {
+          // Task rows never wrap (outcome mode scrolls horizontally instead),
+          // so every group renders one line per task.
+          est += matrix.tasks.length * Math.max(RH, pitchYEst);
+        } else {
+          (m === "all" ? [matrix.all] : matrix.domains).forEach(
+            (domain, index) => {
+              const slots = domain.cells.reduce(
+                (sum, cell) => sum + cell.length,
+                0,
+              );
+              const lines =
+                g === "outcome"
+                  ? Math.max(1, Math.ceil(slots / perLineEst))
+                  : Math.max(
+                      ...domain.cells.map((cell) =>
+                        Math.ceil(cell.length / maxReps),
+                      ),
+                      domain.taskCount,
+                      1,
+                    );
+              est += lines * pitchYEst + (index > 0 ? domGap : 0);
+            },
+          );
+        }
+        return est;
+      };
+      const estimate = Math.max(
+        estimateFor("task", "model"),
+        estimateFor("task", "outcome"),
+        estimateFor("domain", "model"),
+        estimateFor("domain", "outcome"),
+        estimateFor("all", "model"),
+        estimateFor("all", "outcome"),
+      );
+      if (estimate <= budget || scale <= 0.35) break;
+      scale *= Math.max(0.35, (budget - HEAD) / (estimate - HEAD));
+    }
   const SH = SW;
   const VGAP = SGAP;
   const fontMd = fontSm + 1;
@@ -921,18 +941,22 @@ export function TaskWaffleView() {
     "labels",
     parseAsArrayOf(parseAsString).withDefault([]),
   );
+  const [big, setBig] = useQueryState("big", parseAsBoolean.withDefault(false));
   const labelVisibility = Object.fromEntries(
     WAFFLE_LABEL_OPTIONS.map((option) => [
       option.id,
       !offLabels.includes(option.id),
     ]),
   );
-  const setLabelVisibility = (next: Record<string, boolean>) =>
+  const optionVisibility = { ...labelVisibility, big };
+  const setOptionVisibility = (next: Record<string, boolean>) => {
     void setOffLabels(
       WAFFLE_LABEL_OPTIONS.filter((option) => next[option.id] === false).map(
         (option) => option.id,
       ),
     );
+    void setBig(next.big !== false);
+  };
 
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const [tipOpen, setTipOpen] = useState(false);
@@ -1029,15 +1053,15 @@ export function TaskWaffleView() {
             <BenchmarkSelect />
             <LeaderboardToolbar
               columns={toolbarColumns}
-              columnOptions={WAFFLE_LABEL_OPTIONS}
+              columnOptions={WAFFLE_OPTIONS}
               filters={filters}
               onFiltersChange={handleFiltersChange}
               numberBounds={facets.numberBounds}
               dateBounds={facets.dateBounds}
               setOptions={facets.setOptions}
-              columnVisibility={labelVisibility}
+              columnVisibility={optionVisibility}
               onColumnVisibilityChange={(next) =>
-                setLabelVisibility(
+                setOptionVisibility(
                   typeof next === "function" ? next(labelVisibility) : next,
                 )
               }
@@ -1068,15 +1092,15 @@ export function TaskWaffleView() {
           <BenchmarkSelect />
           <LeaderboardToolbar
             columns={toolbarColumns}
-            columnOptions={WAFFLE_LABEL_OPTIONS}
+            columnOptions={WAFFLE_OPTIONS}
             filters={filters}
             onFiltersChange={handleFiltersChange}
             numberBounds={facets.numberBounds}
             dateBounds={facets.dateBounds}
             setOptions={facets.setOptions}
-            columnVisibility={labelVisibility}
+            columnVisibility={optionVisibility}
             onColumnVisibilityChange={(next) =>
-              setLabelVisibility(
+              setOptionVisibility(
                 typeof next === "function" ? next(labelVisibility) : next,
               )
             }
@@ -1190,6 +1214,7 @@ export function TaskWaffleView() {
                 labelAgent={labelVisibility.agent !== false}
                 labelReasoning={labelVisibility.reasoning !== false}
                 labelTask={labelVisibility.task !== false}
+                big={big}
                 onTrialMove={showTooltip}
                 onTrialLeave={hideTooltip}
                 onSurfaceMove={moveTooltip}

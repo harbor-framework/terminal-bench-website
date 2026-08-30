@@ -61,7 +61,7 @@ function scrollToViewSection() {
 const VIEW_PARAMS: Record<HomeViewId, string[]> = {
   leaderboard: ["hide"],
   pareto: ["x", "marks"],
-  waffle: ["rows", "group", "labels"],
+  waffle: ["rows", "group", "labels", "big"],
 };
 
 const stashKey = (view: HomeViewId) => `tb-view-params:${view}`;
