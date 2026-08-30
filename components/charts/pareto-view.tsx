@@ -1,8 +1,13 @@
 "use client";
 
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { parseAsStringLiteral, useQueryState } from "nuqs";
-import { useMemo, useState } from "react";
+import {
+  parseAsArrayOf,
+  parseAsString,
+  parseAsStringLiteral,
+  useQueryState,
+} from "nuqs";
+import { useMemo } from "react";
 
 import {
   DEFAULT_PARETO_X,
@@ -42,6 +47,8 @@ import { useRowJobIds } from "@/lib/row-jobs";
 
 const parseParetoXAxis = parseAsStringLiteral(PARETO_X_AXIS_IDS);
 const PARETO_EXPORT_TARGET_ID = "terminal-bench-pareto-export";
+const DEFAULT_OFF_MARKS = ["line", "reasoning"];
+
 const PARETO_MARK_OPTIONS = [
   { id: "whiskers", label: "Whiskers", canHide: true },
   { id: "line", label: "Line", canHide: true },
@@ -119,9 +126,22 @@ export function ParetoView() {
   );
 
   // Chart-mark toggles surfaced through the shared columns box.
-  const [markVisibility, setMarkVisibility] = useState<Record<string, boolean>>(
-    { line: false, reasoning: false },
+  const [offMarks, setOffMarks] = useQueryState(
+    "marks",
+    parseAsArrayOf(parseAsString).withDefault(DEFAULT_OFF_MARKS),
   );
+  const markVisibility = Object.fromEntries(
+    PARETO_MARK_OPTIONS.map((option) => [
+      option.id,
+      !offMarks.includes(option.id),
+    ]),
+  );
+  const setMarkVisibility = (next: Record<string, boolean>) =>
+    void setOffMarks(
+      PARETO_MARK_OPTIONS.filter((option) => next[option.id] === false).map(
+        (option) => option.id,
+      ),
+    );
   const marks: ParetoMarks = {
     whiskers: markVisibility.whiskers !== false,
     line: markVisibility.line !== false,

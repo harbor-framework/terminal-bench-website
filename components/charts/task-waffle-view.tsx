@@ -1,7 +1,12 @@
 "use client";
 
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { parseAsStringLiteral, useQueryState } from "nuqs";
+import {
+  parseAsArrayOf,
+  parseAsString,
+  parseAsStringLiteral,
+  useQueryState,
+} from "nuqs";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { chartRowLabel } from "@/components/charts/chart-labels";
@@ -884,9 +889,22 @@ export function TaskWaffleView() {
     scrollObserverRef.current = observer;
   }, []);
   // Label toggles surfaced through the shared columns box.
-  const [labelVisibility, setLabelVisibility] = useState<
-    Record<string, boolean>
-  >({});
+  const [offLabels, setOffLabels] = useQueryState(
+    "labels",
+    parseAsArrayOf(parseAsString).withDefault([]),
+  );
+  const labelVisibility = Object.fromEntries(
+    WAFFLE_LABEL_OPTIONS.map((option) => [
+      option.id,
+      !offLabels.includes(option.id),
+    ]),
+  );
+  const setLabelVisibility = (next: Record<string, boolean>) =>
+    void setOffLabels(
+      WAFFLE_LABEL_OPTIONS.filter((option) => next[option.id] === false).map(
+        (option) => option.id,
+      ),
+    );
 
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const [tipOpen, setTipOpen] = useState(false);
@@ -967,43 +985,9 @@ export function TaskWaffleView() {
     setTipOpen(false);
   }, []);
 
-  if (isPending || (!pairReady && showLoading)) {
-    return (
-      <div className="flex w-full min-w-0 flex-col gap-1.5">
-        <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-1.5">
-          <ViewExportActions
-            targetId={WAFFLE_EXPORT_TARGET_ID}
-            fileBaseName={`terminal-bench-${benchmark.id}-waffle`}
-            getMarkdown={() => ""}
-            disabled
-          />
-          <div className="flex min-w-0 items-center gap-1.5 max-[529px]:contents">
-            <BenchmarkSelect />
-            <LeaderboardToolbar
-              columns={toolbarColumns}
-              columnOptions={WAFFLE_LABEL_OPTIONS}
-              filters={filters}
-              onFiltersChange={handleFiltersChange}
-              numberBounds={facets.numberBounds}
-              dateBounds={facets.dateBounds}
-              setOptions={facets.setOptions}
-              columnVisibility={labelVisibility}
-              onColumnVisibilityChange={(next) =>
-                setLabelVisibility(
-                  typeof next === "function" ? next(labelVisibility) : next,
-                )
-              }
-            />
-          </div>
-        </div>
-        <div className="-mx-4 flex min-h-[max(560px,calc(100vh-122px))] items-center justify-center rounded-none border border-x-0 px-4 py-10 text-center text-sm text-muted-foreground md:mx-0 md:rounded-xl md:border-x">
-          Loading trials…
-        </div>
-      </div>
-    );
-  }
+  const loadingActive = isPending || (!pairReady && showLoading);
 
-  if (error || !data || !matrix) {
+  if (!loadingActive && (error || !data || !matrix)) {
     return (
       <div className="flex w-full min-w-0 flex-col gap-1.5">
         <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-1.5">
@@ -1047,7 +1031,10 @@ export function TaskWaffleView() {
         <ViewExportActions
           targetId={WAFFLE_EXPORT_TARGET_ID}
           fileBaseName={`terminal-bench-${benchmark.id}-waffle`}
-          getMarkdown={() => buildWaffleMarkdownTable(snapshot?.data ?? data)}
+          getMarkdown={() => {
+            const shown = snapshot?.data ?? data;
+            return shown ? buildWaffleMarkdownTable(shown) : "";
+          }}
         />
         <div className="flex min-w-0 items-center gap-1.5 max-[529px]:contents">
           <BenchmarkSelect />
@@ -1152,7 +1139,14 @@ export function TaskWaffleView() {
             </SelectContent>
           </Select>
         </div>
-        {(snapshot?.data ?? data).doms.length > 0 ? (
+        {loadingActive || !matrix ? (
+          <>
+            <div className="flex min-h-[max(460px,calc(100vh-215px))] items-center justify-center px-6 py-10 text-center text-sm text-muted-foreground">
+              Loading trials…
+            </div>
+            <Legend />
+          </>
+        ) : (snapshot?.data ?? data)!.doms.length > 0 ? (
           <>
             <div
               ref={setScrollRef}
