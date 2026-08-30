@@ -823,7 +823,7 @@ export function LeaderboardToolbar({
             </PopoverTrigger>
             <PopoverContent align="end" className="w-fit min-w-36 gap-0 p-0">
               <Command>
-                <ScrollArea className="[&_[data-slot=scroll-area-viewport]]:max-h-80">
+                <ScrollArea className="[&_[data-slot=scroll-area-viewport]]:max-h-[480px]">
                   <CommandList className="max-h-none overflow-visible">
                     <CommandGroup>
                       {columnOptions.length === 0 ? (
@@ -847,7 +847,9 @@ export function LeaderboardToolbar({
                               });
                             }}
                           >
-                            <span className="truncate">{column.label}</span>
+                            <span className="truncate uppercase">
+                              {column.label}
+                            </span>
                           </CommandItem>
                         );
                       })}
