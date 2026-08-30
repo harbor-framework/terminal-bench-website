@@ -775,13 +775,14 @@ export function TaskWaffleView() {
   );
   const { benchmark } = useHomeBenchmark();
 
-  const { data, error, isPending } = useQuery({
+  const { data, error, isPending, isPlaceholderData } = useQuery({
     queryKey: ["waffle", "terminal-bench", benchmark.id],
     queryFn: () => fetchWaffleData(benchmark.id),
     placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000,
   });
-  const { data: leaderboardData } = useQuery({
+  const { data: leaderboardData, isPlaceholderData: rowsArePlaceholder } =
+    useQuery({
     queryKey: leaderboardQueryKey(benchmark.package, benchmark.leaderboard),
     queryFn: () => fetchLeaderboard(benchmark.package, benchmark.leaderboard),
     placeholderData: keepPreviousData,
@@ -807,6 +808,25 @@ export function TaskWaffleView() {
     }
   }
   const snapshot = lastConsistent.current ?? (data ? { data, rows: [] } : null);
+
+  // While switching versions the previous snapshot keeps rendering; if the
+  // new pair isn't ready within 200ms, drop to the loading state instead of
+  // showing stale data.
+  const pairReady =
+    !isPending &&
+    !isPlaceholderData &&
+    !rowsArePlaceholder &&
+    !!data &&
+    leaderboardData?.leaderboard.name === data.leaderboard.name;
+  const [showLoading, setShowLoading] = useState(false);
+  useEffect(() => {
+    if (pairReady) {
+      setShowLoading(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setShowLoading(true), 200);
+    return () => window.clearTimeout(timer);
+  }, [pairReady]);
 
   // Fixed tooltip width: the rendered width of the longest task name
   // (semibold title) or error name, so the box never resizes while sweeping.
@@ -927,7 +947,7 @@ export function TaskWaffleView() {
     setTipOpen(false);
   }, []);
 
-  if (isPending) {
+  if (isPending || (!pairReady && showLoading)) {
     return (
       <div className="flex w-full min-w-0 flex-col gap-1.5">
         <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-1.5">

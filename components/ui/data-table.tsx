@@ -323,7 +323,7 @@ export function DataTable<TData, TValue>({
         id={tableContainerId}
         className="-mx-4 min-w-0 overflow-hidden rounded-none border border-x-0 bg-card md:mx-0 md:rounded-xl md:border-x"
       >
-      <ScrollArea className="w-full">
+      <ScrollArea className="w-full [&_[data-slot=scroll-area-scrollbar][data-orientation=horizontal]]:hidden">
         <Table className="min-w-max w-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
