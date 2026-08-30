@@ -190,10 +190,20 @@ export function buildParetoData(
     .sort((a, b) => a.x - b.x);
 }
 
+export type ParetoMarks = {
+  whiskers: boolean;
+  line: boolean;
+  shade: boolean;
+  model: boolean;
+  agent: boolean;
+  reasoning: boolean;
+};
+
 type ParetoScatterChartProps = {
   data: ParetoDatum[];
   xAxisId: ParetoAxisId;
   yAxisId: ParetoAxisId;
+  marks: ParetoMarks;
   /** Row id -> Hub job id; rows are 1-1 with jobs so clicks open the job. */
   jobIdByRow?: Record<string, string>;
   className?: string;
@@ -215,6 +225,7 @@ export function ParetoScatterChart({
   yAxisId,
   jobIdByRow,
   className,
+  marks,
 }: ParetoScatterChartProps) {
   const [width, setWidth] = useState(MIN_WIDTH);
   const [containerWidth, setContainerWidth] = useState(MIN_WIDTH);
@@ -301,6 +312,16 @@ export function ParetoScatterChart({
         ].join(" ")
       : null;
 
+  const labelParts = (datum: ParetoDatum) => {
+    const model = marks.model ? datum.label.model : "";
+    const agent = marks.agent && datum.label.agent ? datum.label.agent : "";
+    const reasoning =
+      marks.reasoning && datum.label.reasoning
+        ? `(${datum.label.reasoning})`
+        : "";
+    return { model, tail: [agent, reasoning].filter(Boolean).join(" ") };
+  };
+
   // Hide non-frontier labels that would overlap an already-visible label;
   // frontier labels always render.
   const hiddenLabelIds = new Set<string>();
@@ -309,8 +330,8 @@ export function ParetoScatterChart({
       const cx = xScale(datum.x);
       const cy = yScale(datum.y);
       const half = datum.onFrontier ? FRONTIER_DOT_HALF : DOT_HALF;
-      const text =
-        datum.label.model + (datum.label.agent ? ` ${datum.label.agent}` : "");
+      const parts = labelParts(datum);
+      const text = [parts.model, parts.tail].filter(Boolean).join(" ");
       const width = text.length * LABEL_FONT * 0.62;
       const labelLeft = cx > MARGIN.left + plotW - 200;
       const x1 = labelLeft ? cx - half - 7 - width : cx + half + 7;
@@ -333,6 +354,16 @@ export function ParetoScatterChart({
       else kept.push(box);
     }
   }
+
+  const frontierLine =
+    frontier.length > 1
+      ? frontier
+          .map(
+            (datum, index) =>
+              `${index === 0 ? "M" : "L"} ${xScale(datum.x)} ${yScale(datum.y)}`,
+          )
+          .join(" ")
+      : null;
 
   return (
     <div className={className}>
@@ -440,8 +471,16 @@ export function ParetoScatterChart({
             </text>
           </g>
 
-          {washPath ? (
+          {marks.shade && washPath ? (
             <path d={washPath} className="fill-foreground/[0.05]" />
+          ) : null}
+          {marks.line && frontierLine ? (
+            <path
+              d={frontierLine}
+              fill="none"
+              className="stroke-foreground/60"
+              strokeWidth={1}
+            />
           ) : null}
 
           {data.map((datum) => {
@@ -449,8 +488,11 @@ export function ParetoScatterChart({
             const cy = yScale(datum.y);
             const half = datum.onFrontier ? FRONTIER_DOT_HALF : DOT_HALF;
             const size = half * 2;
-            const modelText = datum.label.model;
-            const agentPart = datum.label.agent ? ` ${datum.label.agent}` : "";
+            const parts = labelParts(datum);
+            const modelText = parts.model;
+            const agentPart = parts.tail
+              ? `${parts.model ? " " : ""}${parts.tail}`
+              : "";
             const whiskerClass = datum.onFrontier
               ? "stroke-foreground/70"
               : "stroke-muted-foreground/35";
@@ -459,7 +501,7 @@ export function ParetoScatterChart({
             const labelLeft = cx > MARGIN.left + plotW - 200;
             return (
               <g key={datum.id}>
-                {datum.yCi != null ? (
+                {marks.whiskers && datum.yCi != null ? (
                   <g style={{ pointerEvents: "none" }}>
                     <line
                       x1={cx}
@@ -556,7 +598,8 @@ export function ParetoScatterChart({
                   }
                   style={{ pointerEvents: "none" }}
                 />
-                {hiddenLabelIds.has(datum.id) ? null : (
+                {hiddenLabelIds.has(datum.id) ||
+                !(modelText || agentPart) ? null : (
                   <text
                     x={labelLeft ? cx - half - 7 : cx + half + 7}
                     y={cy}

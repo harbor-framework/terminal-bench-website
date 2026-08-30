@@ -576,10 +576,6 @@ export function LeaderboardToolbar({
                   variant="outline"
                   size="icon"
                   aria-label="Columns"
-                  className={cn(
-                    visibleColumnIds.length < columnOptions.length &&
-                      'bg-muted',
-                  )}
                 />
               }
             >
@@ -816,10 +812,6 @@ export function LeaderboardToolbar({
                   variant="outline"
                   size="icon"
                   aria-label="Columns"
-                  className={cn(
-                    visibleColumnIds.length < columnOptions.length &&
-                      'bg-muted',
-                  )}
                 />
               }
             >

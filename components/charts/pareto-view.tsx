@@ -2,7 +2,7 @@
 
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { parseAsStringLiteral, useQueryState } from "nuqs";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import {
   DEFAULT_PARETO_X,
@@ -13,6 +13,7 @@ import {
 } from "@/components/charts/pareto-axes";
 import {
   ParetoScatterChart,
+  type ParetoMarks,
   type ParetoDatum,
   buildParetoData,
 } from "@/components/charts/pareto-scatter-chart";
@@ -41,6 +42,15 @@ import { useRowJobIds } from "@/lib/row-jobs";
 
 const parseParetoXAxis = parseAsStringLiteral(PARETO_X_AXIS_IDS);
 const PARETO_EXPORT_TARGET_ID = "terminal-bench-pareto-export";
+const PARETO_MARK_OPTIONS = [
+  { id: "whiskers", label: "Whiskers", canHide: true },
+  { id: "line", label: "Line", canHide: true },
+  { id: "shade", label: "Shade", canHide: true },
+  { id: "model", label: "Model", canHide: true },
+  { id: "agent", label: "Agent", canHide: true },
+  { id: "reasoning", label: "Reasoning", canHide: true },
+];
+
 const PARETO_CAPTIONS: Record<(typeof PARETO_X_AXIS_IDS)[number], string> = {
   cost: "against total cost, summed across all trials.",
   tokens:
@@ -108,6 +118,19 @@ export function ParetoView() {
     [filteredRows, xAxisId, yAxisId],
   );
 
+  // Chart-mark toggles surfaced through the shared columns box.
+  const [markVisibility, setMarkVisibility] = useState<Record<string, boolean>>(
+    { line: false, reasoning: false },
+  );
+  const marks: ParetoMarks = {
+    whiskers: markVisibility.whiskers !== false,
+    line: markVisibility.line !== false,
+    shade: markVisibility.shade !== false,
+    model: markVisibility.model !== false,
+    agent: markVisibility.agent !== false,
+    reasoning: markVisibility.reasoning !== false,
+  };
+
   const longestXLabel = PARETO_X_AXIS_IDS.map(
     (axisId) => PARETO_AXES[axisId].label,
   ).reduce((a, b) => (b.length > a.length ? b : a), "");
@@ -174,14 +197,18 @@ export function ParetoView() {
           <BenchmarkSelect />
           <LeaderboardToolbar
             columns={toolbarColumns}
-            columnOptions={[]}
+            columnOptions={PARETO_MARK_OPTIONS}
             filters={filters}
             onFiltersChange={handleFiltersChange}
             numberBounds={facets.numberBounds}
             dateBounds={facets.dateBounds}
             setOptions={facets.setOptions}
-            columnVisibility={{}}
-            onColumnVisibilityChange={() => {}}
+            columnVisibility={markVisibility}
+            onColumnVisibilityChange={(next) =>
+              setMarkVisibility(
+                typeof next === "function" ? next(markVisibility) : next,
+              )
+            }
           />
         </div>
       </div>
@@ -231,6 +258,7 @@ export function ParetoView() {
           data={chartData}
           xAxisId={xAxisId}
           yAxisId={yAxisId}
+          marks={marks}
           jobIdByRow={jobIdByRow}
           className="px-2 py-3"
         />

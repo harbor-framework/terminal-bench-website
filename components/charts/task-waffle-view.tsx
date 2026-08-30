@@ -87,6 +87,12 @@ const OUTCOME_RANK: Record<WaffleTrial["o"], number> = {
 
 const LEGEND_OUTCOMES = ["p", "to", "err", "f"] as const;
 
+const WAFFLE_LABEL_OPTIONS = [
+  { id: "model", label: "Model", canHide: true },
+  { id: "agent", label: "Agent", canHide: true },
+  { id: "task", label: "Task", canHide: true },
+];
+
 async function fetchWaffleData(benchmarkId: string): Promise<WafflePayload> {
   const response = await fetch(
     `/api/waffle?version=${encodeURIComponent(benchmarkId)}`,
@@ -373,6 +379,9 @@ const WaffleSvg = memo(function WaffleSvg({
   group,
   containerWidth,
   viewportH,
+  labelModel,
+  labelAgent,
+  labelTask,
   onTrialMove,
   onTrialLeave,
   onSurfaceMove,
@@ -380,6 +389,9 @@ const WaffleSvg = memo(function WaffleSvg({
   matrix: Matrix;
   mode: RowMode;
   group: GroupMode;
+  labelModel: boolean;
+  labelAgent: boolean;
+  labelTask: boolean;
   /** Scroll container width, to size the centering pad without overflow. */
   containerWidth: number;
   viewportH: number;
@@ -489,8 +501,9 @@ const WaffleSvg = memo(function WaffleSvg({
   const stepM = blockW + MG;
   // Fit the label gutter to the longest visible row label so mx-auto centers
   // the actual content; domain labels render vertically in a one-line gutter.
-  const GUT =
-    mode === "task"
+  const GUT = !labelTask
+    ? 16
+    : mode === "task"
       ? Math.min(210, Math.ceil(maxLabelChars * fontSm * 0.6) + 16)
       : 36;
   // Mirror the label gutter on the right so mx-auto centers the columns
@@ -539,7 +552,7 @@ const WaffleSvg = memo(function WaffleSvg({
   const headerChars = Math.max(1, Math.floor(blockW / (fontSm * 0.6)));
   const truncate = (value: string) => value.slice(0, headerChars).trimEnd();
 
-  if (group === "model")
+  if (group === "model" && (labelModel || labelAgent))
     matrix.columns.forEach((column, index) => {
       const cx = GUT + index * stepM + blockW / 2;
       const label = (
@@ -548,10 +561,10 @@ const WaffleSvg = memo(function WaffleSvg({
           y={HEAD - (fontSm + 9)}
           textAnchor="middle"
           fontSize={fontSm}
-          className="fill-foreground"
+          className={labelModel ? "fill-foreground" : "fill-muted-foreground"}
         >
-          {truncate(column.model)}
-          {column.agent ? (
+          {labelModel ? truncate(column.model) : truncate(column.agent)}
+          {labelModel && labelAgent && column.agent ? (
             <tspan x={cx} dy={fontSm + 1} className="fill-muted-foreground">
               {truncate(column.agent)}
             </tspan>
@@ -586,25 +599,26 @@ const WaffleSvg = memo(function WaffleSvg({
         : 1;
       const blockH = Math.max(RH, rowLines * pitchY);
       const sy = y + (blockH - (rowLines * pitchY - VGAP)) / 2;
-      elements.push(
-        <a
-          key={`label-${task.task}`}
-          href={taskPageUrl(task.task)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="cursor-pointer hover:underline"
-        >
-          <text
-            x={GUT - 10}
-            y={y + blockH / 2 + 3}
-            textAnchor="end"
-            fontSize={fontSm}
-            className="fill-muted-foreground"
+      if (labelTask)
+        elements.push(
+          <a
+            key={`label-${task.task}`}
+            href={taskPageUrl(task.task)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="cursor-pointer hover:underline"
           >
-            {task.task}
-          </text>
-        </a>,
-      );
+            <text
+              x={GUT - 10}
+              y={y + blockH / 2 + 3}
+              textAnchor="end"
+              fontSize={fontSm}
+              className="fill-muted-foreground"
+            >
+              {task.task}
+            </text>
+          </a>,
+        );
       if (merged) {
         elements.push(
           <g key={`cell-${task.task}-merged`}>
@@ -656,19 +670,20 @@ const WaffleSvg = memo(function WaffleSvg({
           );
       const blockH = rows * pitchY;
       const midY = y + blockH / 2;
-      elements.push(
-        <text
-          key={`dname-${domain.name}`}
-          x={GUT - 18}
-          y={midY}
-          textAnchor="middle"
-          fontSize={fontMd}
-          className="fill-foreground font-medium"
-          transform={`rotate(-90 ${GUT - 18} ${midY})`}
-        >
-          {domain.name.toUpperCase()}
-        </text>,
-      );
+      if (labelTask)
+        elements.push(
+          <text
+            key={`dname-${domain.name}`}
+            x={GUT - 18}
+            y={midY}
+            textAnchor="middle"
+            fontSize={fontMd}
+            className="fill-foreground font-medium"
+            transform={`rotate(-90 ${GUT - 18} ${midY})`}
+          >
+            {domain.name.toUpperCase()}
+          </text>,
+        );
       if (merged) {
         elements.push(
           <g key={`dcell-${domain.name}-merged`}>
@@ -783,10 +798,10 @@ export function TaskWaffleView() {
   });
   const { data: leaderboardData, isPlaceholderData: rowsArePlaceholder } =
     useQuery({
-    queryKey: leaderboardQueryKey(benchmark.package, benchmark.leaderboard),
-    queryFn: () => fetchLeaderboard(benchmark.package, benchmark.leaderboard),
-    placeholderData: keepPreviousData,
-  });
+      queryKey: leaderboardQueryKey(benchmark.package, benchmark.leaderboard),
+      queryFn: () => fetchLeaderboard(benchmark.package, benchmark.leaderboard),
+      placeholderData: keepPreviousData,
+    });
   const { facets, filters, handleFiltersChange, filteredRows, toolbarColumns } =
     useLeaderboardFilters(leaderboardData);
 
@@ -868,6 +883,11 @@ export function TaskWaffleView() {
     observer.observe(el);
     scrollObserverRef.current = observer;
   }, []);
+  // Label toggles surfaced through the shared columns box.
+  const [labelVisibility, setLabelVisibility] = useState<
+    Record<string, boolean>
+  >({});
+
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const [tipOpen, setTipOpen] = useState(false);
   const [viewportH, setViewportH] = useState(900);
@@ -1005,14 +1025,18 @@ export function TaskWaffleView() {
           <BenchmarkSelect />
           <LeaderboardToolbar
             columns={toolbarColumns}
-            columnOptions={[]}
+            columnOptions={WAFFLE_LABEL_OPTIONS}
             filters={filters}
             onFiltersChange={handleFiltersChange}
             numberBounds={facets.numberBounds}
             dateBounds={facets.dateBounds}
             setOptions={facets.setOptions}
-            columnVisibility={{}}
-            onColumnVisibilityChange={() => {}}
+            columnVisibility={labelVisibility}
+            onColumnVisibilityChange={(next) =>
+              setLabelVisibility(
+                typeof next === "function" ? next(labelVisibility) : next,
+              )
+            }
           />
         </div>
       </div>
@@ -1112,6 +1136,9 @@ export function TaskWaffleView() {
                 group={group}
                 containerWidth={containerWidth}
                 viewportH={viewportH}
+                labelModel={labelVisibility.model !== false}
+                labelAgent={labelVisibility.agent !== false}
+                labelTask={labelVisibility.task !== false}
                 onTrialMove={showTooltip}
                 onTrialLeave={hideTooltip}
                 onSurfaceMove={moveTooltip}
