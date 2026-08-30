@@ -32,6 +32,10 @@ function PopoverContent({
         alignOffset={alignOffset}
         side={side}
         sideOffset={sideOffset}
+        // Fixed positioning so scrollIntoView calls inside the popup (cmdk
+        // follows its selected item) can never scroll the page toward a
+        // not-yet-positioned popup.
+        positionMethod="fixed"
         className="isolate z-50"
       >
         <PopoverPrimitive.Popup
