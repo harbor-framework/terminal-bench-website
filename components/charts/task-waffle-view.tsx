@@ -95,6 +95,7 @@ const LEGEND_OUTCOMES = ["p", "to", "err", "f"] as const;
 const WAFFLE_LABEL_OPTIONS = [
   { id: "model", label: "Model", canHide: true },
   { id: "agent", label: "Agent", canHide: true },
+  { id: "reasoning", label: "Reasoning", canHide: true },
   { id: "task", label: "Task", canHide: true },
 ];
 
@@ -172,6 +173,7 @@ type MatrixColumn = {
   identity: string;
   model: string;
   agent: string;
+  reasoning: string;
   jobId: string | null;
 };
 
@@ -210,7 +212,12 @@ function buildMatrix(
     domain.tasks.flatMap((task) => task.ts),
   );
 
-  let identities: { identity: string; model: string; agent: string }[];
+  let identities: {
+    identity: string;
+    model: string;
+    agent: string;
+    reasoning: string;
+  }[];
   if (filteredRows.length > 0) {
     identities = filteredRows.map((row) => {
       const label = chartRowLabel(row);
@@ -218,6 +225,7 @@ function buildMatrix(
         identity: rowIdentity(row),
         model: label.model,
         agent: label.agent,
+        reasoning: label.reasoning,
       };
     });
   } else {
@@ -227,7 +235,7 @@ function buildMatrix(
       if (seen.has(trial.m)) continue;
       seen.add(trial.m);
       const [model = trial.m, agent = ""] = trial.m.split(" / ");
-      identities.push({ identity: trial.m, model, agent });
+      identities.push({ identity: trial.m, model, agent, reasoning: "" });
     }
   }
 
@@ -242,6 +250,7 @@ function buildMatrix(
     identity: entry.identity,
     model: entry.model,
     agent: entry.agent,
+    reasoning: entry.reasoning,
     jobId: jobByIdentity.get(entry.identity) ?? null,
   }));
 
@@ -386,6 +395,7 @@ const WaffleSvg = memo(function WaffleSvg({
   viewportH,
   labelModel,
   labelAgent,
+  labelReasoning,
   labelTask,
   onTrialMove,
   onTrialLeave,
@@ -396,6 +406,7 @@ const WaffleSvg = memo(function WaffleSvg({
   group: GroupMode;
   labelModel: boolean;
   labelAgent: boolean;
+  labelReasoning: boolean;
   labelTask: boolean;
   /** Scroll container width, to size the centering pad without overflow. */
   containerWidth: number;
@@ -412,6 +423,10 @@ const WaffleSvg = memo(function WaffleSvg({
   // steps until the full chart fits the viewport height — the same
   // quantization the blog's miniature waffles use so crispEdges renders
   // every square identically.
+  const headerLines = Math.max(
+    1,
+    [labelModel, labelAgent, labelReasoning].filter(Boolean).length,
+  );
   const maxReps = Math.max(1, matrix.maxReps);
   const available = containerWidth > 0 ? containerWidth - 32 : 0;
   const domainRows = mode === "all" ? [matrix.all] : matrix.domains;
@@ -438,7 +453,7 @@ const WaffleSvg = memo(function WaffleSvg({
     domGap = Math.max(10, Math.round(24 * scale));
     fontSm = Math.min(11, Math.max(7, SW));
     // Two header text lines plus tight top/bottom clearance.
-    HEAD = Math.round(2 * fontSm + 16);
+    HEAD = Math.round(headerLines * fontSm + 16);
     const pitchYEst = SW + SGAP;
     // One scale for every mode/group combination: converge on the tallest
     // layout so squares stay the same size when toggling views.
@@ -557,26 +572,33 @@ const WaffleSvg = memo(function WaffleSvg({
   const headerChars = Math.max(1, Math.floor(blockW / (fontSm * 0.6)));
   const truncate = (value: string) => value.slice(0, headerChars).trimEnd();
 
-  if (group === "model" && (labelModel || labelAgent))
+  if (group === "model" && (labelModel || labelAgent || labelReasoning))
     matrix.columns.forEach((column, index) => {
       const cx = GUT + index * stepM + blockW / 2;
-      // With a single line shown, sit on the lower (agent) baseline so the
-      // label stays stacked next to the squares.
-      const twoLines = labelModel && labelAgent && Boolean(column.agent);
+      // Lines stack bottom-up from the squares, so hiding one drops the
+      // rest into its place.
+      const lines = [
+        labelModel ? truncate(column.model) : null,
+        labelAgent && column.agent ? truncate(column.agent) : null,
+        labelReasoning && column.reasoning
+          ? truncate(`(${column.reasoning})`)
+          : null,
+      ].filter((line): line is string => Boolean(line));
+      if (lines.length === 0) return;
       const label = (
         <text
           x={cx}
-          y={twoLines ? HEAD - (fontSm + 9) : HEAD - 8}
+          y={HEAD - 8 - (lines.length - 1) * (fontSm + 1)}
           textAnchor="middle"
           fontSize={fontSm}
-          className={labelModel ? "fill-foreground" : "fill-muted-foreground"}
+          className="fill-foreground"
         >
-          {labelModel ? truncate(column.model) : truncate(column.agent)}
-          {twoLines ? (
-            <tspan x={cx} dy={fontSm + 1} className="fill-muted-foreground">
-              {truncate(column.agent)}
+          {lines[0]}
+          {lines.slice(1).map((line, lineIndex) => (
+            <tspan key={lineIndex} x={cx} dy={fontSm + 1}>
+              {line}
             </tspan>
-          ) : null}
+          ))}
         </text>
       );
       elements.push(
@@ -621,7 +643,7 @@ const WaffleSvg = memo(function WaffleSvg({
               y={y + blockH / 2 + 3}
               textAnchor="end"
               fontSize={fontSm}
-              className="fill-muted-foreground"
+              className="fill-foreground"
             >
               {task.task}
             </text>
@@ -1163,6 +1185,7 @@ export function TaskWaffleView() {
                 viewportH={viewportH}
                 labelModel={labelVisibility.model !== false}
                 labelAgent={labelVisibility.agent !== false}
+                labelReasoning={labelVisibility.reasoning !== false}
                 labelTask={labelVisibility.task !== false}
                 onTrialMove={showTooltip}
                 onTrialLeave={hideTooltip}
