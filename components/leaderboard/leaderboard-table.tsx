@@ -378,12 +378,14 @@ function buildMarkdownTable(
 
 /** Max natural width per column across all selectable benchmarks. */
 const STABLE_COLUMN_MIN_WIDTHS: Record<string, string> = {
-  model_display: 'min-w-[233px]',
-  agent_display: 'min-w-[224px]',
-  date: 'min-w-[169px]',
-  release_date: 'min-w-[169px]',
-  total_tokens: 'min-w-[118px]',
-  total_cost_usd: 'min-w-[124px]',
+  // Below 680px the columns shrink to their content so the table squeezes
+  // together instead of holding these stable widths.
+  model_display: 'min-w-[233px] max-[679px]:min-w-0',
+  agent_display: 'min-w-[224px] max-[679px]:min-w-0',
+  date: 'min-w-[169px] max-[679px]:min-w-0',
+  release_date: 'min-w-[169px] max-[679px]:min-w-0',
+  total_tokens: 'min-w-[118px] max-[679px]:min-w-0',
+  total_cost_usd: 'min-w-[124px] max-[679px]:min-w-0',
 };
 
 function buildColumns(
