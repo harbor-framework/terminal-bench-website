@@ -61,7 +61,7 @@ export function HeroTitle() {
   const minor = Number(minorPart);
 
   return (
-    <h1 className="max-w-full px-1 text-pretty text-4xl font-normal tracking-tighter uppercase sm:text-5xl md:text-7xl">
+    <h1 className="max-w-full whitespace-nowrap px-1 text-[clamp(1.25rem,8.6vw,2.25rem)] font-normal tracking-tighter uppercase sm:text-5xl md:text-7xl">
       TERMINAL-BENCH{' '}
       <span className="inline-flex items-baseline leading-none tracking-tighter tabular-nums">
         <DigitReel initialFrom={Math.max(0, major - 1)} to={major} />
