@@ -100,6 +100,8 @@ const WAFFLE_LABEL_OPTIONS = [
   { id: "task", label: "Task", canHide: true },
 ];
 
+const DEFAULT_OFF_LABELS = ["reasoning"];
+
 const WAFFLE_OPTIONS = [
   ...WAFFLE_LABEL_OPTIONS,
   { id: "big", label: "Big", canHide: true },
@@ -939,7 +941,7 @@ export function TaskWaffleView() {
   // Label toggles surfaced through the shared columns box.
   const [offLabels, setOffLabels] = useQueryState(
     "labels",
-    parseAsArrayOf(parseAsString).withDefault([]),
+    parseAsArrayOf(parseAsString).withDefault(DEFAULT_OFF_LABELS),
   );
   const [big, setBig] = useQueryState("big", parseAsBoolean.withDefault(false));
   const labelVisibility = Object.fromEntries(
