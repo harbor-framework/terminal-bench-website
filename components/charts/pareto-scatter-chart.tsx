@@ -38,6 +38,8 @@ export type ParetoDatum = {
 
 const MIN_WIDTH = 480;
 const HEIGHT = 580;
+// Matches the leaderboard table's text-sm.
+const LABEL_FONT = 14;
 // Below MIN_WIDTH the whole chart scales down with the viewport; lay it out
 // on a shorter canvas there so the scaled result isn't disproportionately
 // tall on thin screens.
@@ -299,6 +301,39 @@ export function ParetoScatterChart({
         ].join(" ")
       : null;
 
+  // Hide non-frontier labels that would overlap an already-visible label;
+  // frontier labels always render.
+  const hiddenLabelIds = new Set<string>();
+  {
+    const boxes = data.map((datum) => {
+      const cx = xScale(datum.x);
+      const cy = yScale(datum.y);
+      const half = datum.onFrontier ? FRONTIER_DOT_HALF : DOT_HALF;
+      const text =
+        datum.label.model + (datum.label.agent ? ` ${datum.label.agent}` : "");
+      const width = text.length * LABEL_FONT * 0.62;
+      const labelLeft = cx > MARGIN.left + plotW - 200;
+      const x1 = labelLeft ? cx - half - 7 - width : cx + half + 7;
+      return {
+        id: datum.id,
+        onFrontier: datum.onFrontier,
+        x1,
+        x2: x1 + width,
+        y1: cy - LABEL_FONT * 0.55,
+        y2: cy + LABEL_FONT * 0.55,
+      };
+    });
+    const kept = boxes.filter((box) => box.onFrontier);
+    for (const box of boxes) {
+      if (box.onFrontier) continue;
+      const overlaps = kept.some(
+        (k) => box.x1 < k.x2 && k.x1 < box.x2 && box.y1 < k.y2 && k.y1 < box.y2,
+      );
+      if (overlaps) hiddenLabelIds.add(box.id);
+      else kept.push(box);
+    }
+  }
+
   return (
     <div className={className}>
       <div
@@ -366,7 +401,7 @@ export function ParetoScatterChart({
               y={MARGIN.top + plotH + 20}
               textAnchor="middle"
               className="fill-muted-foreground font-normal"
-              fontSize={12}
+              fontSize={14}
             >
               {xAxis.format(tick)}
             </text>
@@ -379,7 +414,7 @@ export function ParetoScatterChart({
               textAnchor="end"
               dominantBaseline="central"
               className="fill-muted-foreground font-normal"
-              fontSize={12}
+              fontSize={14}
             >
               {yAxis.format(tick)}
             </text>
@@ -390,7 +425,7 @@ export function ParetoScatterChart({
             y={chartHeight - 12}
             textAnchor="middle"
             className="fill-muted-foreground font-normal"
-            fontSize={12}
+            fontSize={14}
           >
             {xAxis.axisLabel ?? xAxis.label}
           </text>
@@ -399,7 +434,7 @@ export function ParetoScatterChart({
               textAnchor="middle"
               dominantBaseline="central"
               className="fill-muted-foreground font-normal"
-              fontSize={12}
+              fontSize={14}
             >
               {yAxis.label}
             </text>
@@ -421,7 +456,7 @@ export function ParetoScatterChart({
               : "stroke-muted-foreground/35";
             // Labels sit directly to the right of the marker, flipping to the
             // left only when the point is close to the right edge.
-            const labelLeft = cx > MARGIN.left + plotW - 170;
+            const labelLeft = cx > MARGIN.left + plotW - 200;
             return (
               <g key={datum.id}>
                 {datum.yCi != null ? (
@@ -521,32 +556,34 @@ export function ParetoScatterChart({
                   }
                   style={{ pointerEvents: "none" }}
                 />
-                <text
-                  x={labelLeft ? cx - half - 7 : cx + half + 7}
-                  y={cy}
-                  textAnchor={labelLeft ? "end" : "start"}
-                  dominantBaseline="central"
-                  className={
-                    datum.onFrontier
-                      ? "fill-foreground font-normal"
-                      : "fill-muted-foreground/70 font-normal"
-                  }
-                  fontSize={11}
-                  style={{ pointerEvents: "none" }}
-                >
-                  <tspan>{modelText}</tspan>
-                  {agentPart ? (
-                    <tspan
-                      className={
-                        datum.onFrontier
-                          ? "fill-muted-foreground"
-                          : "fill-muted-foreground/50"
-                      }
-                    >
-                      {agentPart}
-                    </tspan>
-                  ) : null}
-                </text>
+                {hiddenLabelIds.has(datum.id) ? null : (
+                  <text
+                    x={labelLeft ? cx - half - 7 : cx + half + 7}
+                    y={cy}
+                    textAnchor={labelLeft ? "end" : "start"}
+                    dominantBaseline="central"
+                    className={
+                      datum.onFrontier
+                        ? "fill-foreground font-normal"
+                        : "fill-muted-foreground/70 font-normal"
+                    }
+                    fontSize={LABEL_FONT}
+                    style={{ pointerEvents: "none" }}
+                  >
+                    <tspan>{modelText}</tspan>
+                    {agentPart ? (
+                      <tspan
+                        className={
+                          datum.onFrontier
+                            ? "fill-muted-foreground"
+                            : "fill-muted-foreground/50"
+                        }
+                      >
+                        {agentPart}
+                      </tspan>
+                    ) : null}
+                  </text>
+                )}
               </g>
             );
           })}
