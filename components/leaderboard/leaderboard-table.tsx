@@ -724,7 +724,7 @@ export function LeaderboardTable() {
           </div>
         }
         footer={
-          <footer className="flex h-12 items-center justify-center border-t px-6 text-center text-sm text-muted-foreground">
+          <footer className="flex min-h-12 items-center justify-center border-t px-6 py-2 text-center text-sm text-muted-foreground">
             Resolution rate of {benchmark.label} tasks. The whiskers span the
             95% confidence interval.
           </footer>
