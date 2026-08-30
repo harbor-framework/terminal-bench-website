@@ -26,9 +26,65 @@ pip install 'harbor[modal]'
 
 ## Run the Benchmark
 
+<VersionBlock versions={["4.0", "3.0"]}>
+
 Terminal-Bench contains tasks that require GPUs, so you need to run it with a sandbox that has GPU access. We used Modal for our experiments. Daytona also recently added GPU support and we hope others will follow suit.
 
-<RunCommand />
+</VersionBlock>
+
+<VersionBlock versions={["2.1", "2.0"]}>
+
+Terminal-Bench requires 5 runs per task (`-k 5`) for official results.
+
+</VersionBlock>
+
+<VersionBlock versions={["4.0"]}>
+
+```bash
+harbor run -d terminal-bench/terminal-bench@4.0.0 \
+  -e modal \
+  -a claude-code \
+  -m anthropic/claude-sonnet-5 \
+  -k 5
+```
+
+</VersionBlock>
+
+<VersionBlock versions={["3.0"]}>
+
+```bash
+harbor run -d terminal-bench/terminal-bench@3.0.0 \
+  -e modal \
+  -a claude-code \
+  -m anthropic/claude-sonnet-5 \
+  -k 5
+```
+
+</VersionBlock>
+
+<VersionBlock versions={["2.1"]}>
+
+```bash
+harbor run -d terminal-bench/terminal-bench-2-1 \
+  -e modal \
+  -a claude-code \
+  -m anthropic/claude-sonnet-5 \
+  -k 5
+```
+
+</VersionBlock>
+
+<VersionBlock versions={["2.0"]}>
+
+```bash
+harbor run -d terminal-bench/terminal-bench-2 \
+  -e modal \
+  -a claude-code \
+  -m anthropic/claude-sonnet-5 \
+  -k 5
+```
+
+</VersionBlock>
 
 ## Analyze results
 
