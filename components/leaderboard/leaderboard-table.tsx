@@ -727,8 +727,8 @@ export function LeaderboardTable() {
         }
         footer={
           <footer className="flex min-h-12 items-center justify-center border-t px-6 py-2 text-center text-sm text-muted-foreground">
-            Resolution rate of {benchmark.label} tasks and 95% confidence
-            interval.
+            Resolution rate of {benchmark.label} tasks ± 95% confidence
+            interval
           </footer>
         }
       />
