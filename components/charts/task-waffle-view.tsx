@@ -977,9 +977,23 @@ export function TaskWaffleView() {
             getMarkdown={() => ""}
             disabled
           />
-          <div className="flex min-w-0 items-center gap-1.5">
+          <div className="flex min-w-0 items-center gap-1.5 max-[529px]:contents">
             <BenchmarkSelect />
-            <HomeViewToggle />
+            <LeaderboardToolbar
+              columns={toolbarColumns}
+              columnOptions={WAFFLE_LABEL_OPTIONS}
+              filters={filters}
+              onFiltersChange={handleFiltersChange}
+              numberBounds={facets.numberBounds}
+              dateBounds={facets.dateBounds}
+              setOptions={facets.setOptions}
+              columnVisibility={labelVisibility}
+              onColumnVisibilityChange={(next) =>
+                setLabelVisibility(
+                  typeof next === "function" ? next(labelVisibility) : next,
+                )
+              }
+            />
           </div>
         </div>
         <div className="-mx-4 flex min-h-[max(560px,calc(100vh-122px))] items-center justify-center rounded-none border border-x-0 px-4 py-10 text-center text-sm text-muted-foreground md:mx-0 md:rounded-xl md:border-x">
@@ -999,9 +1013,23 @@ export function TaskWaffleView() {
             getMarkdown={() => ""}
             disabled
           />
-          <div className="flex min-w-0 items-center gap-1.5">
+          <div className="flex min-w-0 items-center gap-1.5 max-[529px]:contents">
             <BenchmarkSelect />
-            <HomeViewToggle />
+            <LeaderboardToolbar
+              columns={toolbarColumns}
+              columnOptions={WAFFLE_LABEL_OPTIONS}
+              filters={filters}
+              onFiltersChange={handleFiltersChange}
+              numberBounds={facets.numberBounds}
+              dateBounds={facets.dateBounds}
+              setOptions={facets.setOptions}
+              columnVisibility={labelVisibility}
+              onColumnVisibilityChange={(next) =>
+                setLabelVisibility(
+                  typeof next === "function" ? next(labelVisibility) : next,
+                )
+              }
+            />
           </div>
         </div>
         <div className="-mx-4 flex min-h-[max(560px,calc(100vh-122px))] items-center justify-center rounded-none border border-x-0 border-destructive/30 bg-destructive/5 px-4 py-10 text-center text-sm text-destructive md:mx-0 md:rounded-xl md:border-x">
