@@ -34,9 +34,9 @@ export default async function HomePage() {
   });
 
   return (
-    <div className="flex w-full min-w-0 flex-1 flex-col pt-12">
+    <div className="flex w-full min-w-0 flex-1 flex-col pt-5 sm:pt-12">
       <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-6">
-        <div className="mx-auto flex w-full max-w-8xl flex-col items-center gap-8 px-4 text-center">
+        <div className="mx-auto flex w-full max-w-8xl flex-col items-center gap-4 px-4 text-center sm:gap-8">
           <div className="flex flex-col items-center gap-2">
             <Suspense
               fallback={
