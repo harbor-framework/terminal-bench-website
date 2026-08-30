@@ -14,8 +14,7 @@ export function SiteFooter() {
           className="text-foreground hover:underline"
         >
           Stanford
-        </a>{' '}
-        and{' '}
+        </a>{' / '}
         <a
           href="https://www.harborframework.com/"
           target="_blank"
@@ -23,8 +22,7 @@ export function SiteFooter() {
           className="text-foreground hover:underline"
         >
           Harbor
-        </a>{' '}
-        and{' '}
+        </a>{' / '}
         <a
           href="https://www.laude.org/"
           target="_blank"
