@@ -577,13 +577,16 @@ const WaffleSvg = memo(function WaffleSvg({
       const cx = GUT + index * stepM + blockW / 2;
       // Lines stack bottom-up from the squares, so hiding one drops the
       // rest into its place.
+      // Missing values keep a blank line so every column's lines align.
       const lines = [
         labelModel ? truncate(column.model) : null,
-        labelAgent && column.agent ? truncate(column.agent) : null,
-        labelReasoning && column.reasoning
-          ? truncate(`(${column.reasoning})`)
+        labelAgent ? truncate(column.agent) : null,
+        labelReasoning
+          ? column.reasoning
+            ? truncate(`(${column.reasoning})`)
+            : ""
           : null,
-      ].filter((line): line is string => Boolean(line));
+      ].filter((line): line is string => line !== null);
       if (lines.length === 0) return;
       const label = (
         <text
