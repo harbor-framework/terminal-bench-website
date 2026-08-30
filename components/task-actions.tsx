@@ -1,4 +1,4 @@
-import { ArrowRight02Icon, PlusSignIcon } from '@hugeicons/core-free-icons';
+import { ArrowRight02Icon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 
 import { buttonVariants } from '@/components/ui/button';
@@ -22,15 +22,6 @@ export function TaskActions() {
       >
         View the tasks
         <HugeiconsIcon icon={ArrowRight02Icon} strokeWidth={2} />
-      </a>
-      <a
-        href="https://github.com/harbor-framework/terminal-bench/blob/main/CONTRIBUTING.md"
-        target="_blank"
-        rel="noreferrer"
-        className={buttonVariants({ variant: 'secondary', size: 'lg' })}
-      >
-        Contribute a task
-        <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} />
       </a>
     </div>
   );
