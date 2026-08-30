@@ -1,17 +1,19 @@
-import { getMDXComponents } from '@/components/mdx';
-import { pagesSource } from '@/lib/source';
+import { getMDXComponents } from "@/components/mdx";
+import { RunSubtitle, RunSubtitleFallback } from "@/components/run-subtitle";
+import { pagesSource } from "@/lib/source";
 import {
   DocsBody,
   DocsDescription,
   DocsTitle,
-} from 'fumadocs-ui/layouts/docs/page';
-import { GeistSans } from 'geist/font/sans';
-import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+} from "fumadocs-ui/layouts/docs/page";
+import { GeistSans } from "geist/font/sans";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
-export default async function Page(props: PageProps<'/[slug]'>) {
+export default async function Page(props: PageProps<"/[slug]">) {
   const { slug } = await props.params;
   const page = pagesSource.getPage([slug]);
   if (!page) notFound();
@@ -21,12 +23,16 @@ export default async function Page(props: PageProps<'/[slug]'>) {
   return (
     <article
       className={cn(
-        'content-page mx-auto w-full max-w-3xl flex-1 px-4 py-12',
+        "content-page mx-auto w-full max-w-3xl flex-1 px-4 py-12",
         GeistSans.className,
       )}
     >
       <DocsTitle>{page.data.title}</DocsTitle>
-      {page.data.description ? (
+      {slug === "run" ? (
+        <Suspense fallback={<RunSubtitleFallback />}>
+          <RunSubtitle />
+        </Suspense>
+      ) : page.data.description ? (
         <DocsDescription className="page-subtitle mt-2">
           {page.data.description}
         </DocsDescription>
@@ -45,7 +51,7 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata(
-  props: PageProps<'/[slug]'>,
+  props: PageProps<"/[slug]">,
 ): Promise<Metadata> {
   const { slug } = await props.params;
   const page = pagesSource.getPage([slug]);

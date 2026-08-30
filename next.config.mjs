@@ -135,6 +135,16 @@ const config = {
         permanent: true,
       },
       {
+        source: '/contributors/terminal-bench-2',
+        destination: '/contributors?version=2.0',
+        permanent: true,
+      },
+      {
+        source: '/contributors/terminal-bench-1',
+        destination: '/contributors?version=1.0',
+        permanent: true,
+      },
+      {
         source: '/contributors/terminal-bench-challenges',
         destination: '/contributors',
         permanent: true,

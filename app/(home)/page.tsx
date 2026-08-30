@@ -1,28 +1,30 @@
-import { TerminalIcon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
+import { TerminalIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
-} from '@tanstack/react-query';
-import Link from 'next/link';
-import { Suspense } from 'react';
+} from "@tanstack/react-query";
+import Link from "next/link";
+import { Suspense } from "react";
 
-import { HeroTitle } from '@/components/hero-title';
-import { HomeView } from '@/components/home-view';
-import { LeaderboardSkeleton } from '@/components/leaderboard/leaderboard-skeleton';
-import { LeaderboardTable } from '@/components/leaderboard/leaderboard-table';
+import { HeroTitle } from "@/components/hero-title";
+import { HomeView } from "@/components/home-view";
+import { LeaderboardSkeleton } from "@/components/leaderboard/leaderboard-skeleton";
+import { LeaderboardTable } from "@/components/leaderboard/leaderboard-table";
 import {
+  RunBenchmarkLink,
+  RunBenchmarkLinkFallback,
   TaskActions,
   TaskActionsFallback,
-} from '@/components/task-actions';
-import { buttonVariants } from '@/components/ui/button';
+} from "@/components/task-actions";
+import { buttonVariants } from "@/components/ui/button";
 import {
   TERMINAL_BENCH_LEADERBOARD,
   TERMINAL_BENCH_PACKAGE,
   fetchLeaderboard,
   leaderboardQueryKey,
-} from '@/lib/leaderboard';
+} from "@/lib/leaderboard";
 
 export default async function HomePage() {
   const queryClient = new QueryClient();
@@ -55,13 +57,23 @@ export default async function HomePage() {
             </p>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-2">
-            <Link
-              href="/run"
-              className={buttonVariants({ variant: 'default', size: 'lg' })}
+            <Suspense
+              fallback={
+                <RunBenchmarkLinkFallback
+                  className={buttonVariants({ variant: "default", size: "lg" })}
+                >
+                  Run the benchmark
+                  <HugeiconsIcon icon={TerminalIcon} strokeWidth={2} />
+                </RunBenchmarkLinkFallback>
+              }
             >
-              Run the benchmark
-              <HugeiconsIcon icon={TerminalIcon} strokeWidth={2} />
-            </Link>
+              <RunBenchmarkLink
+                className={buttonVariants({ variant: "default", size: "lg" })}
+              >
+                Run the benchmark
+                <HugeiconsIcon icon={TerminalIcon} strokeWidth={2} />
+              </RunBenchmarkLink>
+            </Suspense>
             <Suspense fallback={<TaskActionsFallback />}>
               <TaskActions />
             </Suspense>
