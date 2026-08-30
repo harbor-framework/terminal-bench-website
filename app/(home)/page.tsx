@@ -12,7 +12,10 @@ import { HeroTitle } from '@/components/hero-title';
 import { HomeView } from '@/components/home-view';
 import { LeaderboardSkeleton } from '@/components/leaderboard/leaderboard-skeleton';
 import { LeaderboardTable } from '@/components/leaderboard/leaderboard-table';
-import { TaskActions } from '@/components/task-actions';
+import {
+  TaskActions,
+  TaskActionsFallback,
+} from '@/components/task-actions';
 import { buttonVariants } from '@/components/ui/button';
 import {
   TERMINAL_BENCH_LEADERBOARD,
@@ -59,7 +62,9 @@ export default async function HomePage() {
               Run the benchmark
               <HugeiconsIcon icon={TerminalIcon} strokeWidth={2} />
             </Link>
-            <TaskActions />
+            <Suspense fallback={<TaskActionsFallback />}>
+              <TaskActions />
+            </Suspense>
           </div>
         </div>
 

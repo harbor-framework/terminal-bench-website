@@ -64,6 +64,8 @@ export type HomeBenchmark = {
   label: string;
   package: string;
   leaderboard: string;
+  /** Hub dataset version whose tasks tab this benchmark links to. */
+  datasetVersion: string;
 };
 
 export const HOME_BENCHMARKS: HomeBenchmark[] = [
@@ -72,24 +74,28 @@ export const HOME_BENCHMARKS: HomeBenchmark[] = [
     label: 'Terminal-Bench 4.0',
     package: 'terminal-bench/terminal-bench',
     leaderboard: '4-0-0',
+    datasetVersion: '4',
   },
   {
     id: '3.0',
     label: 'Terminal-Bench 3.0',
     package: 'terminal-bench/terminal-bench',
     leaderboard: '3-0-0',
+    datasetVersion: '1',
   },
   {
     id: '2.1',
     label: 'Terminal-Bench 2.1',
     package: 'terminal-bench/terminal-bench-2-1',
     leaderboard: 'main',
+    datasetVersion: 'latest',
   },
   {
     id: '2.0',
     label: 'Terminal-Bench 2.0',
     package: 'terminal-bench/terminal-bench-2',
     leaderboard: '2-0',
+    datasetVersion: 'latest',
   },
 ];
 
