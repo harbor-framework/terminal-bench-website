@@ -2,8 +2,12 @@
 
 import { Toggle as TogglePrimitive } from "@base-ui/react/toggle";
 import { ToggleGroup as ToggleGroupPrimitive } from "@base-ui/react/toggle-group";
-import { useRouter } from "next/navigation";
-import { createParser, useQueryState } from "nuqs";
+import {
+  createParser,
+  parseAsString,
+  useQueryState,
+  useQueryStates,
+} from "nuqs";
 import { useCallback } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
@@ -66,41 +70,47 @@ const VIEW_PARAMS: Record<HomeViewId, string[]> = {
 
 const stashKey = (view: HomeViewId) => `tb-view-params:${view}`;
 
+const ALL_VIEW_PARAM_PARSERS = Object.fromEntries(
+  Object.values(VIEW_PARAMS)
+    .flat()
+    .map((key) => [key, parseAsString]),
+);
+
 export function HomeViewToggle({ className }: { className?: string }) {
-  const [view] = useQueryState("view", parseHomeView);
-  const router = useRouter();
+  const [view, setView] = useQueryState("view", parseHomeView);
+  // Raw access to every view-scoped param so switching views can stash and
+  // restore them without a router navigation (which iOS Safari can drop
+  // mid-tap); nuqs batches these into one history.replaceState.
+  const [viewParams, setViewParams] = useQueryStates(ALL_VIEW_PARAM_PARSERS);
 
   // Move the outgoing view's params out of the URL (kept in sessionStorage so
   // toggling back restores them) and bring the incoming view's params back.
   const switchView = useCallback(
     (next: HomeViewId) => {
       if (next === view) return;
-      const url = new URL(window.location.href);
+      const updates: Record<string, string | null> = {};
       try {
         const stash: Record<string, string> = {};
         for (const key of VIEW_PARAMS[view]) {
-          const value = url.searchParams.get(key);
-          if (value !== null) {
-            stash[key] = value;
-            url.searchParams.delete(key);
-          }
+          const value = viewParams[key];
+          if (value != null) stash[key] = value;
+          updates[key] = null;
         }
         sessionStorage.setItem(stashKey(view), JSON.stringify(stash));
         const saved = JSON.parse(
           sessionStorage.getItem(stashKey(next)) ?? "{}",
         ) as Record<string, string>;
         for (const [key, value] of Object.entries(saved)) {
-          url.searchParams.set(key, value);
+          updates[key] = value;
         }
       } catch {
         // Storage unavailable: params simply stay in the URL.
       }
-      if (next === "leaderboard") url.searchParams.delete("view");
-      else url.searchParams.set("view", next);
-      router.replace(url.pathname + url.search + url.hash, { scroll: false });
+      void setViewParams(updates);
+      void setView(next);
       scrollToViewSection();
     },
-    [router, view],
+    [setView, setViewParams, view, viewParams],
   );
 
   const cycleView = useCallback(
