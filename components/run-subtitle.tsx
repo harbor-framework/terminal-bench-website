@@ -12,7 +12,7 @@ import { DEFAULT_HOME_BENCHMARK_ID, HOME_BENCHMARKS } from "@/lib/leaderboard";
 
 // The trigger renders as part of the subtitle sentence: same font, no box.
 const TRIGGER_CLASS =
-  "h-auto gap-1 rounded-none border-0 bg-transparent p-0 [font:inherit] tracking-[inherit] text-inherit transition-colors hover:text-foreground";
+  "h-auto gap-1 rounded-none border border-input bg-transparent px-1.5 py-0 [font:inherit] tracking-[inherit] text-inherit transition-colors hover:text-foreground";
 
 export function RunSubtitleView({
   versionId,
@@ -35,7 +35,7 @@ export function RunSubtitleView({
         </SelectTrigger>
         <SelectContent
           align="start"
-          alignOffset={-6}
+          alignOffset={1}
           alignItemWithTrigger={false}
           className="w-fit min-w-0 font-[family-name:var(--font-google-sans-code)]"
         >
