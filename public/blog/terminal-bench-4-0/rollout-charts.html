@@ -70,8 +70,10 @@
   .tip .t-sub b{color:#fff;font-weight:600;}
   .tip .t-sub b.z{color:var(--muted);}
   .dd{position:relative;}
-  .head-right{display:inline-flex;align-items:center;gap:14px;}
-  .dd-label{display:inline-block;text-align:left;}
+  .head-right{display:inline-flex;align-items:center;gap:14px;min-width:0;}
+  .dd{min-width:0;}
+  .dd-label{display:inline-block;text-align:left;white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis;min-width:0;}
   .head-right .wall{min-width:7ch;text-align:right;}
   .expand-btn{display:block;margin:12px auto 0;background:transparent;border:0;
     font-family:var(--font);font-size:11px;color:var(--muted);cursor:pointer;
@@ -81,7 +83,8 @@
   .dd-btn{font-family:var(--font);font-size:11px;color:var(--ink);cursor:pointer;
     background:var(--card);border:1px solid rgba(255,255,255,.15);border-radius:0;
     height:24px;padding:0 6px 0 10px;line-height:1.2;
-    display:inline-flex;align-items:center;gap:5px;}
+    display:inline-flex;align-items:center;gap:5px;max-width:100%;min-width:0;}
+  .dd-chev{flex:none;}
   .dd-btn:hover{background:#141414;}
   .dd-btn:focus-visible{outline:1px solid var(--ink);outline-offset:2px;}
   .dd-chev{display:inline-flex;color:var(--muted);}
