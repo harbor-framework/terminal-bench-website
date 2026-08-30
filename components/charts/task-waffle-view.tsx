@@ -1098,7 +1098,7 @@ export function TaskWaffleView() {
           <>
             <div
               ref={setScrollRef}
-              className="relative overflow-x-auto px-4 py-3"
+              className="relative overflow-x-auto px-4 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               <WaffleSvg
                 matrix={matrix}
