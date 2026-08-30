@@ -126,9 +126,12 @@ export function ParetoView() {
             getMarkdown={() => ""}
             disabled
           />
-          <HomeViewToggle />
+          <div className="flex min-w-0 items-center gap-1.5">
+            <BenchmarkSelect />
+            <HomeViewToggle />
+          </div>
         </div>
-        <div className="-mx-4 rounded-none border border-x-0 px-4 py-10 text-center text-sm text-muted-foreground md:mx-0 md:rounded-xl md:border-x">
+        <div className="-mx-4 flex min-h-[calc((100vw-32px)*0.96+160px)] items-center justify-center rounded-none border border-x-0 px-4 py-10 text-center text-sm text-muted-foreground sm:min-h-[702px] md:mx-0 md:rounded-xl md:border-x">
           Loading Pareto…
         </div>
       </div>
@@ -145,9 +148,12 @@ export function ParetoView() {
             getMarkdown={() => ""}
             disabled
           />
-          <HomeViewToggle />
+          <div className="flex min-w-0 items-center gap-1.5">
+            <BenchmarkSelect />
+            <HomeViewToggle />
+          </div>
         </div>
-        <div className="-mx-4 rounded-none border border-x-0 border-destructive/30 bg-destructive/5 px-4 py-10 text-center text-sm text-destructive md:mx-0 md:rounded-xl md:border-x">
+        <div className="-mx-4 flex min-h-[calc((100vw-32px)*0.96+160px)] items-center justify-center rounded-none border border-x-0 border-destructive/30 bg-destructive/5 px-4 py-10 text-center text-sm text-destructive sm:min-h-[702px] md:mx-0 md:rounded-xl md:border-x">
           {error?.message ?? "Failed to load Pareto data"}
         </div>
       </div>

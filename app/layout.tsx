@@ -62,6 +62,14 @@ export default function Layout({ children }: LayoutProps<'/'>) {
       suppressHydrationWarning
     >
       <body className="flex flex-col min-h-screen font-sans antialiased">
+        {/* Re-apply the view-snap height floor before scroll restoration so a
+            reload on a short view doesn't clamp to a different position. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(location.pathname==='/'){var v=sessionStorage.getItem('tb-home-min-height');if(v)document.body.style.minHeight=v+'px'}}catch(e){}",
+          }}
+        />
         <AppProviders>
           <LogoScrollTop />
           {children}

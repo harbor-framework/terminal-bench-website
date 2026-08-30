@@ -13,7 +13,7 @@ const VIEWS = ['leaderboard', 'pareto', 'waffle'] as const;
 export type HomeViewId = (typeof VIEWS)[number];
 
 const VIEW_LABELS: Record<HomeViewId, string> = {
-  leaderboard: 'LEADERBOARD',
+  leaderboard: 'TABLE',
   pareto: 'PARETO',
   waffle: 'WAFFLE',
 };
@@ -44,7 +44,14 @@ function scrollToViewSection() {
   // the outgoing view unmounts (otherwise the scroll clamps and bounces).
   // The body is a flex column, so the extra height pushes the footer to the
   // true bottom of the page instead of leaving space below it.
-  document.body.style.minHeight = `${Math.ceil(target + window.innerHeight)}px`;
+  const minHeight = Math.ceil(target + window.innerHeight);
+  document.body.style.minHeight = `${minHeight}px`;
+  try {
+    // Survives reloads so restored scroll positions don't clamp.
+    sessionStorage.setItem('tb-home-min-height', String(minHeight));
+  } catch {
+    // Storage may be unavailable; the snap still works for this page view.
+  }
   window.scrollTo({ top: target, behavior: 'smooth' });
 }
 
