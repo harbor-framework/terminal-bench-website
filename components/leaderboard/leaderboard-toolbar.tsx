@@ -569,7 +569,6 @@ export function LeaderboardToolbar({
             </DrawerContent>
           </Drawer>
 
-          {columnOptions.length > 0 ? (
           <Drawer showSwipeHandle>
             <DrawerTrigger
               render={
@@ -627,7 +626,6 @@ export function LeaderboardToolbar({
               </div>
             </DrawerContent>
           </Drawer>
-          ) : null}
         </div>
 
         {/* Desktop: dropdowns from sm up */}
@@ -811,7 +809,6 @@ export function LeaderboardToolbar({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {columnOptions.length > 0 ? (
           <Popover>
             <PopoverTrigger
               render={
@@ -837,6 +834,11 @@ export function LeaderboardToolbar({
                 <ScrollArea className="[&_[data-slot=scroll-area-viewport]]:max-h-80">
                   <CommandList className="max-h-none overflow-visible">
                     <CommandGroup>
+                      {columnOptions.length === 0 ? (
+                        <p className="px-2 py-1.5 text-sm text-muted-foreground">
+                          No options yet
+                        </p>
+                      ) : null}
                       {columnOptions.map((column) => {
                         const selected =
                           columnVisibility[column.id] !== false;
@@ -863,7 +865,6 @@ export function LeaderboardToolbar({
               </Command>
             </PopoverContent>
           </Popover>
-          ) : null}
         </div>
 
         <HomeViewToggle />
