@@ -38,6 +38,10 @@ export type ParetoDatum = {
 
 const MIN_WIDTH = 480;
 const HEIGHT = 580;
+// Below MIN_WIDTH the whole chart scales down with the viewport; lay it out
+// on a shorter canvas there so the scaled result isn't disproportionately
+// tall on thin screens.
+const NARROW_HEIGHT = 460;
 const MARGIN = { top: 20, right: 28, bottom: 52, left: 84 };
 /** Half-side length of plot markers (squares). */
 const DOT_HALF = 4;
@@ -257,7 +261,8 @@ export function ParetoScatterChart({
   }
 
   const plotW = Math.max(0, width - MARGIN.left - MARGIN.right);
-  const plotH = Math.max(0, HEIGHT - MARGIN.top - MARGIN.bottom);
+  const chartHeight = containerWidth < MIN_WIDTH ? NARROW_HEIGHT : HEIGHT;
+  const plotH = Math.max(0, chartHeight - MARGIN.top - MARGIN.bottom);
 
   const xs = data.map((d) => d.x);
   const ys = data.map((d) => d.y);
@@ -302,14 +307,14 @@ export function ParetoScatterChart({
         // Below MIN_WIDTH the svg scales down via max-w-full; shrink the
         // wrapper with it so no dead space is reserved.
         style={{
-          height: Math.round(HEIGHT * Math.min(1, containerWidth / width)),
+          height: Math.round(chartHeight * Math.min(1, containerWidth / width)),
         }}
       >
         <svg
           style={measured ? undefined : { visibility: "hidden" }}
-          viewBox={`0 0 ${width} ${HEIGHT}`}
+          viewBox={`0 0 ${width} ${chartHeight}`}
           width={width}
-          height={HEIGHT}
+          height={chartHeight}
           role="img"
           aria-label={`Pareto scatter of ${yAxis.label} versus ${xAxis.label}`}
           className="block h-auto max-w-full"
@@ -382,7 +387,7 @@ export function ParetoScatterChart({
 
           <text
             x={MARGIN.left + plotW / 2}
-            y={HEIGHT - 12}
+            y={chartHeight - 12}
             textAnchor="middle"
             className="fill-muted-foreground font-normal"
             fontSize={12}
