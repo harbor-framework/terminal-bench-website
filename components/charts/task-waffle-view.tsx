@@ -957,7 +957,10 @@ export function TaskWaffleView() {
             getMarkdown={() => ""}
             disabled
           />
-          <HomeViewToggle />
+          <div className="flex min-w-0 items-center gap-1.5">
+            <BenchmarkSelect />
+            <HomeViewToggle />
+          </div>
         </div>
         <div className="-mx-4 flex min-h-[560px] items-center justify-center rounded-none border border-x-0 px-4 py-10 text-center text-sm text-muted-foreground md:mx-0 md:rounded-xl md:border-x">
           Loading trials…
@@ -976,7 +979,10 @@ export function TaskWaffleView() {
             getMarkdown={() => ""}
             disabled
           />
-          <HomeViewToggle />
+          <div className="flex min-w-0 items-center gap-1.5">
+            <BenchmarkSelect />
+            <HomeViewToggle />
+          </div>
         </div>
         <div className="-mx-4 flex min-h-[560px] items-center justify-center rounded-none border border-x-0 border-destructive/30 bg-destructive/5 px-4 py-10 text-center text-sm text-destructive md:mx-0 md:rounded-xl md:border-x">
           {error instanceof Error
