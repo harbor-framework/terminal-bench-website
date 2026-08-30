@@ -35,15 +35,15 @@ export function RunSubtitleView({
         </SelectTrigger>
         <SelectContent
           align="start"
-          alignOffset={1}
+          alignOffset={0}
           alignItemWithTrigger={false}
-          className="w-fit min-w-0 font-[family-name:var(--font-google-sans-code)]"
+          className="min-w-0 font-[family-name:var(--font-google-sans-code)]"
         >
           {HOME_BENCHMARKS.map((benchmark) => (
             <SelectItem
               key={benchmark.id}
               value={benchmark.id}
-              className="pr-2 text-[1.125rem] tracking-[-0.05em] text-muted-foreground [&>span:last-child]:hidden"
+              className="text-[1.125rem] tracking-[-0.05em] text-muted-foreground"
             >
               {benchmark.id}
             </SelectItem>

@@ -112,15 +112,15 @@ export function ContributorsView({
           </SelectTrigger>
           <SelectContent
             align="start"
-            alignOffset={1}
+            alignOffset={0}
             alignItemWithTrigger={false}
-            className="w-fit min-w-0 font-[family-name:var(--font-google-sans-code)]"
+            className="min-w-0 font-[family-name:var(--font-google-sans-code)]"
           >
             {RELEASE_VERSIONS.map((entry) => (
               <SelectItem
                 key={entry}
                 value={entry}
-                className="pr-2 text-[1.125rem] tracking-[-0.05em] text-muted-foreground [&>span:last-child]:hidden"
+                className="text-[1.125rem] tracking-[-0.05em] text-muted-foreground"
               >
                 {entry}
               </SelectItem>
