@@ -28,13 +28,7 @@ pip install 'harbor[modal]'
 
 Terminal-Bench contains tasks that require GPUs, so you need to run it with a sandbox that has GPU access. We used Modal for our experiments. Daytona also recently added GPU support and we hope others will follow suit.
 
-```bash
-harbor run -d terminal-bench/terminal-bench \
-  -e modal \
-  -a claude-code \
-  -m anthropic/claude-sonnet-5 \
-  -k 5
-```
+<RunCommand />
 
 ## Analyze results
 

@@ -66,6 +66,8 @@ export type HomeBenchmark = {
   leaderboard: string;
   /** Hub dataset version whose tasks tab this benchmark links to. */
   datasetVersion: string;
+  /** Dataset reference for `harbor run -d`. */
+  runDataset: string;
 };
 
 export const HOME_BENCHMARKS: HomeBenchmark[] = [
@@ -75,6 +77,7 @@ export const HOME_BENCHMARKS: HomeBenchmark[] = [
     package: 'terminal-bench/terminal-bench',
     leaderboard: '4-0-0',
     datasetVersion: '4',
+    runDataset: 'terminal-bench/terminal-bench@4.0.0',
   },
   {
     id: '3.0',
@@ -82,6 +85,7 @@ export const HOME_BENCHMARKS: HomeBenchmark[] = [
     package: 'terminal-bench/terminal-bench',
     leaderboard: '3-0-0',
     datasetVersion: '1',
+    runDataset: 'terminal-bench/terminal-bench@3.0.0',
   },
   {
     id: '2.1',
@@ -89,6 +93,7 @@ export const HOME_BENCHMARKS: HomeBenchmark[] = [
     package: 'terminal-bench/terminal-bench-2-1',
     leaderboard: 'main',
     datasetVersion: 'latest',
+    runDataset: 'terminal-bench/terminal-bench-2-1',
   },
   {
     id: '2.0',
@@ -96,6 +101,7 @@ export const HOME_BENCHMARKS: HomeBenchmark[] = [
     package: 'terminal-bench/terminal-bench-2',
     leaderboard: '2-0',
     datasetVersion: 'latest',
+    runDataset: 'terminal-bench/terminal-bench-2',
   },
 ];
 
