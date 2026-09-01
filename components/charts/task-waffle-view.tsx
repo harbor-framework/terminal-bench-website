@@ -547,7 +547,7 @@ const WaffleSvg = memo(function WaffleSvg({
   const stepM = blockW + MG;
   // Fit the label gutter to the longest visible row label so mx-auto centers
   // the actual content; domain labels render vertically in a one-line gutter.
-  const transposed = transpose && group === "model";
+  const transposed = transpose;
   // Left-side model labels in the transposed layout.
   const modelLabelFor = (column: MatrixColumn) =>
     [
@@ -569,8 +569,19 @@ const WaffleSvg = memo(function WaffleSvg({
       ...domain.cells.map((cell) => Math.ceil(cell.length / maxReps)),
     ),
   );
+  // Vertical wrap height for transposed outcome blocks (mirrors the 60%
+  // width wrap of the normal domain-outcome layout).
+  const rowsV = Math.max(10, Math.floor((budget * 0.6) / (SW + SGAP)));
+  const tColsOut = domainRows.map((domain) =>
+    Math.max(
+      1,
+      Math.ceil(
+        domain.cells.reduce((sum, cell) => sum + cell.length, 0) / rowsV,
+      ),
+    ),
+  );
   const GUT = transposed
-    ? maxModelChars > 0
+    ? group === "model" && maxModelChars > 0
       ? Math.min(240, Math.ceil(maxModelChars * fontSm * 0.6) + 16)
       : 16
     : !labelTask
@@ -604,10 +615,11 @@ const WaffleSvg = memo(function WaffleSvg({
   // run outgrows the container; only domain rows wrap to the container width.
   const perLine =
     mode === "task" ? maxOutcomeCount : Math.min(perLineCap, maxOutcomeCount);
+  const transposedCols = group === "model" ? tCols : tColsOut;
   const transposedPlotW = transposed
     ? mode === "task"
       ? matrix.tasks.length * (SW + SGAP) - SGAP
-      : tCols.reduce(
+      : transposedCols.reduce(
           (sum, cols, index) =>
             sum + cols * (SW + SGAP) - SGAP + (index > 0 ? domGap : 0),
           0,
@@ -694,12 +706,44 @@ const WaffleSvg = memo(function WaffleSvg({
   let height: number;
 
   if (transposed) {
-    const bandH = maxReps * SW + (maxReps - 1) * SGAP;
+    const pitch = SW + SGAP;
+    // Column-major slices so the outcome sort runs top-to-bottom.
+    const columnSlices = (slots: MatrixSlot[], colHeight: number) => {
+      const out: MatrixSlot[][] = [];
+      for (let i = 0; i < slots.length; i += colHeight)
+        out.push(slots.slice(i, i + colHeight));
+      return out.length > 0 ? out : [[]];
+    };
+    const pushColumns = (
+      key: string,
+      slots: MatrixSlot[],
+      x: number,
+      y: number,
+      colHeight: number,
+    ) => {
+      columnSlices(slots, colHeight).forEach((slice, sliceIndex) => {
+        elements.push(
+          <g key={`${key}-${sliceIndex}`}>
+            <MatrixCell
+              slots={slice}
+              x={x + sliceIndex * pitch}
+              y={y}
+              sw={SW}
+              sh={SH}
+              sgap={SGAP}
+              wrap={1}
+              pitchY={pitchY}
+              onTrialMove={onTrialMove}
+            />
+          </g>,
+        );
+      });
+    };
     // Domain names across the top (domain/all modes).
     if (mode !== "task" && labelTask) {
       let x = GUT;
       domainRows.forEach((domain, index) => {
-        const w = tCols[index]! * (SW + SGAP) - SGAP;
+        const w = transposedCols[index]! * pitch - SGAP;
         elements.push(
           <text
             key={`tdname-${domain.name}`}
@@ -715,66 +759,84 @@ const WaffleSvg = memo(function WaffleSvg({
         x += w + domGap;
       });
     }
-    let y = HEADT;
-    matrix.columns.forEach((column, columnIndex) => {
-      const label = modelLabelFor(column);
-      if (label) {
-        elements.push(
-          <text
-            key={`tlabel-${column.identity}`}
-            x={GUT - 10}
-            y={y + bandH / 2 + fontSm * 0.35}
-            textAnchor="end"
-            fontSize={fontSm}
-            className="fill-foreground"
-          >
-            {label}
-          </text>,
-        );
-      }
+    if (group === "model") {
+      const bandH = maxReps * SW + (maxReps - 1) * SGAP;
+      let y = HEADT;
+      matrix.columns.forEach((column, columnIndex) => {
+        const label = modelLabelFor(column);
+        if (label) {
+          elements.push(
+            <text
+              key={`tlabel-${column.identity}`}
+              x={GUT - 10}
+              y={y + bandH / 2 + fontSm * 0.35}
+              textAnchor="end"
+              fontSize={fontSm}
+              className="fill-foreground"
+            >
+              {label}
+            </text>,
+          );
+        }
+        if (mode === "task") {
+          matrix.tasks.forEach((task, taskIndex) => {
+            pushColumns(
+              `tcell-${column.identity}-${task.task}`,
+              task.cells[columnIndex]!,
+              GUT + taskIndex * pitch,
+              y,
+              maxReps,
+            );
+          });
+        } else {
+          let x = GUT;
+          domainRows.forEach((domain, index) => {
+            const cols = tCols[index]!;
+            // Column-major within the block, maxReps squares tall.
+            const slots = domain.cells[columnIndex]!;
+            const perColumn = Math.ceil(slots.length / cols) || 1;
+            pushColumns(
+              `tcell-${column.identity}-${domain.name}`,
+              slots,
+              x,
+              y,
+              Math.max(maxReps, perColumn),
+            );
+            x += cols * pitch - SGAP + domGap;
+          });
+        }
+        y += bandH + MG;
+      });
+      height = y - MG + 10;
+    } else {
+      // Outcome group: merged runs stand as vertical columns.
+      let bottom = HEADT;
       if (mode === "task") {
         matrix.tasks.forEach((task, taskIndex) => {
-          elements.push(
-            <g key={`tcell-${column.identity}-${task.task}`}>
-              <MatrixCell
-                slots={task.cells[columnIndex]!}
-                x={GUT + taskIndex * (SW + SGAP)}
-                y={y}
-                sw={SW}
-                sh={SH}
-                sgap={SGAP}
-                wrap={1}
-                pitchY={pitchY}
-                onTrialMove={onTrialMove}
-              />
-            </g>,
+          const merged = mergedSlots(task.cells);
+          pushColumns(
+            `tcell-${task.task}`,
+            merged,
+            GUT + taskIndex * pitch,
+            HEADT,
+            merged.length || 1,
           );
+          bottom = Math.max(bottom, HEADT + merged.length * pitch - SGAP);
         });
       } else {
         let x = GUT;
         domainRows.forEach((domain, index) => {
-          const cols = tCols[index]!;
-          elements.push(
-            <g key={`tcell-${column.identity}-${domain.name}`}>
-              <MatrixCell
-                slots={domain.cells[columnIndex]!}
-                x={x}
-                y={y}
-                sw={SW}
-                sh={SH}
-                sgap={SGAP}
-                wrap={cols}
-                pitchY={pitchY}
-                onTrialMove={onTrialMove}
-              />
-            </g>,
+          const merged = mergedSlots(domain.cells);
+          pushColumns(`tcell-${domain.name}`, merged, x, HEADT, rowsV);
+          bottom = Math.max(
+            bottom,
+            HEADT + Math.min(rowsV, merged.length) * pitch - SGAP,
           );
-          x += cols * (SW + SGAP) - SGAP + domGap;
+          x += tColsOut[index]! * pitch - SGAP + domGap;
         });
       }
-      y += bandH + MG;
-    });
-    height = y - MG + 10;
+      height = bottom + 10;
+    }
   } else if (mode === "task") {
     let y = HEAD;
     matrix.tasks.forEach((task) => {
