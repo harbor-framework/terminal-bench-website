@@ -91,6 +91,9 @@ const OUTCOME_RANK: Record<WaffleTrial["o"], number> = {
   f: 3,
 };
 
+// Transposed model labels match the leaderboard/pareto text size.
+const TRANSPOSED_LABEL_FONT = 14;
+
 const LEGEND_OUTCOMES = ["p", "to", "err", "f"] as const;
 
 const WAFFLE_LABEL_OPTIONS = [
@@ -582,7 +585,7 @@ const WaffleSvg = memo(function WaffleSvg({
   );
   const GUT = transposed
     ? group === "model" && maxModelChars > 0
-      ? Math.min(240, Math.ceil(maxModelChars * fontSm * 0.6) + 16)
+      ? Math.min(280, Math.ceil(maxModelChars * TRANSPOSED_LABEL_FONT * 0.6) + 16)
       : 16
     : !labelTask
       ? 16
@@ -769,9 +772,9 @@ const WaffleSvg = memo(function WaffleSvg({
             <text
               key={`tlabel-${column.identity}`}
               x={GUT - 10}
-              y={y + bandH / 2 + fontSm * 0.35}
+              y={y + bandH / 2 + TRANSPOSED_LABEL_FONT * 0.35}
               textAnchor="end"
-              fontSize={fontSm}
+              fontSize={TRANSPOSED_LABEL_FONT}
               className="fill-foreground"
             >
               {label}
