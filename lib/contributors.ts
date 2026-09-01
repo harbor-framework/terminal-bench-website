@@ -85,7 +85,7 @@ export const CONTRIBUTOR_GROUPS: ContributorGroup[] = [
       { name: 'Himanshu Gupta' },
       { name: 'Swaroop Mishra', github: 'swarooprm' },
       { name: 'Chenguang Wang', github: 'wang-research-lab' },
-      { name: 'Hao He', github: 'H2ydrogen' },
+      { name: 'UniPat AI', href: 'https://unipat.ai/' },
       { name: 'Jianhong Tu', github: 'JianhongTu' },
       { name: 'Kyle Montgomery', github: 'kylemontgomery1' },
       { name: 'Zengji Tu', github: 'WishingCat' },
