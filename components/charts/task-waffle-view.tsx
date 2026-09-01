@@ -105,6 +105,7 @@ const DEFAULT_OFF_LABELS = ["reasoning"];
 const WAFFLE_OPTIONS = [
   ...WAFFLE_LABEL_OPTIONS,
   { id: "big", label: "Big", canHide: true },
+  { id: "transpose", label: "Transpose", canHide: true },
 ];
 
 async function fetchWaffleData(benchmarkId: string): Promise<WafflePayload> {
@@ -406,6 +407,7 @@ const WaffleSvg = memo(function WaffleSvg({
   labelReasoning,
   labelTask,
   big,
+  transpose,
   onTrialMove,
   onTrialLeave,
   onSurfaceMove,
@@ -419,6 +421,8 @@ const WaffleSvg = memo(function WaffleSvg({
   labelTask: boolean;
   /** Match the leaderboard/pareto text size instead of fitting the viewport. */
   big: boolean;
+  /** Models as rows on the left, tasks running across. */
+  transpose: boolean;
   /** Scroll container width, to size the centering pad without overflow. */
   containerWidth: number;
   viewportH: number;
@@ -543,11 +547,37 @@ const WaffleSvg = memo(function WaffleSvg({
   const stepM = blockW + MG;
   // Fit the label gutter to the longest visible row label so mx-auto centers
   // the actual content; domain labels render vertically in a one-line gutter.
-  const GUT = !labelTask
-    ? 16
-    : mode === "task"
-      ? Math.min(210, Math.ceil(maxLabelChars * fontSm * 0.6) + 16)
-      : 36;
+  const transposed = transpose && group === "model";
+  // Left-side model labels in the transposed layout.
+  const modelLabelFor = (column: MatrixColumn) =>
+    [
+      labelModel ? column.model : null,
+      labelAgent && column.agent ? column.agent : null,
+      labelReasoning && column.reasoning ? `(${column.reasoning})` : null,
+    ]
+      .filter((part): part is string => Boolean(part))
+      .join(" ");
+  const maxModelChars = Math.max(
+    0,
+    ...matrix.columns.map((column) => modelLabelFor(column).length),
+  );
+  // Transposed column widths: task columns are one square wide; domain
+  // blocks are as wide as their largest cell needs at maxReps tall.
+  const tCols = domainRows.map((domain) =>
+    Math.max(
+      1,
+      ...domain.cells.map((cell) => Math.ceil(cell.length / maxReps)),
+    ),
+  );
+  const GUT = transposed
+    ? maxModelChars > 0
+      ? Math.min(240, Math.ceil(maxModelChars * fontSm * 0.6) + 16)
+      : 16
+    : !labelTask
+      ? 16
+      : mode === "task"
+        ? Math.min(210, Math.ceil(maxLabelChars * fontSm * 0.6) + 16)
+        : 36;
   // Mirror the label gutter on the right so mx-auto centers the columns
   // themselves, not the gutter-plus-columns block — but never wider than the
   // container allows, or a scrollbar appears over pure whitespace.
@@ -574,13 +604,27 @@ const WaffleSvg = memo(function WaffleSvg({
   // run outgrows the container; only domain rows wrap to the container width.
   const perLine =
     mode === "task" ? maxOutcomeCount : Math.min(perLineCap, maxOutcomeCount);
-  const plotW = group === "outcome" ? perLine * (SW + SGAP) - SGAP : modelPlotW;
+  const transposedPlotW = transposed
+    ? mode === "task"
+      ? matrix.tasks.length * (SW + SGAP) - SGAP
+      : tCols.reduce(
+          (sum, cols, index) =>
+            sum + cols * (SW + SGAP) - SGAP + (index > 0 ? domGap : 0),
+          0,
+        )
+    : 0;
+  const plotW = transposed
+    ? transposedPlotW
+    : group === "outcome"
+      ? perLine * (SW + SGAP) - SGAP
+      : modelPlotW;
 
   const RPAD =
     available > 0
       ? Math.max(16, Math.min(RPAD_FALLBACK, available - GUT - plotW))
       : RPAD_FALLBACK;
   const width = GUT + plotW + RPAD;
+  const HEADT = transposed && mode !== "task" && labelTask ? fontSm + 14 : 10;
   const pitchY = SH + VGAP;
 
   const elements: React.ReactNode[] = [];
@@ -594,7 +638,11 @@ const WaffleSvg = memo(function WaffleSvg({
   const headerChars = Math.max(1, Math.floor(blockW / (fontSm * 0.6)));
   const truncate = (value: string) => value.slice(0, headerChars).trimEnd();
 
-  if (group === "model" && (labelModel || labelAgent || labelReasoning))
+  if (
+    !transposed &&
+    group === "model" &&
+    (labelModel || labelAgent || labelReasoning)
+  )
     matrix.columns.forEach((column, index) => {
       const cx = GUT + index * stepM + blockW / 2;
       // Lines stack bottom-up from the squares, so hiding one drops the
@@ -645,7 +693,89 @@ const WaffleSvg = memo(function WaffleSvg({
 
   let height: number;
 
-  if (mode === "task") {
+  if (transposed) {
+    const bandH = maxReps * SW + (maxReps - 1) * SGAP;
+    // Domain names across the top (domain/all modes).
+    if (mode !== "task" && labelTask) {
+      let x = GUT;
+      domainRows.forEach((domain, index) => {
+        const w = tCols[index]! * (SW + SGAP) - SGAP;
+        elements.push(
+          <text
+            key={`tdname-${domain.name}`}
+            x={x + w / 2}
+            y={fontSm + 2}
+            textAnchor="middle"
+            fontSize={fontSm}
+            className="fill-foreground"
+          >
+            {domain.name.toUpperCase()}
+          </text>,
+        );
+        x += w + domGap;
+      });
+    }
+    let y = HEADT;
+    matrix.columns.forEach((column, columnIndex) => {
+      const label = modelLabelFor(column);
+      if (label) {
+        elements.push(
+          <text
+            key={`tlabel-${column.identity}`}
+            x={GUT - 10}
+            y={y + bandH / 2 + fontSm * 0.35}
+            textAnchor="end"
+            fontSize={fontSm}
+            className="fill-foreground"
+          >
+            {label}
+          </text>,
+        );
+      }
+      if (mode === "task") {
+        matrix.tasks.forEach((task, taskIndex) => {
+          elements.push(
+            <g key={`tcell-${column.identity}-${task.task}`}>
+              <MatrixCell
+                slots={task.cells[columnIndex]!}
+                x={GUT + taskIndex * (SW + SGAP)}
+                y={y}
+                sw={SW}
+                sh={SH}
+                sgap={SGAP}
+                wrap={1}
+                pitchY={pitchY}
+                onTrialMove={onTrialMove}
+              />
+            </g>,
+          );
+        });
+      } else {
+        let x = GUT;
+        domainRows.forEach((domain, index) => {
+          const cols = tCols[index]!;
+          elements.push(
+            <g key={`tcell-${column.identity}-${domain.name}`}>
+              <MatrixCell
+                slots={domain.cells[columnIndex]!}
+                x={x}
+                y={y}
+                sw={SW}
+                sh={SH}
+                sgap={SGAP}
+                wrap={cols}
+                pitchY={pitchY}
+                onTrialMove={onTrialMove}
+              />
+            </g>,
+          );
+          x += cols * (SW + SGAP) - SGAP + domGap;
+        });
+      }
+      y += bandH + MG;
+    });
+    height = y - MG + 10;
+  } else if (mode === "task") {
     let y = HEAD;
     matrix.tasks.forEach((task) => {
       const merged = group === "outcome" ? mergedSlots(task.cells) : null;
@@ -802,7 +932,7 @@ const WaffleSvg = memo(function WaffleSvg({
         if (
           lx < GUT - 2 ||
           lx > GUT + plotW + 2 ||
-          ly < HEAD - 2 ||
+          ly < (transposed ? HEADT : HEAD) - 2 ||
           ly > height - 8
         ) {
           if (svg.style.cursor) svg.style.cursor = "";
@@ -944,13 +1074,17 @@ export function TaskWaffleView() {
     parseAsArrayOf(parseAsString).withDefault(DEFAULT_OFF_LABELS),
   );
   const [big, setBig] = useQueryState("big", parseAsBoolean.withDefault(false));
+  const [transpose, setTranspose] = useQueryState(
+    "transpose",
+    parseAsBoolean.withDefault(false),
+  );
   const labelVisibility = Object.fromEntries(
     WAFFLE_LABEL_OPTIONS.map((option) => [
       option.id,
       !offLabels.includes(option.id),
     ]),
   );
-  const optionVisibility = { ...labelVisibility, big };
+  const optionVisibility = { ...labelVisibility, big, transpose };
   const setOptionVisibility = (next: Record<string, boolean>) => {
     void setOffLabels(
       WAFFLE_LABEL_OPTIONS.filter((option) => next[option.id] === false).map(
@@ -958,6 +1092,7 @@ export function TaskWaffleView() {
       ),
     );
     void setBig(next.big !== false);
+    void setTranspose(next.transpose !== false);
   };
 
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
@@ -1217,6 +1352,7 @@ export function TaskWaffleView() {
                 labelReasoning={labelVisibility.reasoning !== false}
                 labelTask={labelVisibility.task !== false}
                 big={big}
+                transpose={transpose}
                 onTrialMove={showTooltip}
                 onTrialLeave={hideTooltip}
                 onSurfaceMove={moveTooltip}
