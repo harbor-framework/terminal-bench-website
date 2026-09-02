@@ -8,7 +8,7 @@ import {
   useQueryState,
   useQueryStates,
 } from "nuqs";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
 import { buttonVariants } from "@/components/ui/button";
@@ -41,6 +41,35 @@ export const parseHomeView = createParser({
 // and the view box.
 const VIEW_SCROLL_MARGIN = 62;
 
+let releaseListener: (() => void) | null = null;
+
+/**
+ * Once the user scrolls back up past the snap point, drop the height floor so
+ * the footer returns to the natural bottom of the page.
+ */
+function armSnapRelease(target: number, alreadyThere: boolean) {
+  if (releaseListener) window.removeEventListener("scroll", releaseListener);
+  let reached = alreadyThere;
+  const onScroll = () => {
+    if (!reached) {
+      if (window.scrollY >= target - 4) reached = true;
+      return;
+    }
+    if (window.scrollY < target - 48) {
+      document.body.style.minHeight = "";
+      try {
+        sessionStorage.removeItem("tb-home-min-height");
+      } catch {
+        // Ignore storage failures.
+      }
+      window.removeEventListener("scroll", onScroll);
+      releaseListener = null;
+    }
+  };
+  releaseListener = onScroll;
+  window.addEventListener("scroll", onScroll, { passive: true });
+}
+
 function scrollToViewSection() {
   const element = document.getElementById("home-view-section");
   if (!element) return;
@@ -59,6 +88,7 @@ function scrollToViewSection() {
     // Storage may be unavailable; the snap still works for this page view.
   }
   window.scrollTo({ top: target, behavior: "smooth" });
+  armSnapRelease(target, false);
 }
 
 /** URL params that belong to a single view; stashed while it isn't active. */
@@ -78,6 +108,13 @@ const ALL_VIEW_PARAM_PARSERS = Object.fromEntries(
 
 export function HomeViewToggle({ className }: { className?: string }) {
   const [view, setView] = useQueryState("view", parseHomeView);
+  useEffect(() => {
+    const restored = parseFloat(document.body.style.minHeight) || 0;
+    if (restored > 0 && !releaseListener) {
+      const target = restored - window.innerHeight;
+      armSnapRelease(target, window.scrollY >= target - 4);
+    }
+  }, []);
   // Raw access to every view-scoped param so switching views can stash and
   // restore them without a router navigation (which iOS Safari can drop
   // mid-tap); nuqs batches these into one history.replaceState.
