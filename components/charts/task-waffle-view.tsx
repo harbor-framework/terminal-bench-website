@@ -12,7 +12,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   ArrowExpand01Icon,
-  ArrowShrink01Icon,
+  ArrowShrink02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
@@ -1503,12 +1503,12 @@ export function TaskWaffleView() {
                 aria-label={big ? "Shrink the waffle" : "Expand the waffle"}
                 onClick={() => void setBig(!big)}
                 className={cn(
-                  buttonVariants({ variant: "outline", size: "icon" }),
+                  buttonVariants({ variant: "ghost", size: "icon" }),
                   "absolute top-2 right-2 z-10 bg-card/80 backdrop-blur-sm",
                 )}
               >
                 <HugeiconsIcon
-                  icon={big ? ArrowShrink01Icon : ArrowExpand01Icon}
+                  icon={big ? ArrowShrink02Icon : ArrowExpand01Icon}
                   strokeWidth={2}
                   className="text-muted-foreground"
                 />
