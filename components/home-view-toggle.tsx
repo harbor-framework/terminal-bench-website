@@ -44,26 +44,47 @@ const VIEW_SCROLL_MARGIN = 62;
 let releaseListener: (() => void) | null = null;
 
 /**
- * Once the user scrolls back up past the snap point, drop the height floor so
- * the footer returns to the natural bottom of the page.
+ * Once the user scrolls back up past the snap point, shrink the height floor
+ * with them so the footer rides the bottom of the viewport instead of leaving
+ * whitespace below, and drop the floor entirely once the natural page height
+ * takes over.
  */
 function armSnapRelease(target: number, alreadyThere: boolean) {
   if (releaseListener) window.removeEventListener("scroll", releaseListener);
   let reached = alreadyThere;
+  const release = (onScroll: () => void) => {
+    document.body.style.minHeight = "";
+    try {
+      sessionStorage.removeItem("tb-home-min-height");
+    } catch {
+      // Ignore storage failures.
+    }
+    window.removeEventListener("scroll", onScroll);
+    releaseListener = null;
+  };
   const onScroll = () => {
     if (!reached) {
       if (window.scrollY >= target - 4) reached = true;
       return;
     }
-    if (window.scrollY < target - 48) {
-      document.body.style.minHeight = "";
+    const current = parseFloat(document.body.style.minHeight) || 0;
+    if (!current) {
+      release(onScroll);
+      return;
+    }
+    // The floor no longer extends the page: the content grew past it.
+    if (document.documentElement.scrollHeight > current + 1) {
+      release(onScroll);
+      return;
+    }
+    const needed = Math.ceil(window.scrollY + window.innerHeight);
+    if (needed < current) {
+      document.body.style.minHeight = `${needed}px`;
       try {
-        sessionStorage.removeItem("tb-home-min-height");
+        sessionStorage.setItem("tb-home-min-height", String(needed));
       } catch {
         // Ignore storage failures.
       }
-      window.removeEventListener("scroll", onScroll);
-      releaseListener = null;
     }
   };
   releaseListener = onScroll;
