@@ -23,6 +23,10 @@ import {
   LeaderboardToolbar,
   type LeaderboardFilters,
 } from '@/components/leaderboard/leaderboard-toolbar';
+import {
+  keepBestEffortRows,
+  useEffortMode,
+} from '@/components/leaderboard/use-leaderboard-filters';
 import { DataTable } from '@/components/ui/data-table';
 import { ViewExportActions } from '@/components/view-export-actions';
 import {
@@ -229,7 +233,12 @@ const HIDDEN_TABLE_COLUMN_IDS = new Set(['reasoning_effort']);
 const LEADERBOARD_EXPORT_TARGET_ID = 'terminal-bench-leaderboard-export';
 
 function displayColumnHeader(column: LeaderboardColumn): string {
-  const label = column.id === 'accuracy' ? 'Resolution Rate' : column.header;
+  const label =
+    column.id === 'accuracy'
+      ? 'Resolution Rate'
+      : column.id === 'reasoning_effort'
+        ? 'Reasoning'
+        : column.header;
   return label.toUpperCase();
 }
 
@@ -619,15 +628,17 @@ export function LeaderboardTable() {
     void setHiddenColumns(hidden);
   };
 
+  const [effortMode] = useEffortMode();
   const filteredRows = useMemo(() => {
     if (!data) return [];
-    return applyLeaderboardFilters(
+    const rows = applyLeaderboardFilters(
       data.rows,
       data.leaderboard.columns,
       filters,
       facets.numberBounds,
     );
-  }, [data, facets.numberBounds, filters]);
+    return effortMode === 'all' ? rows : keepBestEffortRows(rows);
+  }, [data, effortMode, facets.numberBounds, filters]);
 
   const rowIds = useMemo(
     () => (data ? data.rows.map((row) => row.id) : []),

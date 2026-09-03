@@ -11,6 +11,7 @@ import type { OnChangeFn, VisibilityState } from '@tanstack/react-table';
 import { useMemo } from 'react';
 
 import { HomeViewToggle } from '@/components/home-view-toggle';
+import { useEffortMode } from '@/components/leaderboard/use-leaderboard-filters';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -333,6 +334,8 @@ export function LeaderboardToolbar({
       },
     });
   }
+
+  const [effortMode, setEffortMode] = useEffortMode();
 
   const visibleColumnIds = columnOptions
     .filter((column) => columnVisibility[column.id] !== false)
@@ -770,6 +773,19 @@ export function LeaderboardToolbar({
                       ) : null}
                     </DropdownMenuSubTrigger>
                     <DropdownMenuSubContent className="min-w-44 p-0">
+                      {column.id === 'reasoning_effort' ? (
+                        <>
+                          <DropdownMenuCheckboxItem
+                            checked={effortMode === 'best'}
+                            onCheckedChange={(checked) =>
+                              void setEffortMode(checked ? 'best' : 'all')
+                            }
+                          >
+                            best only
+                          </DropdownMenuCheckboxItem>
+                          <DropdownMenuSeparator />
+                        </>
+                      ) : null}
                       <ScrollArea className="h-full max-h-64 [&_[data-slot=scroll-area-viewport]]:max-h-64">
                         {options.map((option) => (
                           <DropdownMenuCheckboxItem
