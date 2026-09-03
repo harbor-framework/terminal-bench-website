@@ -1401,6 +1401,21 @@ export function TaskWaffleView() {
               </SelectItem>
             </SelectContent>
           </Select>
+          <button
+            type="button"
+            aria-label={big ? "Shrink the waffle" : "Expand the waffle"}
+            onClick={() => void setBig(!big)}
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "icon" }),
+              "-mr-2 ml-auto",
+            )}
+          >
+            <HugeiconsIcon
+              icon={big ? ArrowShrink02Icon : ArrowExpand01Icon}
+              strokeWidth={2}
+              className="text-muted-foreground"
+            />
+          </button>
         </div>
         {loadingActive || !matrix ? (
           <>
@@ -1411,108 +1426,91 @@ export function TaskWaffleView() {
           </>
         ) : (snapshot?.data ?? data)!.doms.length > 0 ? (
           <>
-            <div className="relative">
-              <div
-                ref={setScrollRef}
-                className="relative overflow-x-auto px-4 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-              >
-                <WaffleSvg
-                  matrix={matrix}
-                  mode={mode}
-                  group={group}
-                  containerWidth={containerWidth}
-                  viewportH={viewportH}
-                  labelModel={labelVisibility.model !== false}
-                  labelAgent={labelVisibility.agent !== false}
-                  labelReasoning={labelVisibility.reasoning !== false}
-                  labelTask={labelVisibility.task !== false}
-                  big={big}
-                  transpose={transpose}
-                  onTrialMove={showTooltip}
-                  onTrialLeave={hideTooltip}
-                  onSurfaceMove={moveTooltip}
-                />
-                {/* Hover highlight drawn outside the big SVG so sweeping never
+            <div
+              ref={setScrollRef}
+              className="relative overflow-x-auto px-4 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              <WaffleSvg
+                matrix={matrix}
+                mode={mode}
+                group={group}
+                containerWidth={containerWidth}
+                viewportH={viewportH}
+                labelModel={labelVisibility.model !== false}
+                labelAgent={labelVisibility.agent !== false}
+                labelReasoning={labelVisibility.reasoning !== false}
+                labelTask={labelVisibility.task !== false}
+                big={big}
+                transpose={transpose}
+                onTrialMove={showTooltip}
+                onTrialLeave={hideTooltip}
+                onSurfaceMove={moveTooltip}
+              />
+              {/* Hover highlight drawn outside the big SVG so sweeping never
                   re-renders the grid. */}
-                {tipOpen && tooltip ? (
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute border border-foreground"
-                    style={{
-                      left: tooltip.hx,
-                      top: tooltip.hy,
-                      width: tooltip.hw,
-                      height: tooltip.hh,
-                    }}
-                  />
-                ) : null}
-                <Tooltip
-                  open={tipOpen}
-                  onOpenChange={setTipOpen}
-                  onOpenChangeComplete={(open) => {
-                    if (!open) setTooltip(null);
+              {tipOpen && tooltip ? (
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute border border-foreground"
+                  style={{
+                    left: tooltip.hx,
+                    top: tooltip.hy,
+                    width: tooltip.hw,
+                    height: tooltip.hh,
                   }}
-                >
-                  <TooltipTrigger
-                    type="button"
-                    tabIndex={-1}
-                    delay={0}
-                    aria-hidden
-                    className="pointer-events-none absolute size-2 -translate-x-1/2 -translate-y-1/2 opacity-0"
-                    style={{
-                      left: (tooltip?.x ?? 0) + 19,
-                      top: tooltip?.y ?? 0,
-                    }}
-                  />
-                  <TooltipContent
-                    side="bottom"
-                    align="start"
-                    sideOffset={10}
-                    variant="chart"
-                    className="pointer-events-none max-w-none"
-                    style={{ width: tipWidth }}
-                  >
-                    {tooltip ? (
-                      <div className="flex w-full min-w-0 flex-col">
-                        <p className="mb-1 font-semibold whitespace-nowrap">
-                          {tooltip.task}
-                        </p>
-                        <p className="truncate opacity-70">{tooltip.trial.m}</p>
-                        <p
-                          className={`whitespace-nowrap ${
-                            {
-                              err: "text-[#e5484d]",
-                              to: "text-[#f2872e]",
-                              p: "text-foreground",
-                              f: "text-foreground/45",
-                            }[tooltip.trial.o]
-                          }`}
-                        >
-                          {tooltip.trial.e ?? OUTCOME_WORD[tooltip.trial.o]}
-                        </p>
-                        <p className="mt-1.5 border-t border-border pt-1.5 text-[10.5px] opacity-50">
-                          click to view trial
-                        </p>
-                      </div>
-                    ) : null}
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-              <button
-                type="button"
-                aria-label={big ? "Shrink the waffle" : "Expand the waffle"}
-                onClick={() => void setBig(!big)}
-                className={cn(
-                  buttonVariants({ variant: "ghost", size: "icon" }),
-                  "absolute top-2 right-2 z-10 bg-card/80 backdrop-blur-sm",
-                )}
-              >
-                <HugeiconsIcon
-                  icon={big ? ArrowShrink02Icon : ArrowExpand01Icon}
-                  strokeWidth={2}
-                  className="text-muted-foreground"
                 />
-              </button>
+              ) : null}
+              <Tooltip
+                open={tipOpen}
+                onOpenChange={setTipOpen}
+                onOpenChangeComplete={(open) => {
+                  if (!open) setTooltip(null);
+                }}
+              >
+                <TooltipTrigger
+                  type="button"
+                  tabIndex={-1}
+                  delay={0}
+                  aria-hidden
+                  className="pointer-events-none absolute size-2 -translate-x-1/2 -translate-y-1/2 opacity-0"
+                  style={{
+                    left: (tooltip?.x ?? 0) + 19,
+                    top: tooltip?.y ?? 0,
+                  }}
+                />
+                <TooltipContent
+                  side="bottom"
+                  align="start"
+                  sideOffset={10}
+                  variant="chart"
+                  className="pointer-events-none max-w-none"
+                  style={{ width: tipWidth }}
+                >
+                  {tooltip ? (
+                    <div className="flex w-full min-w-0 flex-col">
+                      <p className="mb-1 font-semibold whitespace-nowrap">
+                        {tooltip.task}
+                      </p>
+                      <p className="truncate opacity-70">{tooltip.trial.m}</p>
+                      <p
+                        className={`whitespace-nowrap ${
+                          {
+                            err: "text-[#e5484d]",
+                            to: "text-[#f2872e]",
+                            p: "text-foreground",
+                            f: "text-foreground/45",
+                          }[tooltip.trial.o]
+                        }`}
+                      >
+                        {tooltip.trial.e ?? OUTCOME_WORD[tooltip.trial.o]}
+                      </p>
+                      <p className="mt-1.5 border-t border-border pt-1.5 text-[10.5px] opacity-50">
+                        click to view trial
+                      </p>
+                    </div>
+                  ) : null}
+                </TooltipContent>
+              </Tooltip>
             </div>
             <Legend />
           </>
