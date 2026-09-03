@@ -3,6 +3,8 @@ export type WaffleTrialOutcome = 'p' | 'to' | 'err' | 'f';
 export type WaffleTrial = {
   o: WaffleTrialOutcome;
   m: string;
+  /** Leaderboard row key (short id) — labels alone can collide. */
+  r?: string;
   id: string;
   j: string | null;
   e: string | null;

@@ -183,9 +183,13 @@ function buildWaffleMarkdownTable(data: WafflePayload): string {
     .join("\n");
 }
 
+/** Join key between leaderboard rows and waffle trials (labels collide). */
 function rowIdentity(row: LeaderboardRow): string {
-  const label = chartRowLabel(row);
-  return [label.model, label.agent].filter(Boolean).join(" / ");
+  return row.id.slice(0, 8);
+}
+
+function trialIdentity(trial: WaffleTrial): string {
+  return trial.r ?? trial.m;
 }
 
 type MatrixColumn = {
@@ -251,17 +255,19 @@ function buildMatrix(
     const seen = new Set<string>();
     identities = [];
     for (const trial of allTrials) {
-      if (seen.has(trial.m)) continue;
-      seen.add(trial.m);
+      const key = trialIdentity(trial);
+      if (seen.has(key)) continue;
+      seen.add(key);
       const [model = trial.m, agent = ""] = trial.m.split(" / ");
-      identities.push({ identity: trial.m, model, agent, reasoning: "" });
+      identities.push({ identity: key, model, agent, reasoning: "" });
     }
   }
 
   const jobByIdentity = new Map<string, string>();
   for (const trial of allTrials) {
-    if (trial.j && !jobByIdentity.has(trial.m)) {
-      jobByIdentity.set(trial.m, trial.j);
+    const key = trialIdentity(trial);
+    if (trial.j && !jobByIdentity.has(key)) {
+      jobByIdentity.set(key, trial.j);
     }
   }
 
@@ -291,7 +297,7 @@ function buildMatrix(
       let pass = 0;
       let total = 0;
       for (const trial of task.ts) {
-        const index = columnIndex.get(trial.m);
+        const index = columnIndex.get(trialIdentity(trial));
         if (index == null) continue;
         cells[index]!.push({ task: task.task, trial });
         domainCells[index]!.push({ task: task.task, trial });

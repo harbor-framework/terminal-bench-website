@@ -378,6 +378,7 @@ function buildWaffleData({
     const model = row.metadata?.model_display?.label ?? '';
     const agent = row.metadata?.agent_display?.label ?? '';
     const identity = [model, agent].filter(Boolean).join(' / ');
+    const rowKey = row.id.slice(0, 8);
     const jobId = jobIdByRow.get(row.id) ?? null;
 
     for (const trialId of rowTrialIds.get(row.id) ?? []) {
@@ -417,6 +418,7 @@ function buildWaffleData({
       counts.ts.push({
         o: outcome,
         m: identity,
+        r: rowKey,
         id: trial.id,
         j: jobId,
         e: trial.error_type ?? trial.hosted_error ?? null,
