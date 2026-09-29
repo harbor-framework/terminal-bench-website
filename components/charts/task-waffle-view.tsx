@@ -118,9 +118,13 @@ const WAFFLE_OPTIONS = [
   { id: "transpose", label: "Transpose", canHide: true },
 ];
 
-async function fetchWaffleData(benchmarkId: string): Promise<WafflePayload> {
+const WAFFLE_TIMEOUT_MS = 30_000;
+const WAFFLE_TIMEOUT_MESSAGE = "Loading trials timed out. Please refresh to try again.";
+
+async function fetchWaffleData(benchmarkId: string, signal: AbortSignal): Promise<WafflePayload> {
   const response = await fetch(
     `/api/waffle?version=${encodeURIComponent(benchmarkId)}`,
+    { signal: AbortSignal.any([signal, AbortSignal.timeout(WAFFLE_TIMEOUT_MS)]) },
   );
   const payload = (await response.json()) as
     WafflePayload | { error?: { message?: string } };
@@ -1058,16 +1062,20 @@ export function TaskWaffleView() {
 
   const { data, error, isPending, isPlaceholderData } = useQuery({
     queryKey: ["waffle", "terminal-bench", benchmark.id],
-    queryFn: () => fetchWaffleData(benchmark.id),
+    queryFn: ({ signal }) => fetchWaffleData(benchmark.id, signal),
+    retry: false,
     placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000,
   });
-  const { data: leaderboardData, isPlaceholderData: rowsArePlaceholder } =
-    useQuery({
-      queryKey: leaderboardQueryKey(benchmark.package, benchmark.leaderboard),
-      queryFn: () => fetchLeaderboard(benchmark.package, benchmark.leaderboard),
-      placeholderData: keepPreviousData,
-    });
+  const {
+    data: leaderboardData,
+    error: leaderboardError,
+    isPlaceholderData: rowsArePlaceholder,
+  } = useQuery({
+    queryKey: leaderboardQueryKey(benchmark.package, benchmark.leaderboard),
+    queryFn: () => fetchLeaderboard(benchmark.package, benchmark.leaderboard),
+    placeholderData: keepPreviousData,
+  });
   const { facets, filters, handleFiltersChange, filteredRows, toolbarColumns } =
     useLeaderboardFilters(leaderboardData);
 
@@ -1100,14 +1108,23 @@ export function TaskWaffleView() {
     !!data &&
     leaderboardData?.leaderboard.name === data.leaderboard.name;
   const [showLoading, setShowLoading] = useState(false);
+  const [timedOutBenchmark, setTimedOutBenchmark] = useState<string | null>(null);
   useEffect(() => {
+    setTimedOutBenchmark(null);
     if (pairReady) {
       setShowLoading(false);
       return;
     }
     const timer = window.setTimeout(() => setShowLoading(true), 200);
-    return () => window.clearTimeout(timer);
-  }, [pairReady]);
+    const timeout = window.setTimeout(
+      () => setTimedOutBenchmark(benchmark.id),
+      WAFFLE_TIMEOUT_MS,
+    );
+    return () => {
+      window.clearTimeout(timer);
+      window.clearTimeout(timeout);
+    };
+  }, [pairReady, benchmark.id]);
 
   // Fixed tooltip width: the rendered width of the longest task name
   // (semibold title) or error name, so the box never resizes while sweeping.
@@ -1254,9 +1271,14 @@ export function TaskWaffleView() {
     setTipOpen(false);
   }, []);
 
-  const loadingActive = isPending || (!pairReady && showLoading);
+  const requestError = error ?? leaderboardError;
+  const timedOut =
+    (!pairReady && timedOutBenchmark === benchmark.id) ||
+    requestError?.name === "TimeoutError";
+  const loadError = timedOut ? new Error(WAFFLE_TIMEOUT_MESSAGE) : requestError;
+  const loadingActive = !loadError && (isPending || (!pairReady && showLoading));
 
-  if (!loadingActive && (error || !data || !matrix)) {
+  if (!loadingActive && (loadError || !data || !matrix)) {
     return (
       <div className="flex w-full min-w-0 flex-col gap-1.5">
         <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-1.5">
@@ -1285,9 +1307,9 @@ export function TaskWaffleView() {
             />
           </div>
         </div>
-        <div className="-mx-4 flex min-h-[max(560px,calc(100vh-122px))] items-center justify-center rounded-none border border-x-0 border-destructive/30 bg-destructive/5 px-4 py-10 text-center text-sm text-destructive md:mx-0 md:rounded-xl md:border-x">
-          {error instanceof Error
-            ? error.message
+        <div role="alert" className="-mx-4 flex min-h-[max(560px,calc(100vh-122px))] items-center justify-center rounded-none border border-x-0 border-destructive/30 bg-destructive/5 px-4 py-10 text-center text-sm text-destructive md:mx-0 md:rounded-xl md:border-x">
+          {loadError instanceof Error
+            ? loadError.message
             : "No trials available to render."}
         </div>
       </div>
@@ -1426,7 +1448,20 @@ export function TaskWaffleView() {
         {loadingActive || !matrix ? (
           <>
             <div className="flex min-h-[max(460px,calc(100vh-215px))] items-center justify-center px-6 py-10 text-center text-sm text-muted-foreground">
-              Loading trials…
+              <span role="status" aria-label="Loading trials">
+                Loading trials
+                <span aria-hidden="true" className="inline-flex">
+                  {[0, 150, 300].map((delay) => (
+                    <span
+                      key={delay}
+                      className="animate-pulse motion-reduce:animate-none"
+                      style={{ animationDelay: `${delay}ms` }}
+                    >
+                      .
+                    </span>
+                  ))}
+                </span>
+              </span>
             </div>
             <Legend />
           </>

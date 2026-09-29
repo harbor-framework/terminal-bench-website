@@ -32,14 +32,17 @@ export async function GET(request: Request) {
       'Failed to load the Terminal-Bench waffle chart:',
       error instanceof Error ? error.message : error,
     );
+    const timedOut = error instanceof Error && error.name === 'TimeoutError';
     return NextResponse.json(
       {
         error: {
-          message: 'Failed to load Terminal-Bench waffle data',
-          code: 'upstream_error',
+          message: timedOut
+            ? 'Loading trials timed out. Please refresh to try again.'
+            : 'Failed to load Terminal-Bench waffle data',
+          code: timedOut ? 'upstream_timeout' : 'upstream_error',
         },
       },
-      { status: 502, headers: { 'Cache-Control': CACHE_CONTROL } },
+      { status: timedOut ? 504 : 502, headers: { 'Cache-Control': 'no-store' } },
     );
   }
 }

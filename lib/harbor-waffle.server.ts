@@ -17,7 +17,32 @@ const DEFAULT_SUPABASE_URL = 'https://ofhuhcpkvzjlejydnvyd.supabase.co';
 const DEFAULT_SUPABASE_PUBLISHABLE_KEY =
   'sb_publishable_Z-vuQbpvpG-PStjbh4yE0Q_e-d3MTIH';
 const PAGE_SIZE = 1_000;
-const JOB_TRIAL_PAGE_SIZE = 5_000;
+// Keep UUID filters comfortably below URL-length limits.
+const TRIAL_BATCH_SIZE = 100;
+const REQUEST_CONCURRENCY = 4;
+
+async function mapConcurrent<T, R>(
+  items: T[],
+  read: (item: T) => Promise<R>,
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let next = 0;
+  let failed = false;
+  await Promise.all(
+    Array.from({ length: Math.min(REQUEST_CONCURRENCY, items.length) }, async () => {
+      while (!failed && next < items.length) {
+        const index = next++;
+        try {
+          results[index] = await read(items[index]);
+        } catch (error) {
+          failed = true;
+          throw error;
+        }
+      }
+    }),
+  );
+  return results;
+}
 
 const TASK_DOMAIN = {
   'atrx-vep-crispr': 'Science',
@@ -124,22 +149,13 @@ type LeaderboardRowTrial = {
   trial_id: string;
 };
 
-type TrialJobRecord = {
+type TrialSummary = {
   id: string;
   job_id: string | null;
-};
-
-type JobTrialSummary = {
-  id: string;
   task_name: string | null;
-  reward: number | string | null;
-  error_type: string | null;
+  rewards: Record<string, unknown> | null;
+  exception_type: string | null;
   hosted_error: string | null;
-};
-
-type JobTrialsResponse = {
-  items?: JobTrialSummary[];
-  total_pages?: number;
 };
 
 function supabaseUrl() {
@@ -187,6 +203,7 @@ async function readJson<T>(
   const response = await fetch(`${supabaseUrl()}${path}`, {
     ...init,
     cache: 'no-store',
+    signal: AbortSignal.timeout(15_000),
   });
   const text = await response.text();
   const payload = text ? (JSON.parse(text) as unknown) : null;
@@ -228,6 +245,7 @@ async function readRowTrialPage(
     leaderboard_id: `eq.${leaderboardId}`,
     limit: String(PAGE_SIZE),
     offset: String(offset),
+    order: 'row_id.asc,trial_id.asc',
   });
   const { data, response } = await readJson<LeaderboardRowTrial[]>(
     `/rest/v1/leaderboard_row_trial?${params.toString()}`,
@@ -255,8 +273,8 @@ async function readAllRowTrialLinks(
     offsets.push(offset);
   }
 
-  const pages = await Promise.all(
-    offsets.map((offset) => readRowTrialPage(leaderboardId, offset)),
+  const pages = await mapConcurrent(offsets, (offset) =>
+    readRowTrialPage(leaderboardId, offset),
   );
 
   return [
@@ -265,60 +283,28 @@ async function readAllRowTrialLinks(
   ];
 }
 
-async function readJobIdsForTrials(
-  trialIds: string[],
-): Promise<Map<string, string>> {
-  if (trialIds.length === 0) return new Map();
-
-  const params = new URLSearchParams({
-    select: 'id,job_id',
-    id: `in.(${trialIds.join(',')})`,
-  });
-  const { data } = await readJson<TrialJobRecord[]>(
-    `/rest/v1/trial?${params.toString()}`,
-    {
-      method: 'GET',
-      headers: harborHeaders(),
-    },
-  );
-
-  return new Map(
-    data
-      .filter((row): row is { id: string; job_id: string } =>
-        typeof row.job_id === 'string' && row.job_id.length > 0,
-      )
-      .map((row) => [row.id, row.job_id]),
-  );
-}
-
-async function readJobTrials(jobIds: string[]): Promise<JobTrialSummary[]> {
-  if (jobIds.length === 0) return [];
-
-  const items: JobTrialSummary[] = [];
-  let page = 1;
-  let totalPages = 1;
-  while (page <= totalPages) {
-    const { data } = await readJson<JobTrialsResponse>(
-      '/rest/v1/rpc/get_job_trials',
-      {
-        method: 'POST',
-        headers: harborHeaders({ json: true }),
-        body: JSON.stringify({
-          p_job_ids: jobIds,
-          p_page: page,
-          p_page_size: JOB_TRIAL_PAGE_SIZE,
-          p_attempts: 'latest',
-          p_sort_by: 'task_name',
-          p_sort_order: 'asc',
-        }),
-      },
-    );
-    items.push(...(data.items ?? []));
-    totalPages = data.total_pages ?? 1;
-    page += 1;
+async function readTrials(trialIds: string[]): Promise<TrialSummary[]> {
+  const batches: string[][] = [];
+  for (let offset = 0; offset < trialIds.length; offset += TRIAL_BATCH_SIZE) {
+    batches.push(trialIds.slice(offset, offset + TRIAL_BATCH_SIZE));
   }
-
-  return items;
+  const pages = await mapConcurrent(batches, async (ids) => {
+    const params = new URLSearchParams({
+      select: 'id,job_id,task_name,rewards,exception_type,hosted_error',
+      id: `in.(${ids.join(',')})`,
+    });
+    const { data } = await readJson<TrialSummary[]>(
+      `/rest/v1/trial?${params.toString()}`,
+      { method: 'GET', headers: harborHeaders() },
+    );
+    // Never publish a partial chart after truncation or an access change.
+    const returned = new Set(data.map((trial) => trial.id));
+    if (ids.some((id) => !returned.has(id))) {
+      throw new Error('Linked trials are missing from Harbor summaries');
+    }
+    return data;
+  });
+  return pages.flat();
 }
 
 function linksByRow(links: LeaderboardRowTrial[]) {
@@ -335,14 +321,18 @@ function plainTaskName(taskName: string | null) {
   return String(taskName ?? '').split('/').at(-1) ?? '';
 }
 
-function rewardPassed(value: JobTrialSummary['reward']) {
-  const reward =
-    typeof value === 'number' ? value : Number.parseFloat(String(value ?? 0));
-  return Number.isFinite(reward) && reward > 0;
+function rewardPassed(rewards: TrialSummary['rewards']) {
+  // Match get_job_trials: first numeric reward in key order.
+  if (!rewards) return false;
+  const key = Object.keys(rewards)
+    .sort()
+    .find((key) => typeof rewards[key] === 'number');
+  const reward = key === undefined ? null : rewards[key];
+  return typeof reward === 'number' && Number.isFinite(reward) && reward > 0;
 }
 
-function errorBucket(trial: JobTrialSummary): 'timeout' | 'error' | null {
-  const error = [trial.error_type, trial.hosted_error]
+function errorBucket(trial: TrialSummary): 'timeout' | 'error' | null {
+  const error = [trial.exception_type, trial.hosted_error]
     .filter(Boolean)
     .map(String)
     .join(' ');
@@ -358,14 +348,12 @@ function buildWaffleData({
   rowTrialIds,
   trials,
   jobs,
-  jobIdByRow,
 }: {
   leaderboard: LeaderboardReadResponse['leaderboard'];
   rows: LeaderboardReadResponse['rows'];
   rowTrialIds: Map<string, string[]>;
-  trials: JobTrialSummary[];
+  trials: TrialSummary[];
   jobs: string[];
-  jobIdByRow: Map<string, string | null>;
 }): WafflePayload {
   const trialById = new Map(trials.map((trial) => [trial.id, trial]));
   const countsByTask = new Map<
@@ -379,7 +367,6 @@ function buildWaffleData({
     const agent = row.metadata?.agent_display?.label ?? '';
     const identity = [model, agent].filter(Boolean).join(' / ');
     const rowKey = row.id.slice(0, 8);
-    const jobId = jobIdByRow.get(row.id) ?? null;
 
     for (const trialId of rowTrialIds.get(row.id) ?? []) {
       const trial = trialById.get(trialId);
@@ -399,7 +386,7 @@ function buildWaffleData({
       };
 
       let outcome: WaffleTrial['o'] = 'f';
-      if (rewardPassed(trial.reward)) {
+      if (rewardPassed(trial.rewards)) {
         counts.p += 1;
         outcome = 'p';
       } else {
@@ -420,8 +407,8 @@ function buildWaffleData({
         m: identity,
         r: rowKey,
         id: trial.id,
-        j: jobId,
-        e: trial.error_type ?? trial.hosted_error ?? null,
+        j: trial.job_id,
+        e: trial.exception_type ?? trial.hosted_error ?? null,
       });
 
       countsByTask.set(task, counts);
@@ -504,27 +491,18 @@ export async function readTerminalBenchWaffle(
     leaderboardPayload.leaderboard.id,
   );
   const rowTrialIds = linksByRow(rowTrialLinks);
-  const firstTrialIds = leaderboardPayload.rows
-    .map((row) => rowTrialIds.get(row.id)?.[0])
-    .filter((id): id is string => Boolean(id));
-  const jobIdByTrial = await readJobIdsForTrials(firstTrialIds);
-  const jobs = [
-    ...new Set(
-      firstTrialIds
-        .map((trialId) => jobIdByTrial.get(trialId))
-        .filter((jobId): jobId is string => Boolean(jobId)),
-    ),
+  for (const row of leaderboardPayload.rows) {
+    if ((rowTrialIds.get(row.id)?.length ?? 0) !== row.n_trials) {
+      throw new Error('Leaderboard trial links are incomplete; retry the request');
+    }
+  }
+  const trialIds = [
+    ...new Set(leaderboardPayload.rows.flatMap((row) => rowTrialIds.get(row.id) ?? [])),
   ];
-  const trials = await readJobTrials(jobs);
-  const jobIdByRow = new Map(
-    leaderboardPayload.rows.map((row) => {
-      const firstTrialId = rowTrialIds.get(row.id)?.[0];
-      return [
-        row.id,
-        firstTrialId ? (jobIdByTrial.get(firstTrialId) ?? null) : null,
-      ] as const;
-    }),
-  );
+  const trials = await readTrials(trialIds);
+  const jobs = [
+    ...new Set(trials.map((trial) => trial.job_id).filter((id): id is string => id !== null)),
+  ];
 
   return buildWaffleData({
     leaderboard: leaderboardPayload.leaderboard,
@@ -532,6 +510,5 @@ export async function readTerminalBenchWaffle(
     rowTrialIds,
     trials,
     jobs,
-    jobIdByRow,
   });
 }
