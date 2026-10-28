@@ -71,6 +71,14 @@ type TooltipState = {
   hh: number;
 };
 
+type HighlightBand = {
+  key: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 const OUTCOME_CELL_CLASS: Record<WaffleTrial["o"], string> = {
   p: "fill-foreground",
   to: "fill-[#f2872e]",
@@ -431,6 +439,8 @@ const WaffleSvg = memo(function WaffleSvg({
   onTrialMove,
   onTrialLeave,
   onSurfaceMove,
+  onBandMove,
+  onBandLeave,
 }: {
   matrix: Matrix;
   mode: RowMode;
@@ -453,6 +463,8 @@ const WaffleSvg = memo(function WaffleSvg({
   ) => void;
   onTrialLeave: () => void;
   onSurfaceMove: (event: React.MouseEvent<SVGElement>) => void;
+  onBandMove: (band: HighlightBand | null) => void;
+  onBandLeave: () => void;
 }) {
   // Fixed pixel geometry (no viewBox stretch), scaled down in whole-pixel
   // steps until the full chart fits the viewport height — the same
@@ -525,7 +537,11 @@ const WaffleSvg = memo(function WaffleSvg({
         if (m === "task") {
           // Task rows never wrap (outcome mode scrolls horizontally instead),
           // so every group renders one line per task.
-          est += matrix.tasks.length * Math.max(RH, pitchYEst);
+          const rowPaddingEst = (RH - SW) / 2;
+          const taskRowEst = labelTask
+            ? Math.max(RH, Math.ceil(fontSm * 1.25) + 2 * rowPaddingEst)
+            : RH;
+          est += matrix.tasks.length * taskRowEst;
         } else {
           (m === "all" ? [matrix.all] : matrix.domains).forEach(
             (domain, index) => {
@@ -562,6 +578,10 @@ const WaffleSvg = memo(function WaffleSvg({
     }
   const SH = SW;
   const VGAP = SGAP;
+  const rowPadding = (RH - SH) / 2;
+  const taskRowHeight = labelTask
+    ? Math.max(RH, Math.ceil(fontSm * 1.25) + 2 * rowPadding)
+    : RH;
   const fontMd = fontSm + 1;
   const blockW = maxReps * SW + (maxReps - 1) * SGAP;
   const stepM = blockW + MG;
@@ -867,7 +887,7 @@ const WaffleSvg = memo(function WaffleSvg({
       const rowLines = merged
         ? Math.max(1, Math.ceil(merged.length / perLine))
         : 1;
-      const blockH = Math.max(RH, rowLines * pitchY);
+      const blockH = Math.max(taskRowHeight, rowLines * pitchY);
       const sy = y + (blockH - (rowLines * pitchY - VGAP)) / 2;
       if (labelTask)
         elements.push(
@@ -880,8 +900,9 @@ const WaffleSvg = memo(function WaffleSvg({
           >
             <text
               x={GUT - 10}
-              y={y + blockH / 2 + 3}
+              y={y + blockH / 2}
               textAnchor="end"
+              dominantBaseline="central"
               fontSize={fontSm}
               className="fill-foreground"
             >
@@ -1001,10 +1022,11 @@ const WaffleSvg = memo(function WaffleSvg({
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
-      className="mx-auto block"
+      className="relative z-10 mx-auto block"
       onMouseLeave={(event) => {
         event.currentTarget.style.cursor = "";
         onTrialLeave();
+        onBandLeave();
       }}
       onMouseMove={(event) => {
         // Hide outside the squares' bounding box; glide within it. The svg
@@ -1014,6 +1036,37 @@ const WaffleSvg = memo(function WaffleSvg({
         const rect = svg.getBoundingClientRect();
         const lx = event.clientX - rect.left;
         const ly = event.clientY - rect.top;
+        if (mode === "task") {
+          if (transposed) {
+            const pitch = SW + SGAP;
+            const index = Math.floor((lx - GUT) / pitch);
+            onBandMove(
+              index >= 0 && index < matrix.tasks.length && ly >= HEADT && ly < height - 10
+                ? {
+                    key: `column-${index}`,
+                    x: GUT + index * pitch - SGAP / 2,
+                    y: HEADT,
+                    width: pitch,
+                    height: height - HEADT - 10,
+                  }
+                : null,
+            );
+          } else {
+            const rowHeight = taskRowHeight;
+            const index = Math.floor((ly - HEAD) / rowHeight);
+            if (index < 0 || index >= matrix.tasks.length) {
+              onBandMove(null);
+            } else {
+              onBandMove({
+                key: `row-${index}`,
+                x: 0,
+                y: HEAD + index * rowHeight,
+                width: GUT + plotW + (rowHeight - SH) / 2,
+                height: rowHeight,
+              });
+            }
+          }
+        }
         if (
           lx < GUT - 2 ||
           lx > GUT + plotW + 2 ||
@@ -1193,6 +1246,19 @@ export function TaskWaffleView() {
   };
 
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+  const [highlightBand, setHighlightBand] = useState<HighlightBand | null>(null);
+  const moveBand = useCallback((band: HighlightBand | null) => {
+    setHighlightBand((current) =>
+      current?.key === band?.key &&
+      current?.x === band?.x &&
+      current?.y === band?.y &&
+      current?.width === band?.width &&
+      current?.height === band?.height
+        ? current
+        : band,
+    );
+  }, []);
+  const clearBand = useCallback(() => setHighlightBand(null), []);
   const [tipOpen, setTipOpen] = useState(false);
   const [viewportH, setViewportH] = useState(900);
   useEffect(() => {
@@ -1471,28 +1537,47 @@ export function TaskWaffleView() {
               ref={setScrollRef}
               className="relative overflow-x-auto px-4 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
-              <WaffleSvg
-                matrix={matrix}
-                mode={mode}
-                group={group}
-                containerWidth={containerWidth}
-                viewportH={viewportH}
-                labelModel={labelVisibility.model !== false}
-                labelAgent={labelVisibility.agent !== false}
-                labelReasoning={labelVisibility.reasoning !== false}
-                labelTask={labelVisibility.task !== false}
-                big={big}
-                transpose={transpose}
-                onTrialMove={showTooltip}
-                onTrialLeave={hideTooltip}
-                onSurfaceMove={moveTooltip}
-              />
+              <div className="relative mx-auto w-max">
+                {highlightBand && mode === "task" ? (
+                  <div
+                    aria-hidden
+                    className={cn(
+                      "pointer-events-none absolute bg-foreground/8",
+                      transpose && "border-x border-foreground/25",
+                    )}
+                    style={{
+                      left: highlightBand.x,
+                      top: highlightBand.y,
+                      width: highlightBand.width,
+                      height: highlightBand.height,
+                    }}
+                  />
+                ) : null}
+                <WaffleSvg
+                  matrix={matrix}
+                  mode={mode}
+                  group={group}
+                  containerWidth={containerWidth}
+                  viewportH={viewportH}
+                  labelModel={labelVisibility.model !== false}
+                  labelAgent={labelVisibility.agent !== false}
+                  labelReasoning={labelVisibility.reasoning !== false}
+                  labelTask={labelVisibility.task !== false}
+                  big={big}
+                  transpose={transpose}
+                  onTrialMove={showTooltip}
+                  onTrialLeave={hideTooltip}
+                  onSurfaceMove={moveTooltip}
+                  onBandMove={moveBand}
+                  onBandLeave={clearBand}
+                />
+              </div>
               {/* Hover highlight drawn outside the big SVG so sweeping never
                   re-renders the grid. */}
               {tipOpen && tooltip ? (
                 <div
                   aria-hidden
-                  className="pointer-events-none absolute border border-foreground"
+                  className="pointer-events-none absolute z-20 border border-foreground"
                   style={{
                     left: tooltip.hx,
                     top: tooltip.hy,
