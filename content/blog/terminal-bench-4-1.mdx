@@ -10,15 +10,18 @@ import { GradingBoundaryDiagram } from "@/components/blog/terminal-bench-4-1-dia
 import { RegradeWaffle } from "@/components/blog/terminal-bench-4-1-waffle";
 import { LeaderboardScoreComparison } from "@/components/blog/terminal-bench-4-1-score-comparison";
 
-We’re releasing Terminal Bench 4.1 as part of how we maintain [continuous benchmarks](https://www.tbench.ai/news/continuous-benchmarks). This release focuses on the existing tasks’ verifiers for greater reliability, consistency, and robustness to reward hacking. We re-graded the leaderboard submissions for Terminal Bench 4.0 after improving the task verifiers and found that only ~1.16% of all trials experienced a score change. Further, we found that all agents' updated scores for TB 4.1 fall within the original 95% confidence intervals of their TB 4.0 submissions.
+We’re releasing Terminal Bench 4.1 as part of how we maintain [continuous benchmarks](https://www.tbench.ai/news/continuous-benchmarks). Our findings in brief:
+- We improved verifiers for greater reliability, consistency, and robustness to reward hacking.
+- We re-graded the TB 4.0 leaderboard with only ~1% of all trials changing score.
+- All agent scores remain within their previously reported confidence intervals from the TB 4.0 leaderboard.
 
-The [4.0 leaderboard submissions](https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/4?tab=leaderboard&leaderboard=4-0-0) recorded over $116k in gross inference cost as of November 3, 2026. Regrading their saved artifacts with the 4.1 verifiers required $0 in additional inference.
+The [4.0 leaderboard submissions](https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/4?tab=leaderboard&leaderboard=4-0-0) recorded over $116k in gross inference cost as of November 3, 2026. Regrading their saved artifacts with the TB 4.1 verifiers required $0 in additional inference.
 
 ## Verifier Improvements
 
-We began by addressing a number of issues identified by Bespoke Labs, Tokenless, and Preference Model that flagged verifier bugs and called for hardening tasks against various styles of reward hacks. In our [Cracking Down on Reward Hacking](https://docs.harborframework.com/news/reward-hacking) post, we described our efforts to protect the Harbor ecosystem against reward hacks and how many of these protections are now native in Harbor.
+We addressed a number of issues identified by in recent benchmark audits that called for hardening tasks against various theoretical reward hacks.<sup><a style={{ textDecoration: "none" }} id="benchmark-audits-reference" href="#benchmark-audits-note" aria-label="Read the benchmark audits">*</a></sup> In our [Cracking Down on Reward Hacking](https://docs.harborframework.com/news/reward-hacking) post, we described our efforts to make many of these protections native in Harbor.
 
-Forty-four tasks in Terminal Bench 4.0 ran agent-authored code during verification. Running agent code in the grading process (or with the same permissions as the grader) can allow it to tamper with its own evaluation. Tasks such as [takens-embedding-lean](https://github.com/harbor-framework/terminal-bench/tree/main/tasks/takens-embedding-lean) had submitted code that ran as root in the verifier, a risk we addressed in this release.
+Forty-four tasks in Terminal Bench 4.0 run agent-authored code during verification. If run in the same grading process (or with the same permissions as the grader), this can can allow aubmitted code to tamper with the evaluation. Tasks such as [takens-embedding-lean](https://github.com/harbor-framework/terminal-bench/tree/main/tasks/takens-embedding-lean) had submitted code that ran as root in the verifier, a risk we addressed in this release.
 
 To help developers secure their verifiers against this type of agent cheat, we implemented the `Worker` class in Rewardkit for secure code execution, as described below.
 
@@ -34,7 +37,7 @@ We also standardized many best practices across all 66 tasks in the benchmark. W
 
 ## Updated Leaderboard
 
-Our [regrade](https://docs.google.com/spreadsheets/d/1iksHRVdGk5k-rZ92EimBKPiPozSO0IsEHEJhoi5L6Zs/edit#gid=20261104) resulted in 162 trials from the TB 4.0 leaderboard changing score. We manually reviewed these results and classified 134 as expected per the verifier changes we made, and 28 as attributable to lingering measurement discrepancies between verifier runs. For these trials, we retained their original scores from the TB 4.0 leaderboard.<sup><a style={{ textDecoration: "none" }} id="regrade-review-reference" href="#regrade-review-note" aria-label="Read the note about incomplete regrades and run-to-run variation">*</a></sup>
+Our [regrade](https://docs.google.com/spreadsheets/d/1iksHRVdGk5k-rZ92EimBKPiPozSO0IsEHEJhoi5L6Zs/edit#gid=20261104) resulted in 162 trials from the TB 4.0 leaderboard changing score. We manually reviewed these results and classified 134 as expected per the verifier changes we made, and 28 as attributable to lingering measurement discrepancies between verifier runs. For these trials, we retained their original scores from the TB 4.0 leaderboard.<sup><a style={{ textDecoration: "none" }} id="regrade-review-reference" href="#regrade-review-note" aria-label="Read the note about incomplete regrades and run-to-run variation">**</a></sup>
 
 Regrading follows the below process, where an existing artifact is used in an updated verifier to assign a new score.
 <GradingBoundaryDiagram regrade />
@@ -64,8 +67,10 @@ Feel free to check out our [v5.0 milestone](https://github.com/harbor-framework/
 
 ## Acknowledgements
 
-Thank you to the community, task authors, senior reviewers, and supporting organizations who opened task issues, created task fixes, and reviewed task fixes: Allen Hart, @arhaamatiq, Aysajan Eziz, Benedikt, @bosprimigenious, Christine S, Leon Chen, @Codnay, Yuming, Jiaqiang Li, Tony Kung, @kkkyr1e, Lovre Pešut, Ryan Marten, Shengrui (Ray) Lyu, Sherry Ruan, Stephen Benjamin, Walker Hughes, @xt-yin, Bespoke Labs, gNucleus AI, Snorkel AI, and Handshake.
+Thank you to the community, task authors, senior reviewers, and supporting organizations who opened task issues, created task fixes, and reviewed task fixes: Allen Hart, @arhaamatiq, Aysajan Eziz, Benedikt Stroebl, @bosprimigenious, Christine S, Leon Chen, Pranay Gupta, Yuming, Jiaqiang Li, Tony Kung, @kkkyr1e, Lovre Pešut, Ryan Marten, Shengrui (Ray) Lyu, Sherry Ruan, Stephen Benjamin, Walker Hughes, @xt-yin, Bespoke Labs, gNucleus AI, Snorkel AI, and Handshake.
 
 The leaderboard experiments are supported with grants from OpenAI, Anthropic, Z.ai, SpaceX AI, and Laude Institute.
 
-<p id="regrade-review-note" className="text-sm text-muted-foreground"><a style={{ textDecoration: "none" }} href="#regrade-review-reference" aria-label="Back to the regrade results">*</a> In trials where regrading encountered issues due to problems in the original leaderboard trials, we retained the existing trial score by default. We also recognize that there will always be some variation between runs, particularly for tasks whose verifiers measure a latency requirement.</p>
+<p id="benchmark-audits-note" className="text-sm text-muted-foreground"><a style={{ textDecoration: "none" }} href="#benchmark-audits-reference" aria-label="Back to the benchmark audits reference">*</a> <a href="https://epoch.ai/benchmarks/terminal-bench-4/review#representative-errors">Epoch</a>, <a href="https://usetokenless.com/blog/envcheck/">Tokenless</a>, and <a href="https://preferencemodel.com/blog/terminal-bench-4-is-saturated/issues/">Preference Model</a>.</p>
+
+<p id="regrade-review-note" className="text-sm text-muted-foreground"><a style={{ textDecoration: "none" }} href="#regrade-review-reference" aria-label="Back to the regrade results">**</a> In trials where stored artifacts were not available, we retained the existing trial score by default. We also recognize that there will always be some variation between runs, particularly in verifiers that measure a latency requirement.</p>
