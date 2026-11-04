@@ -1,0 +1,355 @@
+{
+  "date": "2026-11-03",
+  "submissions": [
+    {
+      "agent": "Claude Code",
+      "model": "Opus 5.5",
+      "effort": "max",
+      "before": 64.85,
+      "after": 65.75757575757576,
+      "delta": 0.9090909090909091,
+      "ci95": 3.11,
+      "trials": 330
+    },
+    {
+      "agent": "Claude Code",
+      "model": "Sonnet 5.5",
+      "effort": "max",
+      "before": 61.82,
+      "after": 63.63636363636363,
+      "delta": 1.8181818181818181,
+      "ci95": 2.94,
+      "trials": 330
+    },
+    {
+      "agent": "Codex",
+      "model": "GPT-6.1 Sol",
+      "effort": "max",
+      "before": 58.18,
+      "after": 60.60606060606061,
+      "delta": 2.4242424242424243,
+      "ci95": 3.11,
+      "trials": 330
+    },
+    {
+      "agent": "Codex",
+      "model": "GPT-6 Astra",
+      "effort": "max",
+      "before": 58.18,
+      "after": 58.18181818181818,
+      "delta": 0.0,
+      "ci95": 2.79,
+      "trials": 330
+    },
+    {
+      "agent": "Codex",
+      "model": "GPT-6 Astra",
+      "effort": "high",
+      "before": 57.88,
+      "after": 57.878787878787875,
+      "delta": 0.0,
+      "ci95": 2.97,
+      "trials": 330
+    },
+    {
+      "agent": "Codex",
+      "model": "GPT-6 Astra",
+      "effort": "xhigh",
+      "before": 57.88,
+      "after": 57.878787878787875,
+      "delta": 0.0,
+      "ci95": 2.72,
+      "trials": 330
+    },
+    {
+      "agent": "Claude Code",
+      "model": "Fable 5.1",
+      "effort": "xhigh",
+      "before": 57.88,
+      "after": 57.878787878787875,
+      "delta": 0.0,
+      "ci95": 3.36,
+      "trials": 330
+    },
+    {
+      "agent": "Claude Code",
+      "model": "Fable 5.1",
+      "effort": "max",
+      "before": 57.88,
+      "after": 57.57575757575758,
+      "delta": -0.30303030303030304,
+      "ci95": 3.76,
+      "trials": 330
+    },
+    {
+      "agent": "Claude Code",
+      "model": "Fable 5.1",
+      "effort": "high",
+      "before": 54.55,
+      "after": 54.54545454545454,
+      "delta": 0.0,
+      "ci95": 3.44,
+      "trials": 330
+    },
+    {
+      "agent": "Codex",
+      "model": "GPT-6 Astra",
+      "effort": "medium",
+      "before": 54.24,
+      "after": 54.24242424242425,
+      "delta": 0.0,
+      "ci95": 2.66,
+      "trials": 330
+    },
+    {
+      "agent": "Claude Code",
+      "model": "Opus 5",
+      "effort": "xhigh",
+      "before": 53.94,
+      "after": 53.939393939393945,
+      "delta": 0.0,
+      "ci95": 3.17,
+      "trials": 330
+    },
+    {
+      "agent": "Claude Code",
+      "model": "Fable 5.1",
+      "effort": "medium",
+      "before": 53.94,
+      "after": 53.939393939393945,
+      "delta": 0.0,
+      "ci95": 3.39,
+      "trials": 330
+    },
+    {
+      "agent": "Claude Code",
+      "model": "Opus 5",
+      "effort": "max",
+      "before": 51.82,
+      "after": 52.121212121212125,
+      "delta": 0.30303030303030304,
+      "ci95": 3.39,
+      "trials": 330
+    },
+    {
+      "agent": "Codex",
+      "model": "GPT-6 Astra",
+      "effort": "low",
+      "before": 50.61,
+      "after": 50.60606060606061,
+      "delta": 0.0,
+      "ci95": 2.75,
+      "trials": 330
+    },
+    {
+      "agent": "Claude Code",
+      "model": "Opus 5",
+      "effort": "high",
+      "before": 50.3,
+      "after": 50.303030303030305,
+      "delta": 0.0,
+      "ci95": 3.73,
+      "trials": 330
+    },
+    {
+      "agent": "Codex",
+      "model": "GPT-6 Sol",
+      "effort": "max",
+      "before": 49.39,
+      "after": 49.09090909090909,
+      "delta": -0.30303030303030304,
+      "ci95": 3.23,
+      "trials": 330
+    },
+    {
+      "agent": "Claude Code",
+      "model": "Opus 5",
+      "effort": "medium",
+      "before": 44.85,
+      "after": 44.84848484848485,
+      "delta": 0.0,
+      "ci95": 3.83,
+      "trials": 330
+    },
+    {
+      "agent": "Claude Code",
+      "model": "Fable 5",
+      "effort": "max",
+      "before": 44.55,
+      "after": 45.151515151515156,
+      "delta": 0.6060606060606061,
+      "ci95": 3.85,
+      "trials": 330
+    },
+    {
+      "agent": "Claude Code",
+      "model": "Fable 5.1",
+      "effort": "low",
+      "before": 43.33,
+      "after": 43.333333333333336,
+      "delta": 0.0,
+      "ci95": 3.61,
+      "trials": 330
+    },
+    {
+      "agent": "Claude Code",
+      "model": "GLM-5.3",
+      "effort": "max",
+      "before": 41.82,
+      "after": 41.515151515151516,
+      "delta": -0.30303030303030304,
+      "ci95": 3.23,
+      "trials": 330
+    },
+    {
+      "agent": "Grok Build",
+      "model": "Grok 4.7",
+      "effort": "xhigh",
+      "before": 37.58,
+      "after": 37.57575757575757,
+      "delta": 0.0,
+      "ci95": 3.54,
+      "trials": 330
+    },
+    {
+      "agent": "Codex",
+      "model": "GPT-5.6 Sol",
+      "effort": "max",
+      "before": 37.27,
+      "after": 38.78787878787879,
+      "delta": 1.5151515151515151,
+      "ci95": 3.78,
+      "trials": 330
+    },
+    {
+      "agent": "Claude Code",
+      "model": "GLM-5.3-Flash",
+      "effort": "none",
+      "before": 35.76,
+      "after": 35.45454545454545,
+      "delta": -0.30303030303030304,
+      "ci95": 3.54,
+      "trials": 330
+    },
+    {
+      "agent": "Claude Code",
+      "model": "Opus 5",
+      "effort": "low",
+      "before": 34.85,
+      "after": 34.84848484848485,
+      "delta": 0.0,
+      "ci95": 3.94,
+      "trials": 330
+    },
+    {
+      "agent": "Claude Code",
+      "model": "Qwen3.8-Max-0902",
+      "effort": "max",
+      "before": 26.97,
+      "after": 26.666666666666668,
+      "delta": -0.30303030303030304,
+      "ci95": 3.78,
+      "trials": 330
+    },
+    {
+      "agent": "Claude Code",
+      "model": "Opus 4.8",
+      "effort": "max",
+      "before": 23.64,
+      "after": 23.333333333333332,
+      "delta": -0.30303030303030304,
+      "ci95": 3.56,
+      "trials": 330
+    },
+    {
+      "agent": "Codex",
+      "model": "GPT-5.6 Terra",
+      "effort": "max",
+      "before": 21.52,
+      "after": 21.21212121212121,
+      "delta": -0.30303030303030304,
+      "ci95": 3.25,
+      "trials": 330
+    },
+    {
+      "agent": "Grok Build",
+      "model": "Grok 4.6",
+      "effort": "high",
+      "before": 20.3,
+      "after": 19.696969696969695,
+      "delta": -0.6060606060606061,
+      "ci95": 3.09,
+      "trials": 330
+    },
+    {
+      "agent": "mini-SWE-agent",
+      "model": "Gemini 3.8 Flash",
+      "effort": "high",
+      "before": 19.09,
+      "after": 18.484848484848484,
+      "delta": -0.6060606060606061,
+      "ci95": 3.36,
+      "trials": 330
+    },
+    {
+      "agent": "Codex",
+      "model": "GPT-5.6 Luna",
+      "effort": "max",
+      "before": 17.27,
+      "after": 17.575757575757574,
+      "delta": 0.30303030303030304,
+      "ci95": 2.85,
+      "trials": 330
+    },
+    {
+      "agent": "Codex",
+      "model": "GPT-6 Luna",
+      "effort": "max",
+      "before": 16.36,
+      "after": 14.545454545454545,
+      "delta": -1.8181818181818181,
+      "ci95": 2.72,
+      "trials": 330
+    },
+    {
+      "agent": "Muse Code",
+      "model": "Muse Spark 1.3",
+      "effort": "xhigh",
+      "before": 14.55,
+      "after": 14.84848484848485,
+      "delta": 0.30303030303030304,
+      "ci95": 2.94,
+      "trials": 330
+    },
+    {
+      "agent": "Claude Code",
+      "model": "Sonnet 5",
+      "effort": "max",
+      "before": 12.42,
+      "after": 12.424242424242424,
+      "delta": 0.0,
+      "ci95": 3.06,
+      "trials": 330
+    },
+    {
+      "agent": "Grok Build",
+      "model": "Grok 4.5",
+      "effort": "high",
+      "before": 12.42,
+      "after": 12.424242424242424,
+      "delta": 0.0,
+      "ci95": 2.62,
+      "trials": 330
+    },
+    {
+      "agent": "mini-SWE-agent",
+      "model": "Gemini 3.7 Flash",
+      "effort": "high",
+      "before": 11.21,
+      "after": 11.818181818181818,
+      "delta": 0.6060606060606061,
+      "ci95": 2.45,
+      "trials": 330
+    }
+  ]
+}

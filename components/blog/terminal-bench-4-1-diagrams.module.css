@@ -1,0 +1,16 @@
+.figure { scroll-margin-top: 5rem; margin: 2rem 0; padding: 1.25rem; border: 1px solid var(--border); background: var(--background); font-family: var(--font-geist-sans), sans-serif; }
+.diagramPane { min-width: 0; overflow-x: auto; }
+.diagram { display: block; width: 100%; max-width: 640px; height: auto; margin: 0 auto; }
+.environment, .host { fill: var(--muted); stroke: var(--border); stroke-width: 1.25; }
+.artifact, .sanitizer { fill: var(--background); stroke: var(--muted-foreground); stroke-width: 1; }
+.worker { fill: var(--background); stroke: var(--muted-foreground); stroke-width: 1; stroke-dasharray: 4 3; }
+.environmentLabel { fill: var(--foreground); font-family: var(--font-google-sans-code), monospace; font-size: 14px; }
+.workerLabel { fill: var(--foreground); font-size: 12px; font-weight: 500; }
+.body { fill: var(--foreground); font-size: 14px; }
+.detail { fill: var(--muted-foreground); font-size: 12px; }
+.small { fill: var(--muted-foreground); font-size: 11px; }
+.flow, .arrowHead { fill: none; stroke: var(--muted-foreground); stroke-width: 1; }
+@media (max-width: 640px) {
+  .figure { padding: 1rem; }
+  .diagram { min-width: 480px; }
+}
