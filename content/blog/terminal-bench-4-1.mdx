@@ -24,8 +24,6 @@ To help developers secure their verifiers against this type of agent cheat, we i
 
 <GradingBoundaryDiagram />
 
-<GradingBoundaryDiagram regrade />
-
 Before any agent-authored files reach the separate verifier container, Harbor removes potentially dangerous links and permissions that could grant extra privileges. Rewardkit’s `Worker` then runs the submitted code as an underprivileged user in a separate process so it cannot read the tests or change the reward file. Before returning the results, `Worker` kills any processes the code may have left running. The trusted grader then checks the results and assigns a score, all from a single interface. We standardized this across tasks that execute agent code as part of the 4.1 release.
 
 See the [secure-python-worker example](https://github.com/harbor-framework/harbor/tree/main/examples/tasks/secure-python-worker) for a complete verifier implementation.
@@ -37,6 +35,8 @@ We also standardized many best practices across all 66 tasks in the benchmark. W
 ## Updated Leaderboard
 
 Our [regrade](https://docs.google.com/spreadsheets/d/1iksHRVdGk5k-rZ92EimBKPiPozSO0IsEHEJhoi5L6Zs/edit#gid=20261104) resulted in 162 trials from the TB 4.0 leaderboard changing score. We manually reviewed these results and classified 134 as expected per the verifier changes we made, and 28 as attributable to lingering measurement discrepancies between verifier runs. For these trials, we retained their original scores from the TB 4.0 leaderboard.<sup><a style={{ textDecoration: "none" }} id="regrade-review-reference" href="#regrade-review-note" aria-label="Read the note about incomplete regrades and run-to-run variation">*</a></sup>
+
+<GradingBoundaryDiagram regrade />
 
 89 of the trials with flipped scores were false negatives and 45 were false positives. For example:
 - Prior to [#2492](https://github.com/harbor-framework/terminal-bench/pull/2492), `distributed-dedup` had rejected correct solutions for finishing too quickly per an undocumented timing requirement.
