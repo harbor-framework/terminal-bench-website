@@ -10,15 +10,15 @@ import { GradingBoundaryDiagram } from "@/components/blog/terminal-bench-4-1-dia
 import { RegradeWaffle } from "@/components/blog/terminal-bench-4-1-waffle";
 import { LeaderboardScoreComparison } from "@/components/blog/terminal-bench-4-1-score-comparison";
 
-We’re releasing Terminal Bench 4.1 as a new minor-version release of Terminal Bench, part of how we maintain [continuous benchmarks](https://www.tbench.ai/news/continuous-benchmarks). This release focuses on the existing tasks’ verifiers for greater reliability, consistency, and robustness to reward hacking. We re-graded the leaderboard submissions for Terminal Bench 4.0 after addressing many community-reported issues, and found that less than 2% of all trials experienced a score change. Further, we found that all agents' updated scores for TB 4.1 fall within the original 95% confidence intervals of their TB 4.0 submissions.
+We’re releasing Terminal Bench 4.1 as part of how we maintain [continuous benchmarks](https://www.tbench.ai/news/continuous-benchmarks). This release focuses on the existing tasks’ verifiers for greater reliability, consistency, and robustness to reward hacking. We re-graded the leaderboard submissions for Terminal Bench 4.0 after improving the task verifiers and found that only ~1.16% of all trials experienced a score change. Further, we found that all agents' updated scores for TB 4.1 fall within the original 95% confidence intervals of their TB 4.0 submissions.
 
-We also introduced trajectory regrading, a low-cost way to test verifiers and regenerate leaderboards on existing trajectories. The [4.0 leaderboard submissions](https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/4?tab=leaderboard&leaderboard=4-0-0) recorded over $116k in gross inference cost as of November 3, 2026. Regrading their saved artifacts with the 4.1 verifiers required $0 in additional inference cost.
+We also introduced trajectory regrading, a low-cost way to test verifiers and regenerate leaderboards on existing trajectories. The [4.0 leaderboard submissions](https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/4?tab=leaderboard&leaderboard=4-0-0) recorded over $116k in gross inference cost as of November 3, 2026. Regrading their saved artifacts with the 4.1 verifiers required $0 in additional inference.
 
 ## Verifier Improvements
 
-We began by addressing a number of issues identified by Bespoke Labs, Tokenless, and Preference Model that flagged verifier bugs and called for hardening tasks against various styles of reward hacks. In our [Cracking Down on Reward Hacking](https://docs.harborframework.com/news/reward-hacking) post, we described our efforts to protect the Harbor ecosystem against reward hacks, which made protection against many of the flagged issues native in Harbor.
+We began by addressing a number of issues identified by Bespoke Labs, Tokenless, and Preference Model that flagged verifier bugs and called for hardening tasks against various styles of reward hacks. In our [Cracking Down on Reward Hacking](https://docs.harborframework.com/news/reward-hacking) post, we described our efforts to protect the Harbor ecosystem against reward hacks and how many of these protections are now native in Harbor.
 
-Forty-four tasks in Terminal Bench 4.0 run agent-authored code during verification. Running agent code in the grading process (or with the same permissions as the grader) can let it tamper with its own evaluation. Tasks such as [takens-embedding-lean](https://github.com/harbor-framework/terminal-bench/tree/main/tasks/takens-embedding-lean) submitted code that ran as root in the verifier, a risk we addressed in this release.
+Forty-four tasks in Terminal Bench 4.0 ran agent-authored code during verification. Running agent code in the grading process (or with the same permissions as the grader) can allow it to tamper with its own evaluation. Tasks such as [takens-embedding-lean](https://github.com/harbor-framework/terminal-bench/tree/main/tasks/takens-embedding-lean) had submitted code that ran as root in the verifier, a risk we addressed in this release.
 
 To help developers secure their verifiers against this type of agent cheat, we implemented the `Worker` class in Rewardkit for secure code execution, as described below.
 
@@ -26,7 +26,7 @@ To help developers secure their verifiers against this type of agent cheat, we i
 
 <GradingBoundaryDiagram regrade />
 
-Before any agent-authored files reach a separate verifier container, Harbor removes potentially dangerous links and permissions that could grant extra privileges. Rewardkit’s Worker then runs the submitted code as an underprivileged user in a separate process so the code cannot read the tests or change the reward file. Before returning the results, Worker kills any processes the code may have left running. The trusted grader then checks the results and assigns a score, all from a single interface. We standardized this across tasks that execute agent code in the verifiers.
+Before any agent-authored files reach the separate verifier container, Harbor removes potentially dangerous links and permissions that could grant extra privileges. Rewardkit’s `Worker` then runs the submitted code as an underprivileged user in a separate process so it cannot read the tests or change the reward file. Before returning the results, `Worker` kills any processes the code may have left running. The trusted grader then checks the results and assigns a score, all from a single interface. We standardized this across tasks that execute agent code as part of the 4.1 release.
 
 See the [secure-python-worker example](https://github.com/harbor-framework/harbor/tree/main/examples/tasks/secure-python-worker) for a complete verifier implementation.
 
@@ -36,9 +36,13 @@ We also standardized many best practices across all 66 tasks in the benchmark. W
 
 ## Updated Leaderboard
 
-Our [final regrade](https://docs.google.com/spreadsheets/d/1iksHRVdGk5k-rZ92EimBKPiPozSO0IsEHEJhoi5L6Zs/edit#gid=20261104) resulted in 162 trials from the TB 4.0 leaderboard that changed score. We manually reviewed these results and classified 134 as expected per the verifier changes we made, and 28 as attributable to lingering measurement discrepancies between verifier runs. For these trials, we retained their original scores from the TB 4.0 leaderboard.<sup><a style={{ textDecoration: "none" }} id="regrade-review-reference" href="#regrade-review-note" aria-label="Read the note about incomplete regrades and run-to-run variation">*</a></sup>
+Our [regrade](https://docs.google.com/spreadsheets/d/1iksHRVdGk5k-rZ92EimBKPiPozSO0IsEHEJhoi5L6Zs/edit#gid=20261104) resulted in 162 trials from the TB 4.0 leaderboard changing score. We manually reviewed these results and classified 134 as expected per the verifier changes we made, and 28 as attributable to lingering measurement discrepancies between verifier runs. For these trials, we retained their original scores from the TB 4.0 leaderboard.<sup><a style={{ textDecoration: "none" }} id="regrade-review-reference" href="#regrade-review-note" aria-label="Read the note about incomplete regrades and run-to-run variation">*</a></sup>
 
-Ultimately there were 89 net new passing trials and 45 net new failing trials in Terminal Bench 4.1. Out of 11,550 total trials on the leaderboard, this works out to ~1.16% or leaderboard trials experiencing a score change. Our takeaway is that the majority of the bugs and reward hacks we hardened against in Terminal Bench 4.1 were not rampant in the current leaderboard, and thus controlling for them did not drastically alter the existing scores.
+89 of the trials with flipped scores were false negatives and 45 were false positives. For example:
+- Prior to [#2492](https://github.com/harbor-framework/terminal-bench/pull/2492), `distributed-dedup` had rejected correct solutions for finishing too quickly per an undocumented timing requirement.
+- In [#2532](https://github.com/harbor-framework/terminal-bench/pull/2532), we controlled for agents in `freecad-platform-drawing` passing as the verifier checked a size criteria, but missed a position check.
+
+Out of 11,550 total trials, only ~1.16% experienced a score change. Our takeaway is that the majority of the bugs and reward hacks we hardened against were not rampant in TB 4.0, and thus controlling for them did not drastically alter the existing scores.
 
 See the full [Terminal Bench 4.1 leaderboard](https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/4?tab=leaderboard&leaderboard=4-1-0).
 
@@ -46,7 +50,7 @@ See the full [Terminal Bench 4.1 leaderboard](https://hub.harborframework.com/da
 
 ### Regraded scores remain within original confidence intervals
 
-We compared each agents' updated score with the confidence interval published for its submision on the TB 4.0 leaderboard. All 35 agents' updated scores for TB 4.1 fall within their original 95% confidence intervals of their TB 4.0 submissions. The chart below shows the original scores in orange, with green and red segments showing increases or decreases after regrading and review.
+We compared each agents' updated score with the confidence interval published for its submision on the TB 4.0 leaderboard. All 35 agents' updated scores for TB 4.1 fall within their original 95% confidence intervals of their TB 4.0 submissions.
 <LeaderboardScoreComparison />
 
 ## What’s Next
