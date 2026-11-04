@@ -5,6 +5,7 @@ export function GradingBoundaryDiagram({ regrade = false }: { regrade?: boolean 
   const arrowId = useId();
   return (
     <figure id={regrade ? 'regrading-boundary-diagram' : 'grading-boundary-diagram'} className={`not-prose ${styles.figure}`}>
+      <figcaption className={styles.header}>{regrade ? 'Regrade Tasks with Cached Artifacts' : 'Secure Harbor Verifiers with RewardKit'}</figcaption>
       <div className={styles.diagramPane} role="region" tabIndex={0} aria-label={regrade ? 'Regrade artifact flow' : 'Agent trial artifact flow'}>
         <svg viewBox="0 0 520 383" className={styles.diagram} role="img" aria-label={regrade
           ? 'Harbor accesses a cached sanitized artifact and uploads it to the separate verifier container with updated tests. RewardKit isolates its execution from the trusted grader.'

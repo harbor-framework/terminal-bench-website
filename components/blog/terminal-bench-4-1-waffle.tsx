@@ -60,7 +60,7 @@ export function RegradeWaffle() {
   const chart = (
     <figure className={`not-prose ${styles.figure} ${expanded ? styles.expanded : ""}`}>
       <div className={styles.header}>
-        <span>Task-Level Score Changes in TB4.1</span>
+        <span>Task-Level Score Changes in TB 4.1</span>
         <label><input type="checkbox" checked={changedOnly} onChange={event => { setActive(null); setChangedOnly(event.target.checked); }} /> Changed tasks only</label>
         {expanded ? <DialogClose className={styles.expandButton} aria-label="Collapse chart"><Minimize2 size={16} /> Collapse</DialogClose> : <DialogTrigger ref={expandRef} className={styles.expandButton} aria-label="Expand chart"><Maximize2 size={16} /> Expand</DialogTrigger>}
       </div>

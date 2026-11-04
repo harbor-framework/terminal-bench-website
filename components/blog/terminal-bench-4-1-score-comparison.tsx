@@ -17,7 +17,8 @@ export function LeaderboardScoreComparison() {
   const x = (score: number) => LEFT + ((score - axisMinimum) / (axisMaximum - axisMinimum)) * PLOT;
 
   return (
-    <figure className={`not-prose ${styles.figure}`}>
+    <figure id="regraded-scores-remain-within-original-confidence-intervals" className={`not-prose ${styles.figure}`}>
+      <figcaption className={styles.header}>Regraded Scores Stay Within Original Confidence Intervals</figcaption>
       <div className={styles.legend}>
         <span><i className={styles.before} />TB4.0 score</span>
         <span><i className={styles.gain} />Increase</span>
