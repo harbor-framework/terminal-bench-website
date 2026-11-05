@@ -26,7 +26,7 @@ export function GradingBoundaryDiagram({ regrade = false }: { regrade?: boolean 
 
           <rect x="272" y="24" width="230" height="246" className={styles.environment} />
           <text x="290" y="48" className={styles.environmentLabel}><tspan x="290">Separate Verifier</tspan><tspan x="290" dy="19">Container</tspan>{regrade && <tspan x="290" dy="19">with Updated Tests</tspan>}</text>
-          <text x="290" y={regrade ? 110 : 94} className={styles.small}>Trusted process assigns award</text>
+          <text x="290" y={regrade ? 110 : 94} className={styles.small}>Trusted process assigns reward</text>
           <rect x="290" y={regrade ? 128 : 112} width="194" height={regrade ? 124 : 140} className={styles.worker} />
           <text x="304" y={regrade ? 150 : 136} className={styles.workerLabel}>RewardKit Worker</text>
           <text x="304" y={regrade ? 170 : 158} className={styles.small}>Separate process</text>
