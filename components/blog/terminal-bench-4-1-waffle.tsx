@@ -39,7 +39,9 @@ export function RegradeWaffle() {
     setActive({ row, col, x: bounds.left - surface.left + bounds.width / 2, y: bounds.bottom - surface.top });
   }
   const grid = useMemo(() => rows.map((row, rowIndex) => <g key={row.task}>
-    <text x="12" y={38 + rowIndex * rowHeight} className={styles.task}>{row.task}</text>
+    <a href={`https://hub.harborframework.com/tasks/terminal-bench/${row.task}`} target="_blank" rel="noopener noreferrer" className={styles.taskLink}>
+      <text x="12" y={38 + rowIndex * rowHeight} className={styles.task}>{row.task}</text>
+    </a>
     {row.trials.map((t, col) => <g key={t.id} role="button" aria-label={`${row.task}, ${snapshot.submissions[t.submission].model}, ${labels[status(t)]}`}>
       <rect data-cell="" data-row={rowIndex} data-col={col} x={left + col * cellWidth} y={25 + rowIndex * rowHeight} width="16" height="16" className={styles[status(t)]} />
     </g>)}
@@ -78,6 +80,7 @@ export function RegradeWaffle() {
               if (cell) show(Number(cell.getAttribute('data-row')), Number(cell.getAttribute('data-col')), cell);
             }}
             onKeyDown={event => {
+              if ((event.target as Element).closest('a')) return;
               if (event.key === 'Escape') { setPinned(false); setActive(null); return; }
               if ((event.key === 'Enter' || event.key === ' ') && trial) { event.preventDefault(); setPinned(true); return; }
               if (pinned) return;

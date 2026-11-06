@@ -5,6 +5,7 @@
 .surface { position: relative; }
 .chart { display: block; width: 100%; outline-offset: 2px; }
 .task { font-family: var(--font-google-sans-code), monospace; font-size: 16px; fill: var(--foreground); }
+.taskLink, .taskLink:hover, .taskLink:active, .taskLink:visited { color: inherit; text-decoration: none; background: transparent; cursor: pointer; }
 .column { font-family: var(--font-google-sans-code), monospace; font-size: 12px; fill: var(--muted-foreground); }
 .gain { fill: #24985b; background: #24985b; }
 .loss { fill: #e5484d; background: #e5484d; }
