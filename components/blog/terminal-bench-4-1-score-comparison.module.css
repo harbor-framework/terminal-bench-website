@@ -1,5 +1,5 @@
-.figure { border: 1px solid var(--border); margin: 2rem 0; font-size: 0.75rem; }
-.figure .header { padding: 1rem 1rem .5rem; font-family: var(--font-google-sans-code), monospace; font-size: .75rem; text-align: left; }
+.figure { border: 1px solid var(--border); margin: 2rem 0; font-size: 1rem; }
+.figure .header { padding: 1rem 1rem .5rem; font-family: var(--font-google-sans-code), monospace; font-size: 1rem; text-align: left; }
 .legend { display: flex; flex-wrap: wrap; gap: 0.75rem 1rem; padding: .5rem 1rem 1rem; border-bottom: 1px solid var(--border); color: var(--muted-foreground); }
 .legend span { display: inline-flex; align-items: center; gap: 0.375rem; }
 .legend i { width: 0.75rem; height: 0.5rem; display: inline-block; }
@@ -10,11 +10,13 @@
 .scroll { overflow-x: auto; padding-top: 0.75rem; }
 .chart { display: block; width: 100%; min-width: 728px; height: auto; }
 .grid { stroke: var(--border); stroke-width: 0.75; }
-.axis { fill: var(--muted-foreground); font-size: 10px; font-family: var(--font-google-sans-code), monospace; }
-.model { fill: var(--foreground); font-size: 12px; font-weight: 500; }
-.meta { fill: var(--muted-foreground); font-size: 10px; }
+.axis { fill: var(--muted-foreground); font-size: 11px; font-family: var(--font-google-sans-code), monospace; }
+.model { fill: var(--foreground); font-size: 16px; font-weight: 400; }
+.meta { fill: var(--muted-foreground); font-size: 11px; }
 .value { fill: var(--foreground); font-size: 11px; font-variant-numeric: tabular-nums; }
 .positive { fill: #168044; }
 .negative { fill: #d3353a; }
 .whisker { stroke: var(--foreground); stroke-width: 1; fill: none; }
 .row:focus { outline: 1px solid var(--ring); outline-offset: 2px; }
+
+.footer { padding: 1rem; border-top: 1px solid var(--border); color: var(--muted-foreground); text-align: center; font-size: .875rem; }

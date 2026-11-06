@@ -3,7 +3,7 @@ import styles from './terminal-bench-4-1-score-comparison.module.css';
 
 const LEFT = 224;
 const PLOT = 438;
-const ROW = 39;
+const ROW = 50;
 const TOP = 42;
 const WIDTH = 728;
 const signed = (delta: number) => delta === 0 ? '0.00' : `${delta > 0 ? '+' : ''}${delta.toFixed(2)}`;
@@ -33,8 +33,7 @@ export function LeaderboardScoreComparison() {
               <text x={x(tick)} y="18" textAnchor="middle" className={styles.axis}>{tick}%</text>
             </g>
           ))}
-          <text x="12" y="18" className={styles.axis}>Top 10 TB 4.0 Submissions</text>
-          <text x="716" y="18" textAnchor="end" className={styles.axis}>Δ pp</text>
+          <text x={WIDTH - 12} y="18" textAnchor="end" className={styles.axis}>Δ pp</text>
           {rows.map((row, index) => {
             const cy = TOP + index * ROW + 12;
             const low = row.before - row.ci95;
@@ -44,16 +43,17 @@ export function LeaderboardScoreComparison() {
               <g key={`${row.agent}/${row.model}/${row.effort}`} tabIndex={0} role="img" aria-label={description} className={styles.row}>
                 <title>{description}</title>
                 <text x="12" y={cy - 1} className={styles.model}>{row.model}</text>
-                <text x="12" y={cy + 13} className={styles.meta}>{row.agent} · {row.effort}</text>
-                <rect x={LEFT} y={cy - 4} width={x(row.before) - LEFT} height="12" className={styles.before} />
-                {row.delta !== 0 && <rect x={x(Math.min(row.before, row.after))} y={cy - 4} width={Math.abs(x(row.after) - x(row.before))} height="12" className={row.delta > 0 ? styles.gain : styles.loss} />}
+                <text x="12" y={cy + 19} className={styles.meta}>{row.agent} · {row.effort}</text>
+                <rect x={LEFT} y={cy - 7} width={x(row.before) - LEFT} height="18" className={styles.before} />
+                {row.delta !== 0 && <rect x={x(Math.min(row.before, row.after))} y={cy - 7} width={Math.abs(x(row.after) - x(row.before))} height="18" className={row.delta > 0 ? styles.gain : styles.loss} />}
                 <path d={`M${x(low)} ${cy - 2}v8 M${x(low)} ${cy + 2}H${x(high)} M${x(high)} ${cy - 2}v8`} className={styles.whisker} />
-                <text x="716" y={cy + 7} textAnchor="end" className={`${styles.value} ${row.delta > 0 ? styles.positive : row.delta < 0 ? styles.negative : ''}`}>{signed(row.delta)}</text>
+                <text x={WIDTH - 12} y={cy + 7} textAnchor="end" className={`${styles.value} ${row.delta > 0 ? styles.positive : row.delta < 0 ? styles.negative : ''}`}>{signed(row.delta)}</text>
               </g>
             );
           })}
         </svg>
       </div>
+      <div className={styles.footer}>Top 10 TB 4.0 Submissions as of Nov 3, 2026.</div>
     </figure>
   );
 }
