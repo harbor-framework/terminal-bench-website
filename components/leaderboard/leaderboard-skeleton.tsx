@@ -1,3 +1,4 @@
+import { DEFAULT_HOME_BENCHMARK_ID, homeBenchmarkById } from '@/lib/leaderboard';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -51,7 +52,7 @@ function SkeletonCell({ columnId }: { columnId: string }) {
   }
 }
 
-export function LeaderboardSkeleton() {
+export function LeaderboardSkeleton({ benchmarkLabel = homeBenchmarkById(DEFAULT_HOME_BENCHMARK_ID).label }: { benchmarkLabel?: string } = {}) {
   return (
     <div className="flex w-full min-w-0 flex-col gap-1.5">
       <div className="flex min-w-0 items-center justify-end gap-1.5">
@@ -88,7 +89,7 @@ export function LeaderboardSkeleton() {
           </Table>
         </ScrollArea>
         <footer className="flex h-12 items-center justify-center border-t px-6 text-center text-sm text-muted-foreground">
-          Resolution rate of Terminal-Bench 4.0 tasks. The whiskers span the
+          Resolution rate of {benchmarkLabel} tasks. The whiskers span the
           95% confidence interval.
         </footer>
       </div>

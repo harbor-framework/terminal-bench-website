@@ -34,9 +34,6 @@ import {
   useHomeBenchmark,
 } from '@/components/leaderboard/benchmark-select';
 import {
-  TERMINAL_BENCH_DATASET_VERSION,
-  TERMINAL_BENCH_LEADERBOARD,
-  TERMINAL_BENCH_PACKAGE,
   fetchLeaderboard,
   formatLeaderboardCell,
   getAccessorValue,
@@ -674,7 +671,7 @@ export function LeaderboardTable() {
   }, [data]);
 
   if (isPending) {
-    return <LeaderboardSkeleton />;
+    return <LeaderboardSkeleton benchmarkLabel={benchmark.label} />;
   }
 
   if (error || !data) {
@@ -698,10 +695,10 @@ export function LeaderboardTable() {
           return jobId
             ? harborJobUrl(jobId)
             : harborLeaderboardRowUrl(
-                TERMINAL_BENCH_PACKAGE,
-                TERMINAL_BENCH_LEADERBOARD,
+                benchmark.package,
+                benchmark.leaderboard,
                 row.id,
-                TERMINAL_BENCH_DATASET_VERSION,
+                benchmark.datasetVersion,
               );
         }}
         columnVisibility={columnVisibility}

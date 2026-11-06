@@ -17,12 +17,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
-  TERMINAL_BENCH_DATASET_VERSION,
-  TERMINAL_BENCH_LEADERBOARD,
-  TERMINAL_BENCH_PACKAGE,
   getAccessorValue,
   harborLeaderboardRowUrl,
   type LeaderboardRow,
+  type HomeBenchmark,
 } from "@/lib/leaderboard";
 import { harborJobUrl } from "@/lib/row-jobs";
 
@@ -200,6 +198,7 @@ export type ParetoMarks = {
 };
 
 type ParetoScatterChartProps = {
+  benchmark: HomeBenchmark;
   data: ParetoDatum[];
   xAxisId: ParetoAxisId;
   yAxisId: ParetoAxisId;
@@ -220,6 +219,7 @@ type ActiveTip = {
 };
 
 export function ParetoScatterChart({
+  benchmark,
   data,
   xAxisId,
   yAxisId,
@@ -542,10 +542,10 @@ export function ParetoScatterChart({
                       jobIdByRow?.[datum.id]
                         ? harborJobUrl(jobIdByRow[datum.id]!)
                         : harborLeaderboardRowUrl(
-                            TERMINAL_BENCH_PACKAGE,
-                            TERMINAL_BENCH_LEADERBOARD,
+                            benchmark.package,
+                            benchmark.leaderboard,
                             datum.id,
-                            TERMINAL_BENCH_DATASET_VERSION,
+                            benchmark.datasetVersion,
                           ),
                       "_blank",
                       "noopener",

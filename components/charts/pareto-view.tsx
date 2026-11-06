@@ -303,6 +303,7 @@ export function ParetoView() {
           </Select>
         </div>
         <ParetoScatterChart
+          benchmark={benchmark}
           data={chartData}
           xAxisId={xAxisId}
           yAxisId={yAxisId}
