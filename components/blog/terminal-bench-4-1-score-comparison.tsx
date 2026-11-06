@@ -53,7 +53,7 @@ export function LeaderboardScoreComparison() {
           })}
         </svg>
       </div>
-      <div className={styles.footer}>Top 10 TB 4.0 Submissions as of Nov 3, 2026.</div>
+      <div className={styles.footer}>Top 10 TB 4.0 Submissions as of November 6, 2026.</div>
     </figure>
   );
 }
