@@ -64,9 +64,8 @@ export function HeroTitle() {
     <h1 className="max-w-full whitespace-nowrap px-1 text-[clamp(1.25rem,8.6vw,2.25rem)] font-normal tracking-tighter uppercase sm:text-5xl md:text-7xl">
       TERMINAL-BENCH{' '}
       <span className="inline-flex items-baseline leading-none tracking-tighter tabular-nums">
-        <DigitReel initialFrom={Math.max(0, major - 1)} to={major} />
-        .
-        <DigitReel initialFrom={minor} to={minor} />
+        {major}.
+        <DigitReel initialFrom={Math.max(0, minor - 1)} to={minor} />
       </span>
     </h1>
   );
