@@ -18,7 +18,7 @@ export function LeaderboardScoreComparison() {
 
   return (
     <figure id="regraded-scores-remain-within-original-confidence-intervals" className={`not-prose ${styles.figure}`}>
-      <figcaption className={styles.header}>Regraded Scores Stay Within Original Confidence Intervals</figcaption>
+      <figcaption className={styles.header}>TB 4.1 Scores Stay Within TB 4.0 Confidence Intervals</figcaption>
       <div className={styles.legend}>
         <span><i className={styles.before} />TB 4.0 score</span>
         <span><i className={styles.gain} />Increase</span>
