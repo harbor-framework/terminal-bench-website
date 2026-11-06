@@ -53,7 +53,7 @@ function armSnapRelease(target: number, alreadyThere: boolean) {
   if (releaseListener) window.removeEventListener("scroll", releaseListener);
   let reached = alreadyThere;
   const release = (onScroll: () => void) => {
-    document.body.style.minHeight = "";
+    document.documentElement.style.removeProperty("--tb-home-min-height");
     try {
       sessionStorage.removeItem("tb-home-min-height");
     } catch {
@@ -67,7 +67,7 @@ function armSnapRelease(target: number, alreadyThere: boolean) {
       if (window.scrollY >= target - 4) reached = true;
       return;
     }
-    const current = parseFloat(document.body.style.minHeight) || 0;
+    const current = parseFloat(document.documentElement.style.getPropertyValue("--tb-home-min-height")) || 0;
     if (!current) {
       release(onScroll);
       return;
@@ -79,7 +79,7 @@ function armSnapRelease(target: number, alreadyThere: boolean) {
     }
     const needed = Math.ceil(window.scrollY + window.innerHeight);
     if (needed < current) {
-      document.body.style.minHeight = `${needed}px`;
+      document.documentElement.style.setProperty("--tb-home-min-height", `${needed}px`);
       try {
         sessionStorage.setItem("tb-home-min-height", String(needed));
       } catch {
@@ -101,7 +101,7 @@ function scrollToViewSection() {
   // The body is a flex column, so the extra height pushes the footer to the
   // true bottom of the page instead of leaving space below it.
   const minHeight = Math.ceil(target + window.innerHeight);
-  document.body.style.minHeight = `${minHeight}px`;
+  document.documentElement.style.setProperty("--tb-home-min-height", `${minHeight}px`);
   try {
     // Survives reloads so restored scroll positions don't clamp.
     sessionStorage.setItem("tb-home-min-height", String(minHeight));
@@ -130,7 +130,7 @@ const ALL_VIEW_PARAM_PARSERS = Object.fromEntries(
 export function HomeViewToggle({ className }: { className?: string }) {
   const [view, setView] = useQueryState("view", parseHomeView);
   useEffect(() => {
-    const restored = parseFloat(document.body.style.minHeight) || 0;
+    const restored = parseFloat(document.documentElement.style.getPropertyValue("--tb-home-min-height")) || 0;
     if (restored > 0 && !releaseListener) {
       const target = restored - window.innerHeight;
       armSnapRelease(target, window.scrollY >= target - 4);
