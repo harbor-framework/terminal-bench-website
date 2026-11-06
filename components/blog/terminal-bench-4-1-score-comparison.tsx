@@ -33,7 +33,7 @@ export function LeaderboardScoreComparison() {
               <text x={x(tick)} y="18" textAnchor="middle" className={styles.axis}>{tick}%</text>
             </g>
           ))}
-          <text x="12" y="18" className={styles.axis}>Model / agent · effort</text>
+          <text x="12" y="18" className={styles.axis}>Top 10 TB 4.0 Submissions</text>
           <text x="716" y="18" textAnchor="end" className={styles.axis}>Δ pp</text>
           {rows.map((row, index) => {
             const cy = TOP + index * ROW + 12;

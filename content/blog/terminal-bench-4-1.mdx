@@ -19,15 +19,19 @@ The [4.0 leaderboard submissions](https://hub.harborframework.com/datasets/termi
 
 ## Verifier Improvements
 
-We addressed a number of issues identified in recent benchmark audits that called for hardening tasks against various theoretical reward hacks.<sup><a style={{ textDecoration: "none" }} id="benchmark-audits-reference" href="#benchmark-audits-note" aria-label="Read the benchmark audits">*</a></sup> In our [Cracking Down on Reward Hacking](https://docs.harborframework.com/news/reward-hacking) post, we described our efforts to make many of these protections native in Harbor.
+We addressed a number of issues identified in recent benchmark audits that called for hardening tasks against theoretical reward hacks.<sup><a style={{ textDecoration: "none" }} id="benchmark-audits-reference" href="#benchmark-audits-note" aria-label="Read the benchmark audits">*</a></sup> In our [Cracking Down on Reward Hacking](https://docs.harborframework.com/news/reward-hacking) post, we described our efforts to make many of these protections native in Harbor.
 
-Forty-four tasks in Terminal Bench 4.0 run agent-authored code during verification. If run in the grading process, this can allow submitted code to tamper with the evaluation. Tasks such as [takens-embedding-lean](https://github.com/harbor-framework/terminal-bench/tree/main/tasks/takens-embedding-lean) had submitted code that ran as root in the verifier, a risk we addressed in this release.
+Forty-four tasks in Terminal Bench 4.0 run agent-authored code during verification. Executing code in the same process that grades its outputs can allow it to tamper with the evaluation. Consider the following scenarios:
 
-To help developers secure their verifiers against this type of agent cheat, we implemented the `Worker` class in RewardKit for secure code execution, as described below.
+- Agent code may directly read tests, logs, or other privileged material to influence its score.
+- Submitted artifacts monkeypatch `pytest` so every test passes by forcing them to be skipped.
+- Executed code may leave a daemon that overwrites the reward file after grading.
+
+While we have not directly observed these types of exploits on the Terminal Bench leaderboard, we wanted to help developers secure their verifiers against these attacks. We developed the `Worker` class in RewardKit for secure code execution, as described below.
 
 <GradingBoundaryDiagram />
 
-Before agent-authored files enter the separate verifier container, Harbor removes potentially dangerous symlinks and permissions that could tamper with grading. RewardKit’s `Worker` then runs the submitted code as an untrusted user in a separate process so it cannot read the tests or change the reward file. Before returning the results, `Worker` kills any processes the code may have left running. The trusted grader then checks the results and assigns a score. We standardized this across tasks that execute agent code as part of the 4.1 release.
+Before agent artifacts enter the verifier container, Harbor removes potentially dangerous symlinks and permissions that could tamper with grading. RewardKit’s `Worker` then runs the submitted code as an untrusted user in a separate process so it cannot read the tests or change the reward file. The `Worker` then kills any processes the code may have left running, and the trusted grader checks the results and assigns a score. We standardized this across tasks that execute agent code as part of the 4.1 release.
 
 See the [secure-python-worker example](https://github.com/harbor-framework/harbor/tree/main/examples/tasks/secure-python-worker) for a complete verifier implementation.
 

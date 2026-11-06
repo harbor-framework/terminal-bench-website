@@ -1,15 +1,15 @@
 .figure { margin: 2rem 0; border: 1px solid var(--border); font-family: var(--font-geist-sans), sans-serif; }
-.header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .75rem; padding: 1rem; border-bottom: 1px solid var(--border); font-size: .75rem; }
+.header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .75rem; padding: 1rem; border-bottom: 1px solid var(--border); font-size: 1rem; }
 .header > span { font-family: var(--font-google-sans-code), monospace; }
-.scroll { overflow-x: auto; padding: 1rem .75rem; }
-.surface { position: relative; min-width: 728px; }
+.scroll { padding: 1rem .75rem; }
+.surface { position: relative; }
 .chart { display: block; width: 100%; outline-offset: 2px; }
-.task { font-family: var(--font-google-sans-code), monospace; font-size: 12px; fill: var(--foreground); }
+.task { font-family: var(--font-google-sans-code), monospace; font-size: 16px; fill: var(--foreground); }
 .column { font-family: var(--font-google-sans-code), monospace; font-size: 12px; fill: var(--muted-foreground); }
 .gain { fill: #24985b; background: #24985b; }
 .loss { fill: #e5484d; background: #e5484d; }
 .chart rect { shape-rendering: crispEdges; cursor: pointer; }
-.chart rect:hover { stroke: var(--foreground); stroke-width: 1; }
+
 .positive { color: #24985b; fill: #24985b; }
 .negative { color: #e5484d; fill: #e5484d; }
 .neutral { color: var(--muted-foreground); fill: var(--muted-foreground); }
@@ -20,3 +20,9 @@
 .tip { display: flex; flex-direction: column; gap: .25rem; line-height: 1.5; overflow-wrap: anywhere; }
 .tip p { margin: .25rem 0; }
 .tip small { border-top: 1px solid var(--border); padding-top: .5rem; margin-top: .25rem; color: var(--muted-foreground); }
+
+.chart { outline: none; }
+.links { display: flex; flex-wrap: wrap; gap: .5rem 1rem; border-top: 1px solid var(--border); padding-top: .5rem; margin-top: .25rem; }
+.links a { text-decoration: underline; text-underline-offset: 3px; }
+.close { position: absolute; top: .375rem; right: .5rem; padding: .125rem .375rem; font-size: 1rem; cursor: pointer; }
+.tip strong { padding-right: 1rem; }
