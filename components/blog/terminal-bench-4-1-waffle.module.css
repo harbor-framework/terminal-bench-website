@@ -1,15 +1,11 @@
 .figure { margin: 2rem 0; border: 1px solid var(--border); font-family: var(--font-geist-sans), sans-serif; }
 .header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .75rem; padding: 1rem; border-bottom: 1px solid var(--border); font-size: .75rem; }
 .header > span { font-family: var(--font-google-sans-code), monospace; }
-.header label { display: flex; align-items: center; gap: .5rem; cursor: pointer; }
-.header input { accent-color: var(--foreground); }
 .scroll { overflow-x: auto; padding: 1rem .75rem; }
-.surface { position: relative; }
+.surface { position: relative; min-width: 728px; }
 .chart { display: block; width: 100%; outline-offset: 2px; }
 .task { font-family: var(--font-google-sans-code), monospace; font-size: 12px; fill: var(--foreground); }
-.column { font-family: var(--font-google-sans-code), monospace; font-size: 12px; fill: var(--muted-foreground); text-transform: uppercase; }
-.pass { fill: var(--foreground); background: var(--foreground); }
-.fail { fill: color-mix(in srgb, var(--foreground) 12%, transparent); background: color-mix(in srgb, var(--foreground) 12%, transparent); }
+.column { font-family: var(--font-google-sans-code), monospace; font-size: 12px; fill: var(--muted-foreground); }
 .gain { fill: #24985b; background: #24985b; }
 .loss { fill: #e5484d; background: #e5484d; }
 .chart rect { shape-rendering: crispEdges; cursor: pointer; }
@@ -24,11 +20,3 @@
 .tip { display: flex; flex-direction: column; gap: .25rem; line-height: 1.5; overflow-wrap: anywhere; }
 .tip p { margin: .25rem 0; }
 .tip small { border-top: 1px solid var(--border); padding-top: .5rem; margin-top: .25rem; color: var(--muted-foreground); }
-
-@media (min-width: 1000px) { .figure { width: calc(100% + 160px); margin-left: -80px; } }
-
-.expandButton { display: inline-flex; align-items: center; gap: .375rem; padding: .25rem .5rem; border: 1px solid var(--border); cursor: pointer; }
-.expandButton:hover { background: var(--muted); }
-.header label { margin-left: auto; }
-.figure.expanded { width: 100%; margin: 0; border: 0; }
-.expanded .header { position: sticky; top: 0; z-index: 1; background: var(--background); }

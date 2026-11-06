@@ -15,3 +15,7 @@
   .diagramPane { padding: 1rem; }
   .diagram { min-width: 480px; }
 }
+
+.figure .caption { padding: 0 1rem 1rem; color: var(--muted-foreground); font-size: .875rem; text-align: center; }
+
+.figure:has(.caption) .diagramPane { padding-bottom: 0; }

@@ -5,9 +5,8 @@ export function GradingBoundaryDiagram({ regrade = false }: { regrade?: boolean 
   const arrowId = useId();
   return (
     <figure id={regrade ? 'regrading-boundary-diagram' : 'grading-boundary-diagram'} className={`not-prose ${styles.figure}`}>
-      <figcaption className={styles.header}>{regrade ? 'Regrade Tasks with Cached Artifacts' : 'Secure Harbor Verifiers with RewardKit'}</figcaption>
       <div className={styles.diagramPane} role="region" tabIndex={0} aria-label={regrade ? 'Regrade artifact flow' : 'Agent trial artifact flow'}>
-        <svg viewBox="0 0 520 383" className={styles.diagram} role="img" aria-label={regrade
+        <svg viewBox="0 0 520 300" className={styles.diagram} role="img" aria-label={regrade
           ? 'Harbor accesses a cached sanitized artifact and uploads it to the separate verifier container with updated tests. RewardKit isolates its execution from the trusted grader.'
           : 'The agent authors code artifacts in the agent environment. Harbor sanitizes it on the way to the host, then uploads it to the separate verifier container. RewardKit isolates artifact execution from the trusted grader.'}>
           <defs>
@@ -17,34 +16,33 @@ export function GradingBoundaryDiagram({ regrade = false }: { regrade?: boolean 
           </defs>
 
           {!regrade && <>
-            <rect x="18" y="24" width="230" height="190" className={styles.environment} />
-            <text x="34" y="52" className={styles.environmentLabel}>Agent Environment</text>
-            <text x="34" y="94" className={styles.detail}>Agent authors code artifacts</text>
+            <rect x="18" y="24" width="230" height="126" className={styles.environment} />
+            <text x="34" y="48" className={styles.environmentLabel}>Agent Environment</text>
           </>}
-          <rect x="30" y={regrade ? 141 : 112} width="206" height={regrade ? 46 : 75} className={styles.artifact} />
-          <text x="133" y={regrade ? 169 : 155} textAnchor="middle" className={styles.body}>{regrade ? 'Cached Sanitized Artifact' : 'Artifact'}</text>
-
-          <rect x="272" y="24" width="230" height="246" className={styles.environment} />
-          <text x="290" y="48" className={styles.environmentLabel}><tspan x="290">Separate Verifier</tspan><tspan x="290" dy="19">Container</tspan>{regrade && <tspan x="290" dy="19">with Updated Tests</tspan>}</text>
-          <text x="290" y={regrade ? 110 : 94} className={styles.small}>Trusted process assigns reward</text>
-          <rect x="290" y={regrade ? 128 : 112} width="194" height={regrade ? 124 : 140} className={styles.worker} />
-          <text x="304" y={regrade ? 150 : 136} className={styles.workerLabel}>RewardKit Worker</text>
-          <text x="304" y={regrade ? 170 : 158} className={styles.small}>Separate process</text>
-          <text x="304" y={regrade ? 188 : 177} className={styles.small}>Unprivileged user</text>
-          <rect x="302" y={regrade ? 204 : 196} width="170" height={regrade ? 32 : 40} className={styles.artifact} />
-          <text x="387" y={regrade ? 225 : 221} textAnchor="middle" className={styles.body}>Clean Artifact</text>
-
-          {regrade ? <path d="M133 187V288" className={styles.flow} markerEnd={`url(#${arrowId})`} /> : <>
-            <path d="M133 187V230" className={styles.flow} markerEnd={`url(#${arrowId})`} />
-            <rect x="18" y="230" width="230" height="40" className={styles.sanitizer} />
-            <text x="133" y="255" textAnchor="middle" className={styles.body}>Sanitize</text>
-            <path d="M133 270V288" className={styles.flow} markerEnd={`url(#${arrowId})`} />
+          {!regrade && <>
+            <rect x="30" y="76" width="206" height="56" className={styles.artifact} />
+            <text x="133" y="109" textAnchor="middle" className={styles.body}>Artifact</text>
           </>}
-          <rect x="18" y="288" width="484" height="64" className={styles.host} />
-          <text x="260" y="326" textAnchor="middle" className={styles.environmentLabel}>Harbor Host</text>
-          <path d="M387 288V236" className={styles.flow} markerEnd={`url(#${arrowId})`} />
+
+          <rect x="272" y="24" width="230" height="182" className={styles.environment} />
+          <text x="290" y="48" className={styles.environmentLabel}>{regrade ? 'Verifier Container' : 'Verifier Environment'}</text>
+          <rect x="290" y="76" width="194" height="112" className={styles.worker} />
+          <text x="304" y="100" className={styles.workerLabel}>RewardKit Worker</text>
+          <rect x="302" y="124" width="170" height="46" className={styles.artifact} />
+          <text x="387" y="153" textAnchor="middle" className={styles.body}>{regrade ? 'Cached Artifact' : 'Clean Artifact'}</text>
+
+          {!regrade && <>
+            <path d="M133 132V166" className={styles.flow} markerEnd={`url(#${arrowId})`} />
+            <rect x="18" y="166" width="230" height="40" className={styles.sanitizer} />
+            <text x="133" y="191" textAnchor="middle" className={styles.body}>Sanitize</text>
+            <path d="M133 206V224" className={styles.flow} markerEnd={`url(#${arrowId})`} />
+          </>}
+          <rect x="18" y="224" width="484" height="56" className={styles.host} />
+          <text x="260" y="258" textAnchor="middle" className={styles.environmentLabel}>Harbor Host</text>
+          <path d="M387 224V170" className={styles.flow} markerEnd={`url(#${arrowId})`} />
         </svg>
       </div>
+      <figcaption className={styles.caption}>{regrade ? 'Regrade Tasks with Cached Artifacts' : <>Agent trial with separate verifier environment and RewardKit <code>Worker</code></>}</figcaption>
     </figure>
   );
 }

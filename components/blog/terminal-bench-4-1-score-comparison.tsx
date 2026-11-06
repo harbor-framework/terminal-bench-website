@@ -9,7 +9,7 @@ const WIDTH = 728;
 const signed = (delta: number) => delta === 0 ? '0.00' : `${delta > 0 ? '+' : ''}${delta.toFixed(2)}`;
 
 export function LeaderboardScoreComparison() {
-  const rows = snapshot.submissions;
+  const rows = [...snapshot.submissions].sort((a, b) => b.before - a.before).slice(0, 10);
   const height = TOP + rows.length * ROW + 10;
   const axisMinimum = 0;
   const axisMaximum = 75;
@@ -20,13 +20,13 @@ export function LeaderboardScoreComparison() {
     <figure id="regraded-scores-remain-within-original-confidence-intervals" className={`not-prose ${styles.figure}`}>
       <figcaption className={styles.header}>Regraded Scores Stay Within Original Confidence Intervals</figcaption>
       <div className={styles.legend}>
-        <span><i className={styles.before} />TB4.0 score</span>
+        <span><i className={styles.before} />TB 4.0 score</span>
         <span><i className={styles.gain} />Increase</span>
         <span><i className={styles.loss} />Decrease</span>
-        <span><svg width="22" height="12" aria-hidden="true"><path d="M2 2v8m0-4h18m0-4v8" fill="none" stroke="currentColor" /></svg>TB4.0 95% CI</span>
+        <span><svg width="22" height="12" aria-hidden="true"><path d="M2 2v8m0-4h18m0-4v8" fill="none" stroke="currentColor" /></svg>TB 4.0 95% CI</span>
       </div>
       <div className={styles.scroll} role="region" aria-label="Leaderboard score comparison chart" tabIndex={0}>
-        <svg viewBox={`0 0 ${WIDTH} ${height}`} width={WIDTH} height={height} className={styles.chart} role="group" aria-label={`4.0 versus 4.1 scores for ${rows.length} of 35 leaderboard submissions`}>
+        <svg viewBox={`0 0 ${WIDTH} ${height}`} width={WIDTH} height={height} className={styles.chart} role="group" aria-label="TB 4.0 versus TB 4.1 scores for the top 10 TB 4.0 leaderboard submissions">
           {ticks.map(tick => (
             <g key={tick}>
               <line x1={x(tick)} x2={x(tick)} y1="28" y2={height - 8} className={styles.grid} />
