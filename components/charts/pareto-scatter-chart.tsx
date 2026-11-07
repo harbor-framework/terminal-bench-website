@@ -22,7 +22,6 @@ import {
   type LeaderboardRow,
   type HomeBenchmark,
 } from "@/lib/leaderboard";
-import { harborJobUrl } from "@/lib/row-jobs";
 
 export type ParetoDatum = {
   id: string;
@@ -203,8 +202,6 @@ type ParetoScatterChartProps = {
   xAxisId: ParetoAxisId;
   yAxisId: ParetoAxisId;
   marks: ParetoMarks;
-  /** Row id -> Hub job id; rows are 1-1 with jobs so clicks open the job. */
-  jobIdByRow?: Record<string, string>;
   className?: string;
 };
 
@@ -223,7 +220,6 @@ export function ParetoScatterChart({
   data,
   xAxisId,
   yAxisId,
-  jobIdByRow,
   className,
   marks,
 }: ParetoScatterChartProps) {
@@ -539,14 +535,12 @@ export function ParetoScatterChart({
                   style={{ cursor: "pointer" }}
                   onClick={() =>
                     window.open(
-                      jobIdByRow?.[datum.id]
-                        ? harborJobUrl(jobIdByRow[datum.id]!)
-                        : harborLeaderboardRowUrl(
-                            benchmark.package,
-                            benchmark.leaderboard,
-                            datum.id,
-                            benchmark.datasetVersion,
-                          ),
+                      harborLeaderboardRowUrl(
+                        benchmark.package,
+                        benchmark.leaderboard,
+                        datum.id,
+                        benchmark.id === "4.1" ? "latest" : benchmark.datasetVersion,
+                      ),
                       "_blank",
                       "noopener",
                     )
