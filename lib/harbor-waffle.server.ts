@@ -17,6 +17,7 @@ const DEFAULT_SUPABASE_URL = 'https://ofhuhcpkvzjlejydnvyd.supabase.co';
 const DEFAULT_SUPABASE_PUBLISHABLE_KEY =
   'sb_publishable_Z-vuQbpvpG-PStjbh4yE0Q_e-d3MTIH';
 const PAGE_SIZE = 1_000;
+const TB41_REGRADE_JOB = '6179005b-d9e6-5304-8eb3-5564518ac97b';
 // Keep UUID filters comfortably below URL-length limits.
 const TRIAL_BATCH_SIZE = 100;
 const REQUEST_CONCURRENCY = 4;
@@ -307,6 +308,38 @@ async function readTrials(trialIds: string[]): Promise<TrialSummary[]> {
   return pages.flat();
 }
 
+async function readRegradeTrialIds(): Promise<Map<string, string>> {
+  type RegradeTrial = { id: string; source_trial_id: string | null };
+  const readPage = async (offset: number) => {
+    const params = new URLSearchParams({
+      select: 'id,source_trial_id:config->source_trial->>trial_id',
+      job_id: `eq.${TB41_REGRADE_JOB}`,
+      order: 'created_at.asc,id.asc',
+      limit: String(PAGE_SIZE),
+      offset: String(offset),
+    });
+    return readJson<RegradeTrial[]>(`/rest/v1/trial?${params.toString()}`, {
+      method: 'GET', headers: harborHeaders({ count: offset === 0 }),
+    });
+  };
+  const first = await readPage(0);
+  const total = Number(first.response.headers.get('content-range')?.split('/').at(-1));
+  if (!Number.isFinite(total)) throw new Error('Regrade trial count is unavailable');
+  const offsets = [];
+  for (let offset = PAGE_SIZE; offset < total; offset += PAGE_SIZE) offsets.push(offset);
+  const pages = await mapConcurrent(offsets, readPage);
+  const trials = [...first.data, ...pages.flatMap(page => page.data)];
+  if (trials.length !== total) throw new Error('Regrade trial links are incomplete');
+  const ids = new Map<string, string>();
+  for (const trial of trials) {
+    if (!trial.source_trial_id || ids.has(trial.source_trial_id)) {
+      throw new Error('Regrade source trial links are missing or ambiguous');
+    }
+    ids.set(trial.source_trial_id, trial.id);
+  }
+  return ids;
+}
+
 function linksByRow(links: LeaderboardRowTrial[]) {
   const result = new Map<string, string[]>();
   for (const link of links) {
@@ -348,12 +381,14 @@ function buildWaffleData({
   rowTrialIds,
   trials,
   jobs,
+  regradeTrialIds,
 }: {
   leaderboard: LeaderboardReadResponse['leaderboard'];
   rows: LeaderboardReadResponse['rows'];
   rowTrialIds: Map<string, string[]>;
   trials: TrialSummary[];
   jobs: string[];
+  regradeTrialIds?: Map<string, string>;
 }): WafflePayload {
   const trialById = new Map(trials.map((trial) => [trial.id, trial]));
   const countsByTask = new Map<
@@ -402,12 +437,14 @@ function buildWaffleData({
         }
       }
 
+      // Keep reviewed leaderboard outcomes while linking to the corresponding regrade.
+      const regradeId = regradeTrialIds?.get(trial.id);
       counts.ts.push({
         o: outcome,
         m: identity,
         r: rowKey,
-        id: trial.id,
-        j: trial.job_id,
+        id: regradeId ?? trial.id,
+        j: regradeId ? TB41_REGRADE_JOB : trial.job_id,
         e: trial.exception_type ?? trial.hosted_error ?? null,
       });
 
@@ -499,9 +536,14 @@ export async function readTerminalBenchWaffle(
   const trialIds = [
     ...new Set(leaderboardPayload.rows.flatMap((row) => rowTrialIds.get(row.id) ?? [])),
   ];
-  const trials = await readTrials(trialIds);
+  const [trials, regradeTrialIds] = await Promise.all([
+    readTrials(trialIds),
+    packageName === TERMINAL_BENCH_PACKAGE && leaderboardName === '4-1-0'
+      ? readRegradeTrialIds()
+      : undefined,
+  ]);
   const jobs = [
-    ...new Set(trials.map((trial) => trial.job_id).filter((id): id is string => id !== null)),
+    ...new Set(trials.map((trial) => regradeTrialIds?.has(trial.id) ? TB41_REGRADE_JOB : trial.job_id).filter((id): id is string => id !== null)),
   ];
 
   return buildWaffleData({
@@ -510,5 +552,6 @@ export async function readTerminalBenchWaffle(
     rowTrialIds,
     trials,
     jobs,
+    regradeTrialIds,
   });
 }
