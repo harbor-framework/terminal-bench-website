@@ -1,38 +1,51 @@
-.figure { margin: 2rem 0; padding: 1.25rem; border: 1px solid var(--border); background: var(--background); border-radius: .5rem; }
+.figure { container-type: inline-size; margin: 2rem 0; padding: 20px 24px 16px; border: 1px solid var(--border); background: var(--background); font-family: var(--font-google-sans-code), monospace; font-size: 11px; }
 .models { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
-.model { min-width: 0; text-align: center; }
-.heading { margin: 0 0 .35rem; color: var(--foreground); font-size: clamp(.85rem, 2vw, 1.1rem); font-weight: 500; line-height: 1.4; }
-.modelName { margin: 0; color: var(--foreground); font-size: .85rem; line-height: 1.5; }
+.model { min-width: 0; text-align: left; }
+.figure .heading { margin: 0 0 4px; color: var(--foreground); font-family: inherit; font-size: 12px; font-weight: 400; line-height: 1.5; letter-spacing: normal; text-transform: lowercase; }
+.figure .modelName { margin: 0 0 12px; color: var(--muted-foreground); font-family: inherit; font-size: 12px; line-height: 1.5; text-transform: lowercase; }
 .canvas { display: block; width: 100%; aspect-ratio: 1.12; touch-action: pan-y; cursor: grab; }
 .canvas:active { cursor: grabbing; }
 .canvas:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; border-radius: .25rem; }
-.controls { display: flex; align-items: flex-start; gap: .5rem; }
-.timeline { flex: 1; min-width: 0; position: relative; padding-top: 14px; }
-.track { display: flex; gap: 3px; height: 4px; }
+.controls { width: 100%; display: flex; align-items: flex-start; gap: 14px; margin-bottom: 12px; color: var(--muted-foreground); font-size: 11px; }
+.timeline { flex: 1; min-width: 0; position: relative; padding-top: 10px; }
+.track { display: flex; gap: 0; height: 2px; }
 .segment { position: relative; overflow: hidden; background: var(--muted); }
-.fill { display: block; height: 100%; background: var(--foreground); opacity: .7; }
-.range { position: absolute; top: 0; left: 0; width: 100%; height: 32px; margin: 0; appearance: none; background: transparent; cursor: pointer; }
-.range::-webkit-slider-runnable-track { height: 4px; background: transparent; }
-.range::-moz-range-track { height: 4px; background: transparent; }
-.range::-webkit-slider-thumb { appearance: none; width: 12px; height: 12px; margin-top: -4px; border-radius: 50%; background: var(--foreground); }
-.range::-moz-range-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%; background: var(--foreground); }
+.fill { display: block; height: 100%; background: var(--muted-foreground); }
+.range { position: absolute; top: 0; left: 0; width: 100%; height: 22px; margin: 0; appearance: none; background: transparent; cursor: pointer; }
+.range::-webkit-slider-runnable-track { height: 2px; background: transparent; }
+.range::-moz-range-track { height: 2px; background: transparent; }
+.range::-webkit-slider-thumb { appearance: none; width: 8px; height: 8px; margin-top: -3px; border-radius: 50%; background: var(--muted-foreground); }
+.range::-moz-range-thumb { width: 8px; height: 8px; border: 0; border-radius: 50%; background: var(--muted-foreground); }
 .range:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
-.checkpoints { display: flex; gap: 3px; margin-top: 8px; }
-.checkpoints button { min-width: 0; padding: 5px 0; border: 0; background: none; color: var(--muted-foreground); font: inherit; font-size: .7rem; cursor: pointer; text-align: center; }
-.checkpoints button.current { color: var(--foreground); font-weight: 500; }
-.legend { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; color: var(--muted-foreground); font-size: .75rem; }
-.legend span { display: inline-flex; align-items: center; gap: .35rem; }
-.legend i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; }
-.addition { background: #26a258; }
-.cut { background: #da3d49; }
-.hint { margin-left: auto; }
-.caption { margin-top: 1rem; color: var(--muted-foreground); font-size: .8rem; line-height: 1.6; }
+.checkpoints { display: flex; gap: 3px; margin-top: 4px; }
+.checkpoints button { min-width: 0; padding: 3px 0; border: 0; background: none; color: var(--muted-foreground); font: inherit; font-size: 11px; text-transform: lowercase; cursor: pointer; text-align: center; }
+.checkpoints button.current { color: var(--foreground); font-weight: 400; }
+.figure .hint { margin: 12px 0 0; padding: 6px 10px; color: var(--muted-foreground); font-family: inherit; font-size: 12px; letter-spacing: .02em; text-align: center; }
+.figure .caption { margin-top: 12px; color: var(--muted-foreground); font-family: inherit; font-size: 11px; line-height: 1.6; text-align: left; }
 .fallback { display: block; width: 100%; height: auto; }
 @media (max-width: 520px) {
-  .figure { padding: .8rem; }
   .models { grid-template-columns: 1fr; gap: 1.5rem; }
-  .heading { font-size: 1rem; }
   .canvas { aspect-ratio: 1.4; }
-  .checkpoints button { font-size: .65rem; }
-  .hint { margin-left: 0; width: 100%; }
 }
+
+.controls > button { width: auto; height: 22px; gap: 7px; font: inherit; font-weight: 400; padding: 0; justify-content: flex-start; border: 0; color: var(--muted-foreground); border-radius: 0; background: transparent; box-shadow: none; }
+.controls > button:hover { color: var(--foreground); background: transparent; }
+
+.figure .header { margin: 0 0 6px; font-family: inherit; font-size: 14.5px; line-height: normal; letter-spacing: .02em; font-weight: 700; text-align: left; }
+
+.controls > button svg { width: 12px; height: 12px; }
+
+.playback { width: max-content; max-width: 100%; }
+
+.figure .legend { width: 100cqw; max-width: none; contain: inline-size; margin: 0 0 12px; color: var(--muted-foreground); font-family: inherit; font-size: 11px; font-weight: 400; line-height: 1.5; }
+
+.modelLabels { width: max-content; max-width: 100%; margin-inline: auto; text-align: left; }
+
+.controls > button.playToggle { width: 52px; flex: 0 0 52px; }
+
+.controls > button:active { transform: none; translate: none; }
+
+.modelName a { display: inline-flex; align-items: center; gap: 6px; color: inherit; text-decoration: none; }
+.modelName a:hover { color: var(--foreground); text-decoration: none; }
+
+.trialLinkIcon { transform: rotate(-45deg); flex-shrink: 0; }

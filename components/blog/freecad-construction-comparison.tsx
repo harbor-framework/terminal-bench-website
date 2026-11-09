@@ -2,11 +2,17 @@
 
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
 import { Pause, Play, RotateCcw } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowRight02Icon } from '@hugeicons/core-free-icons';
 import { Button } from '@/components/ui/button';
-import { CAD_CAMERA, CAD_CHECKPOINTS, CAD_DURATION, CAD_END, CAD_INTRO, CAD_STARTS, cadPositions, createCadRenderer, decodeCadMeshes, type Camera, type CadData } from '@/lib/freecad-comparison';
+import { CAD_CAMERA, CAD_END, CAD_INTRO, cadPositions, createCadRenderer, decodeCadMeshes, type Camera, type CadData } from '@/lib/freecad-comparison';
 import styles from './freecad-construction-comparison.module.css';
 
 type Renderer = ReturnType<typeof createCadRenderer>;
+const TRIAL_URLS = [
+  'https://hub.harborframework.com/jobs/7595dfd2-22f0-4b03-81a9-c3c22b6ae047/trials/3e77fbd3-87c2-439c-9554-30cf284ba538',
+  'https://hub.harborframework.com/jobs/5aebbab5-1f8f-4cdb-8073-c6ce785a930d/trials/abacdb00-da18-484c-8c29-2d58aa0b3bcd',
+];
 const LABELS = [
   ['2D sketches to 3D features', 'Opus 5 [Claude Code]'],
   ['Native 3D primitives', 'GPT-5.6 Sol [Codex]'],
@@ -19,7 +25,6 @@ export function FreecadConstructionComparison() {
   const camera = useRef<Camera>({ ...CAD_CAMERA });
   const position = useRef(0);
   const drag = useRef<{ id: number; x: number; y: number; azimuth: number; elevation: number } | null>(null);
-  const [progress, setProgress] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [ready, setReady] = useState(false);
   const [inView, setInView] = useState(false);
@@ -36,7 +41,7 @@ export function FreecadConstructionComparison() {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
     const updateMotion = () => {
       if (reduced.matches) {
-        setPlaying(false); position.current = CAD_END; setProgress(CAD_END); draw();
+        setPlaying(false); position.current = CAD_END; draw();
       }
     };
     updateMotion(); reduced.addEventListener('change', updateMotion);
@@ -84,24 +89,19 @@ export function FreecadConstructionComparison() {
 
   useEffect(() => {
     if (!ready || !playing || !inView || !visible) return;
-    let frame = 0, previous = performance.now(), lastUpdate = previous;
+    let frame = 0, previous = performance.now();
     function tick(now: number) {
       position.current += Math.min(80, now - previous); previous = now;
       if (position.current > CAD_END) position.current = 0;
       draw();
-      if (now - lastUpdate >= 33) { setProgress(position.current); lastUpdate = now; }
       frame = requestAnimationFrame(tick);
     }
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
   }, [ready, playing, inView, visible, draw]);
 
-  function seek(value: number) {
-    setPlaying(false); position.current = Math.max(0, Math.min(CAD_END, value));
-    setProgress(position.current); draw();
-  }
   function toggle() {
-    if (!playing && position.current >= CAD_END) { position.current = 0; setProgress(0); draw(); }
+    if (!playing && position.current >= CAD_END) { position.current = 0; draw(); }
     setPlaying(!playing);
   }
   function pointerDown(event: PointerEvent<HTMLCanvasElement>) {
@@ -125,11 +125,23 @@ export function FreecadConstructionComparison() {
     event.preventDefault(); camera.current.azimuth += step[0];
     camera.current.elevation = Math.max(.18, Math.min(1.45, camera.current.elevation + step[1])); draw();
   }
-  const time = Math.max(0, Math.min(CAD_DURATION, progress - CAD_INTRO));
-  const checkpoint = Math.max(0, CAD_STARTS.findLastIndex(start => time >= start));
-
   return (
     <figure ref={figure} className={`not-prose ${styles.figure}`} aria-label="Interactive comparison of two FreeCAD trial submissions">
+      <div className={styles.playback}>
+      <div className={styles.header}>freecad-platform-drawing solved two ways</div>
+        {!error && (
+        <div className={styles.controls}>
+          <Button variant="ghost" size="xs" className={styles.playToggle} onClick={toggle} disabled={!ready} aria-label={playing ? 'Pause comparison' : 'Play comparison'} aria-pressed={playing}>
+            {playing ? <Pause fill="currentColor" strokeWidth={0} /> : <Play fill="currentColor" strokeWidth={0} />}
+            <span>{playing ? 'pause' : 'play'}</span>
+          </Button>
+          <Button variant="ghost" size="xs" onClick={() => { position.current = 0; draw(); setPlaying(true); }} disabled={!ready} aria-label="Restart comparison">
+            <RotateCcw />
+            <span>restart</span>
+          </Button>
+        </div>
+        )}
+      </div>
       {error ? (
         <video className={styles.fallback} controls playsInline loop poster="/blog/freecad-comparison/poster.png" aria-label="FreeCAD construction comparison video">
           <source src="/blog/freecad-comparison/comparison.mp4" type="video/mp4" />
@@ -138,8 +150,6 @@ export function FreecadConstructionComparison() {
       ) : <>
         <div className={styles.models}>
           {LABELS.map(([heading, model], lane) => <div key={heading} className={styles.model}>
-            <h3 className={styles.heading}>{heading}</h3>
-            <p className={styles.modelName}>{model}</p>
             <canvas
               ref={node => { canvases.current[lane] = node; }} className={styles.canvas}
               tabIndex={0} role="img" aria-label={`${heading}, ${model}. Drag or use arrow keys to rotate both models. Home resets the camera.`}
@@ -147,37 +157,14 @@ export function FreecadConstructionComparison() {
               onPointerUp={() => { drag.current = null; }} onPointerCancel={() => { drag.current = null; }}
               onKeyDown={rotateWithKeys}
             />
+            <div className={styles.modelLabels}>
+              <h3 className={styles.heading}>{heading}</h3>
+              <p className={styles.modelName}><a href={TRIAL_URLS[lane]} target="_blank" rel="noopener noreferrer">{model}<HugeiconsIcon icon={ArrowRight02Icon} size={12} strokeWidth={2} className={styles.trialLinkIcon} aria-hidden="true" /></a></p>
+            </div>
           </div>)}
         </div>
-        <div className={styles.controls}>
-          <Button variant="ghost" size="icon" onClick={toggle} disabled={!ready} aria-label={playing ? 'Pause comparison' : 'Play comparison'} aria-pressed={playing}>
-            {playing ? <Pause /> : <Play />}
-          </Button>
-          <div className={styles.timeline}>
-            <div className={styles.track} aria-hidden="true">
-              {CAD_CHECKPOINTS.map((segment, index) => <div key={segment.label} className={styles.segment} style={{ flex: segment.duration }}>
-                <span className={styles.fill} style={{ width: `${Math.max(0, Math.min(1, (time - CAD_STARTS[index]) / segment.duration)) * 100}%` }} />
-              </div>)}
-            </div>
-            <input className={styles.range} type="range" min={0} max={CAD_DURATION} step={10} value={time} disabled={!ready}
-              onChange={event => seek(Number(event.target.value) + CAD_INTRO)}
-              aria-label="Construction timeline" aria-valuetext={`${CAD_CHECKPOINTS[checkpoint].label}, ${(time / 1000).toFixed(1)} of 11 seconds`} />
-            <div className={styles.checkpoints}>
-              {CAD_CHECKPOINTS.map((segment, index) => <button key={segment.label} type="button" style={{ flex: segment.duration }}
-                className={index === checkpoint ? styles.current : undefined} disabled={!ready}
-                onClick={() => seek(CAD_STARTS[index] + CAD_INTRO)} aria-label={`Jump to ${segment.label.toLowerCase()} checkpoint`}>
-                {segment.label}
-              </button>)}
-            </div>
-          </div>
-          <Button variant="ghost" size="icon" onClick={() => { camera.current = { ...CAD_CAMERA }; draw(); }} disabled={!ready} aria-label="Reset model perspective"><RotateCcw /></Button>
-        </div>
-        <div className={styles.legend}>
-          <span><i className={styles.addition} />Added material</span><span><i className={styles.cut} />Removed material</span>
-          <span className={styles.hint}>{ready ? 'Drag either model to rotate both' : 'Loading comparison…'}</span>
-        </div>
+        <p className={styles.hint}>{ready ? 'drag models to rotate' : 'Loading comparison…'}</p>
       </>}
-      <figcaption className={styles.caption}>Two saved submissions for the same drawing, built with different editable feature trees. The animation illustrates their construction order; timing is synchronized for comparison.</figcaption>
     </figure>
   );
 }
