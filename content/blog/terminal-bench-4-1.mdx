@@ -20,7 +20,7 @@ The [4.0 leaderboard submissions](https://hub.harborframework.com/datasets/termi
 
 ## Verifier Improvements
 
-We addressed a number of issues identified in recent benchmark audits that called for hardening tasks against theoretical reward hacks.<sup><a style={{ textDecoration: "none" }} id="benchmark-audits-reference" href="#benchmark-audits-note" aria-label="Read the benchmark audits">*</a></sup> In our [Cracking Down on Reward Hacking](https://docs.harborframework.com/news/reward-hacking) post, we described our efforts to make many of these protections native in Harbor.
+We addressed a number of issues identified in recent benchmark audits that called for hardening tasks against theoretical reward hacks.<sup><a style={{ textDecoration: "none" }} id="benchmark-audits-reference" href="#benchmark-audits-note" aria-label="Read the benchmark audits">1</a></sup> In our [Cracking Down on Reward Hacking](https://docs.harborframework.com/news/reward-hacking) post, we described our efforts to make many of these protections native in Harbor.
 
 Forty-four tasks in Terminal Bench 4.0 run agent-authored code during verification. Executing code in the same process that grades its outputs can allow it to tamper with the evaluation. Consider the following scenarios:
 
@@ -28,7 +28,7 @@ Forty-four tasks in Terminal Bench 4.0 run agent-authored code during verificati
 - Artifacts could monkeypatch `pytest` so tests trivially pass by being skipped.
 - Executed code may leave a daemon that overwrites the reward file after grading.
 
-While we have not directly observed these types of exploits on the Terminal Bench leaderboard, we wanted to help developers secure their verifiers against these attacks. We developed the `Worker` class in RewardKit for secure code execution, as described below.
+While we have not directly observed the majority of these types of exploits on the Terminal Bench leaderboard, we wanted to help developers secure their verifiers against these attacks. We developed the `Worker` class in RewardKit for secure code execution, as described below.
 
 <GradingBoundaryDiagram />
 
@@ -38,9 +38,9 @@ See the [secure-python-worker example](https://github.com/harbor-framework/harbo
 
 ## Updated Leaderboard
 
-Our [regrade](https://hub.harborframework.com/jobs/6179005b-d9e6-5304-8eb3-5564518ac97b) resulted in 162 trials from the TB 4.0 leaderboard changing score. We manually reviewed these results and classified 134 as expected per the verifier changes we made, and 28 as attributable to measurement discrepancies between verifier runs. For these trials, we retained their original scores from the TB 4.0 leaderboard.<sup><a style={{ textDecoration: "none" }} id="regrade-review-reference" href="#regrade-review-note" aria-label="Read the note about incomplete regrades and run-to-run variation">*</a></sup>
+Our [regrade](https://hub.harborframework.com/jobs/6179005b-d9e6-5304-8eb3-5564518ac97b) resulted in 162 trials from the TB 4.0 leaderboard changing score. We manually reviewed these results and classified 134 as expected per the verifier changes we made, and 28 as attributable to measurement discrepancies between verifier runs. For these trials, we retained their original scores from the TB 4.0 leaderboard.<sup><a style={{ textDecoration: "none" }} id="regrade-review-reference" href="#regrade-review-note" aria-label="Read the note about incomplete regrades and run-to-run variation">2</a></sup>
 
-Regrading follows the below process, where an existing artifact is used in an updated verifier to assign a new score.<sup><a style={{ textDecoration: "none" }} id="verifier-flakes-reference" href="#verifier-flakes-note" aria-label="Read the note about additional verifier flakes">*</a></sup>
+Regrading follows the below process, where an existing artifact is used in an updated verifier to assign a new score.<sup><a style={{ textDecoration: "none" }} id="verifier-flakes-reference" href="#verifier-flakes-note" aria-label="Read the note about additional verifier flakes">3</a></sup>
 
 <GradingBoundaryDiagram regrade />
 
@@ -51,9 +51,9 @@ Regrading follows the below process, where an existing artifact is used in an up
 
 <FreecadConstructionComparison />
 
-Out of 11,550 total trials, only ~1.16% experienced a score change. Our takeaway is that the majority of the bugs and reward hacks we hardened against were not rampant in TB 4.0, and thus controlling for them did not drastically alter the existing scores. We plan to continuously improve Terminal Bench as we consider additional issues alongside the subject matter experts that authored tasks.
+Out of 11,550 total trials, only ~1.16% experienced a score change. Our takeaway is that the majority of the bugs and reward hacks we hardened against in TB 4.1 were not rampant in TB 4.0, and thus controlling for them did not drastically alter the existing leaderboard scores. We audit all Terminal Bench leaderboard submissions for many known cheat vectors and review verifiers for how robust they are to cheating during the task development process. We plan to continuously improve Terminal Bench as we consider additional issues alongside the subject matter experts that authored tasks as part of our [v5.0 milestone](https://github.com/harbor-framework/terminal-bench/milestone/3).
 
-See the full Terminal Bench 4.1 leaderboard [here](https://hub.harborframework.com/datasets/terminal-bench/terminal-bench?tab=leaderboard&leaderboard=4-1-0).
+See the full Terminal Bench 4.1 leaderboard [here](https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/5?tab=leaderboard&leaderboard=4-1-0).
 
 <RegradeWaffle />
 
@@ -65,7 +65,7 @@ We compared each agent’s updated score with the confidence interval published 
 
 Everything we do is in the open.
 
-Developing benchmark tasks without making them trivially easy is hard. We appreciate the OSS contributors who both reported issues and applied the rigor necessary to maintain a high bar of quality in Terminal Bench 4.1.
+Developing benchmark tasks without making them trivially easy is hard. We appreciate the OSS contributors who both reported issues and applied the rigor necessary to maintain a high bar in Terminal Bench 4.1.
 
 Minor version releases of Terminal Bench do not make agent-facing changes in the environments. As we look forward to Terminal Bench 5.0 and beyond, we’re excited to implement even more involved task developments and make the best software possible that pushes the frontier.
 
@@ -79,8 +79,8 @@ Special thanks to Walker Hughes for leading the release and Stephen Benjamin for
 
 <hr className="not-prose mt-12 mb-8 border-0 border-t border-border" />
 
-<p id="benchmark-audits-note" className="text-sm text-muted-foreground"><a style={{ textDecoration: "none" }} href="#benchmark-audits-reference" aria-label="Back to the benchmark audits reference">*</a> <a href="https://epoch.ai/benchmarks/terminal-bench-4/review">Epoch</a>, <a href="https://usetokenless.com/blog/envcheck/">Tokenless</a>, and <a href="https://preferencemodel.com/blog/terminal-bench-4-is-saturated/issues/">Preference Model</a>.</p>
+<p id="benchmark-audits-note" className="text-sm text-muted-foreground"><a style={{ textDecoration: "none" }} href="#benchmark-audits-reference" aria-label="Back to the benchmark audits reference">1</a> <a href="https://epoch.ai/benchmarks/terminal-bench-4/review">Epoch</a>, <a href="https://usetokenless.com/blog/envcheck/">Tokenless</a>, and <a href="https://preferencemodel.com/blog/terminal-bench-4-is-saturated/issues/">Preference Model</a>.</p>
 
-<p id="regrade-review-note" className="text-sm text-muted-foreground"><a style={{ textDecoration: "none" }} href="#regrade-review-reference" aria-label="Back to the regrade results">*</a> Errored trials or ones without stored artifacts retained their existing TB 4.0 score by default. The <a href="https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/5?tab=leaderboard&leaderboard=4-1-0">leaderboard</a> takes this into account by defaulting to the TB 4.0 score where regrade results were not available.</p>
+<p id="regrade-review-note" className="text-sm text-muted-foreground"><a style={{ textDecoration: "none" }} href="#regrade-review-reference" aria-label="Back to the regrade results">2</a> Errored trials or ones without stored artifacts retained their existing TB 4.0 score by default. The <a href="https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/5?tab=leaderboard&leaderboard=4-1-0">leaderboard</a> takes this into account by defaulting to the TB 4.0 score where regrade results were not available.</p>
 
-<p id="verifier-flakes-note" className="text-sm text-muted-foreground"><a style={{ textDecoration: "none" }} href="#verifier-flakes-reference" aria-label="Back to the regrading process">*</a> We also fixed several additional verifier flakes, which we found by regrading the TB 4.0 leaderboard against its own verifiers.</p>
+<p id="verifier-flakes-note" className="text-sm text-muted-foreground"><a style={{ textDecoration: "none" }} href="#verifier-flakes-reference" aria-label="Back to the regrading process">3</a> We also fixed several additional verifier flakes, which we found by regrading the TB 4.0 leaderboard against its own verifiers.</p>
