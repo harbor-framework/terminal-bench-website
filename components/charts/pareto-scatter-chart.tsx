@@ -17,14 +17,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
-  TERMINAL_BENCH_DATASET_VERSION,
-  TERMINAL_BENCH_LEADERBOARD,
-  TERMINAL_BENCH_PACKAGE,
   getAccessorValue,
   harborLeaderboardRowUrl,
   type LeaderboardRow,
+  type HomeBenchmark,
 } from "@/lib/leaderboard";
-import { harborJobUrl } from "@/lib/row-jobs";
 
 export type ParetoDatum = {
   id: string;
@@ -200,12 +197,11 @@ export type ParetoMarks = {
 };
 
 type ParetoScatterChartProps = {
+  benchmark: HomeBenchmark;
   data: ParetoDatum[];
   xAxisId: ParetoAxisId;
   yAxisId: ParetoAxisId;
   marks: ParetoMarks;
-  /** Row id -> Hub job id; rows are 1-1 with jobs so clicks open the job. */
-  jobIdByRow?: Record<string, string>;
   className?: string;
 };
 
@@ -220,10 +216,10 @@ type ActiveTip = {
 };
 
 export function ParetoScatterChart({
+  benchmark,
   data,
   xAxisId,
   yAxisId,
-  jobIdByRow,
   className,
   marks,
 }: ParetoScatterChartProps) {
@@ -539,14 +535,12 @@ export function ParetoScatterChart({
                   style={{ cursor: "pointer" }}
                   onClick={() =>
                     window.open(
-                      jobIdByRow?.[datum.id]
-                        ? harborJobUrl(jobIdByRow[datum.id]!)
-                        : harborLeaderboardRowUrl(
-                            TERMINAL_BENCH_PACKAGE,
-                            TERMINAL_BENCH_LEADERBOARD,
-                            datum.id,
-                            TERMINAL_BENCH_DATASET_VERSION,
-                          ),
+                      harborLeaderboardRowUrl(
+                        benchmark.package,
+                        benchmark.leaderboard,
+                        datum.id,
+                        benchmark.datasetVersion,
+                      ),
                       "_blank",
                       "noopener",
                     )

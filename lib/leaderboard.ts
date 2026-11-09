@@ -72,6 +72,14 @@ export type HomeBenchmark = {
 
 export const HOME_BENCHMARKS: HomeBenchmark[] = [
   {
+    id: '4.1',
+    label: 'Terminal-Bench 4.1',
+    package: 'terminal-bench/terminal-bench',
+    leaderboard: '4-1-0',
+    datasetVersion: '5',
+    runDataset: 'terminal-bench/terminal-bench@4.1.0',
+  },
+  {
     id: '4.0',
     label: 'Terminal-Bench 4.0',
     package: 'terminal-bench/terminal-bench',
@@ -105,7 +113,7 @@ export const HOME_BENCHMARKS: HomeBenchmark[] = [
   },
 ];
 
-export const DEFAULT_HOME_BENCHMARK_ID = '4.0';
+export const DEFAULT_HOME_BENCHMARK_ID = '4.1';
 
 export function homeBenchmarkById(id: string): HomeBenchmark {
   return (
@@ -114,9 +122,9 @@ export function homeBenchmarkById(id: string): HomeBenchmark {
   );
 }
 /** Hub dataset version backing the homepage leaderboard. */
-export const TERMINAL_BENCH_DATASET_VERSION = '4';
+export const TERMINAL_BENCH_DATASET_VERSION = '5';
 /** Hub path is org/package/leaderboard. */
-export const TERMINAL_BENCH_LEADERBOARD = '4-0-0';
+export const TERMINAL_BENCH_LEADERBOARD = '4-1-0';
 export const HARBOR_HUB_URL = 'https://hub.harborframework.com';
 /** Public Harbor Hub edge-function host (leaderboard-read does not require auth). */
 export const HARBOR_HUB_FUNCTIONS_URL =

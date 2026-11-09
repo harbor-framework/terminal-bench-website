@@ -61,13 +61,16 @@ export default function Layout({ children }: LayoutProps<'/'>) {
       )}
       suppressHydrationWarning
     >
-      <body className="flex flex-col min-h-screen font-sans antialiased">
+      <body
+        className="flex flex-col min-h-screen font-sans antialiased"
+        style={{ minHeight: 'max(100vh, var(--tb-home-min-height, 0px))' }}
+      >
         {/* Re-apply the view-snap height floor before scroll restoration so a
             reload on a short view doesn't clamp to a different position. */}
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "try{if(location.pathname==='/'){var v=sessionStorage.getItem('tb-home-min-height');if(v)document.body.style.minHeight=v+'px'}}catch(e){}",
+              "try{if(location.pathname==='/'){var v=sessionStorage.getItem('tb-home-min-height');if(v)document.documentElement.style.setProperty('--tb-home-min-height',v+'px')}}catch(e){}",
           }}
         />
         <AppProviders>

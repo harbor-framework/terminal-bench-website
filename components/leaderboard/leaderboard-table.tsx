@@ -34,9 +34,6 @@ import {
   useHomeBenchmark,
 } from '@/components/leaderboard/benchmark-select';
 import {
-  TERMINAL_BENCH_DATASET_VERSION,
-  TERMINAL_BENCH_LEADERBOARD,
-  TERMINAL_BENCH_PACKAGE,
   fetchLeaderboard,
   formatLeaderboardCell,
   getAccessorValue,
@@ -47,7 +44,6 @@ import {
   type LeaderboardColumnType,
   type LeaderboardRow,
 } from '@/lib/leaderboard';
-import { harborJobUrl, useRowJobIds } from '@/lib/row-jobs';
 import {
   fromUrlFilters,
   hiddenColumnsParser,
@@ -640,12 +636,6 @@ export function LeaderboardTable() {
     return effortMode === 'all' ? rows : keepBestEffortRows(rows);
   }, [data, effortMode, facets.numberBounds, filters]);
 
-  const rowIds = useMemo(
-    () => (data ? data.rows.map((row) => row.id) : []),
-    [data],
-  );
-  const jobIdByRow = useRowJobIds(rowIds);
-
   const tableColumns = useMemo(
     () => (data ? buildColumns(data.leaderboard.columns) : []),
     [data],
@@ -674,7 +664,7 @@ export function LeaderboardTable() {
   }, [data]);
 
   if (isPending) {
-    return <LeaderboardSkeleton />;
+    return <LeaderboardSkeleton benchmarkLabel={benchmark.label} />;
   }
 
   if (error || !data) {
@@ -692,18 +682,12 @@ export function LeaderboardTable() {
         data={filteredRows}
         emptyMessage="No leaderboard rows match the current filters."
         getRowId={(row) => row.id}
-        getRowHref={(row) => {
-          // Rows are 1-1 with Hub jobs; link straight to the job when resolved.
-          const jobId = jobIdByRow[row.id];
-          return jobId
-            ? harborJobUrl(jobId)
-            : harborLeaderboardRowUrl(
-                TERMINAL_BENCH_PACKAGE,
-                TERMINAL_BENCH_LEADERBOARD,
-                row.id,
-                TERMINAL_BENCH_DATASET_VERSION,
-              );
-        }}
+        getRowHref={(row) => harborLeaderboardRowUrl(
+          benchmark.package,
+          benchmark.leaderboard,
+          row.id,
+          benchmark.datasetVersion,
+        )}
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnVisibilityChange}
         tableContainerId={LEADERBOARD_EXPORT_TARGET_ID}

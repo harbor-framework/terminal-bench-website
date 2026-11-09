@@ -50,7 +50,7 @@ export default async function HomePage() {
             <Suspense
               fallback={
                 <h1 className="max-w-full whitespace-nowrap px-1 text-[clamp(1.25rem,8.6vw,2.25rem)] font-normal tracking-tighter uppercase sm:text-5xl md:text-7xl">
-                  TERMINAL-BENCH 4.0
+                  TERMINAL-BENCH 4.1
                 </h1>
               }
             >

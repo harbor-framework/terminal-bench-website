@@ -43,7 +43,6 @@ import {
   fetchLeaderboard,
   leaderboardQueryKey,
 } from "@/lib/leaderboard";
-import { useRowJobIds } from "@/lib/row-jobs";
 
 const parseParetoXAxis = parseAsStringLiteral(PARETO_X_AXIS_IDS);
 const PARETO_EXPORT_TARGET_ID = "terminal-bench-pareto-export";
@@ -113,12 +112,6 @@ export function ParetoView() {
 
   const { facets, filters, handleFiltersChange, filteredRows, toolbarColumns } =
     useLeaderboardFilters(data);
-
-  const rowIds = useMemo(
-    () => (data ? data.rows.map((row) => row.id) : []),
-    [data],
-  );
-  const jobIdByRow = useRowJobIds(rowIds);
 
   const chartData = useMemo(
     () => buildParetoData(filteredRows, xAxisId, yAxisId),
@@ -303,11 +296,11 @@ export function ParetoView() {
           </Select>
         </div>
         <ParetoScatterChart
+          benchmark={benchmark}
           data={chartData}
           xAxisId={xAxisId}
           yAxisId={yAxisId}
           marks={marks}
-          jobIdByRow={jobIdByRow}
           className="px-2 py-3"
         />
         <footer className="flex min-h-12 items-center justify-center border-t px-6 py-3 text-center text-sm text-muted-foreground">

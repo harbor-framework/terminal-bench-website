@@ -1,0 +1,31 @@
+.figure { margin: 2rem 0; border: 1px solid var(--border); padding: 20px 24px 16px; font-family: var(--font-google-sans-code), monospace; font-size: 11px; }
+.header { padding: 0; margin-bottom: 6px; font-family: inherit; font-size: 14.5px; line-height: normal; letter-spacing: .02em; text-align: left; font-weight: 700; }
+.header > span { font-family: var(--font-google-sans-code), monospace; font-weight: 700; }
+.scroll { min-width: 0; }
+.surface { position: relative; }
+.chart { display: block; width: 100%; outline-offset: 2px; }
+.task { font-family: var(--font-google-sans-code), monospace; font-size: 12px; fill: var(--foreground); }
+.taskLink, .taskLink:hover, .taskLink:active, .taskLink:visited { color: inherit; text-decoration: none; background: transparent; cursor: pointer; }
+.column { font-family: var(--font-google-sans-code), monospace; font-size: 12px; fill: var(--muted-foreground); }
+.gain { fill: #24985b; background: #24985b; }
+.loss { fill: #e5484d; background: #e5484d; }
+.chart rect { shape-rendering: crispEdges; cursor: pointer; }
+
+.positive { color: #24985b; fill: #24985b; }
+.negative { color: #e5484d; fill: #e5484d; }
+.neutral { color: var(--muted-foreground); fill: var(--muted-foreground); }
+.legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 0; margin-bottom: 12px; color: var(--muted-foreground); font-family: var(--font-google-sans-code), monospace; font-size: 11px; }
+.legend span { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+.legend i { display: inline-block; width: 11px; height: 11px; flex-shrink: 0; }
+.anchor { position: absolute; pointer-events: none; opacity: 0; width: 1px; height: 1px; }
+.tip { display: flex; flex-direction: column; gap: .25rem; line-height: 1.5; overflow-wrap: anywhere; }
+.tip p { margin: .25rem 0; }
+.tip small { padding-top: .5rem; margin-top: .25rem; color: var(--muted-foreground); }
+
+.chart { outline: none; }
+.links { display: flex; flex-wrap: wrap; gap: .5rem 1rem; padding-top: .5rem; margin-top: .25rem; }
+.links a { text-decoration: underline; text-underline-offset: 3px; }
+.close { position: absolute; top: .375rem; right: .5rem; padding: .125rem .375rem; font-size: 1rem; cursor: pointer; }
+.tip strong { padding-right: 1rem; }
+
+.figure .hint { margin: 12px 0 0; padding: 6px 10px; font-family: var(--font-google-sans-code), monospace; font-size: 12px; letter-spacing: .02em; color: var(--muted-foreground); text-align: center; }
