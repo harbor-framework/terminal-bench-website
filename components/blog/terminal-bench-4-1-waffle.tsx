@@ -73,7 +73,7 @@ export function RegradeWaffle() {
     {trial.reason && <p>{trial.reason}</p>}
     <div className={styles.links}>
       <a href={`https://hub.harborframework.com/jobs/${trial.job}/trials/${trial.id}`} target="_blank" rel="noopener noreferrer">Original TB 4.0 trial</a>
-      <a href={`https://hub.harborframework.com/jobs/6179005b-d9e6-5304-8eb3-5564518ac97b/trials/${trial.regradeId}`} target="_blank" rel="noopener noreferrer">Regrade trial</a>
+      <a href={`https://hub.harborframework.com/jobs/${trial.regradeJob}/trials/${trial.regradeId}`} target="_blank" rel="noopener noreferrer">Regrade trial</a>
     </div>
   </div>;
   const chart = (
