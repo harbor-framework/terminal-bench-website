@@ -35,7 +35,7 @@ for (const version of ['4.1', '4.0']) {
   test(`Pareto and table clicks open the TB ${version} submission row rather than a job`, () => {
     const benchmark = leaderboard.homeBenchmarkById(version);
     const id = '24f711aa-b0cc-4f09-8627-b5f70a27b73b';
-    const expected = `https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/${version === '4.1' ? 'latest' : '4'}/leaderboards/${benchmark.leaderboard}/rows/${id}`;
+    const expected = `https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/${version === '4.1' ? '5' : '4'}/leaderboards/${benchmark.leaderboard}/rows/${id}`;
     const table = callback('components/leaderboard/leaderboard-table.tsx', 'getRowHref', { benchmark });
     assert.equal(table({ id }), expected);
     const opened = [];

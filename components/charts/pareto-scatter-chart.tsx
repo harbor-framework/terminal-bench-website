@@ -539,7 +539,7 @@ export function ParetoScatterChart({
                         benchmark.package,
                         benchmark.leaderboard,
                         datum.id,
-                        benchmark.id === "4.1" ? "latest" : benchmark.datasetVersion,
+                        benchmark.datasetVersion,
                       ),
                       "_blank",
                       "noopener",

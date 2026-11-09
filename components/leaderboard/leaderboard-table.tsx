@@ -686,7 +686,7 @@ export function LeaderboardTable() {
           benchmark.package,
           benchmark.leaderboard,
           row.id,
-          benchmark.id === '4.1' ? 'latest' : benchmark.datasetVersion,
+          benchmark.datasetVersion,
         )}
         columnVisibility={columnVisibility}
         onColumnVisibilityChange={handleColumnVisibilityChange}
