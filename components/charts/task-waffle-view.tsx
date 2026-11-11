@@ -1126,8 +1126,7 @@ export function TaskWaffleView() {
     };
   }, [pairReady, benchmark.id]);
 
-  // Fixed tooltip width: the rendered width of the longest task name
-  // (semibold title) or error name, so the box never resizes while sweeping.
+  // Size every card to the longest task/model label; error messages wrap.
   const tipWidth = useMemo(() => {
     if (!snapshot || typeof document === "undefined") return 235;
     const context = document.createElement("canvas").getContext("2d");
@@ -1141,7 +1140,7 @@ export function TaskWaffleView() {
     for (const dom of snapshot.data.doms) {
       for (const task of dom.tasks) {
         measure(task.task, 600);
-        for (const trial of task.ts) if (trial.e) measure(trial.e, 400);
+        for (const trial of task.ts) measure(trial.m, 400);
       }
     }
     // px-3 padding on each side, plus a hair for rounding.
@@ -1524,17 +1523,17 @@ export function TaskWaffleView() {
                   align="start"
                   sideOffset={10}
                   variant="chart"
-                  className="pointer-events-none max-w-none"
+                  className="pointer-events-none max-w-[min(20rem,calc(100vw-2rem))]"
                   style={{ width: tipWidth }}
                 >
                   {tooltip ? (
                     <div className="flex w-full min-w-0 flex-col">
-                      <p className="mb-1 font-semibold whitespace-nowrap">
+                      <p className="mb-1 font-semibold break-words">
                         {tooltip.task}
                       </p>
                       <p className="truncate opacity-70">{tooltip.trial.m}</p>
                       <p
-                        className={`whitespace-nowrap ${
+                        className={`break-words ${
                           {
                             err: "text-[#e5484d]",
                             to: "text-[#f2872e]",
