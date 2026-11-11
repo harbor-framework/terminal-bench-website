@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 
 import { ParetoView } from '@/components/charts/pareto-view';
 import { TaskWaffleView } from '@/components/charts/task-waffle-view';
+import { cn } from '@/lib/utils';
 import {
   parseHomeView,
   type HomeViewId,
@@ -39,7 +40,10 @@ export function HomeView({ leaderboard }: HomeViewProps) {
   const [view] = useQueryState('view', parseHomeView);
 
   return (
-    <div className="flex w-full min-w-0 flex-col items-center gap-6">
+    <div className={cn(
+      'mx-auto flex w-full min-w-0 flex-col items-center gap-6',
+      view !== 'leaderboard' && 'max-w-5xl',
+    )}>
       <ViewContent view={view} leaderboard={leaderboard} />
     </div>
   );
