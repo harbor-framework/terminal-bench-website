@@ -26,9 +26,8 @@ import {
   leaderboardQueryKey,
 } from "@/lib/leaderboard";
 
-// Re-prerender with fresh leaderboard data every 5 minutes so the baked-in
-// snapshot matches what the client refetch returns (no visible swap).
-export const revalidate = 300;
+// Fetch current rows on each request so hidden entries never flash before hydration.
+export const revalidate = 0;
 
 export default async function HomePage() {
   const queryClient = new QueryClient();
