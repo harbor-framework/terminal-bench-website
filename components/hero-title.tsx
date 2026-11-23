@@ -63,7 +63,13 @@ export function HeroTitle() {
   return (
     <h1 className="max-w-full whitespace-nowrap px-1 text-[clamp(1.25rem,8.6vw,2.25rem)] font-normal tracking-tighter uppercase sm:text-5xl md:text-7xl">
       TERMINAL-BENCH{' '}
-      <span className="inline-flex items-baseline leading-none tracking-tighter tabular-nums">
+      <span className="sr-only">{benchmarkId}</span>
+      {/* The reel contains every digit; keep that decorative text out of snippets. */}
+      <span
+        aria-hidden="true"
+        data-nosnippet
+        className="inline-flex items-baseline leading-none tracking-tighter tabular-nums"
+      >
         {major}.
         <DigitReel initialFrom={Math.max(0, minor - 1)} to={minor} />
       </span>
